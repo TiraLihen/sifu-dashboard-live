@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Report — Sifu Tutor</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}
+  body{background:#05081e}
+  .toolbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    background:rgba(10,21,104,.9);backdrop-filter:blur(12px);padding:13px 22px;color:#fff;border-bottom:1px solid rgba(255,255,255,.15)}
+  .toolbar h1{font-size:16px;font-weight:800}.toolbar .sp{flex:1}
+  .toolbar input[type=date]{background:#0a1568;color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:9px;padding:7px 11px;font-size:13px;font-weight:600;color-scheme:dark;cursor:pointer}
+  .toolbar button{background:linear-gradient(135deg,#f15a29,#ff8a5b);color:#fff;border:none;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(241,90,41,.4)}
+  .toolbar button:hover{filter:brightness(1.08)}
+  .toolbar .status{font-size:12px;color:#cdd6ff}
+  .tbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .tbtn:hover{background:rgba(255,255,255,.22)}
+  .tbtn svg{width:15px;height:15px}
+  .tbtn.spin svg{animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .badge-live{display:inline-flex;align-items:center;gap:7px;background:rgba(1,181,116,.15);color:#22e6a0;border:1px solid rgba(1,181,116,.4);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+  .badge-live.err{background:rgba(238,93,80,.15);color:#ff8a7e;border-color:rgba(238,93,80,.4)}
+  .badge-live .dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .deck{padding:22px}
+  .sheet{width:297mm;min-height:209mm;margin:0 auto;background:#0b0f2d;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:9mm 11mm;position:relative;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+  .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:52px 52px;pointer-events:none}
+  .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;position:relative}
+  .head .ttl{font-size:25px;font-weight:900;letter-spacing:-.5px}
+  .head .dt{font-size:15px;color:#9fb0ff;font-weight:700;margin-top:2px}
+  .head img{height:42px}
+  .head .logoTxt{font-size:22px;font-weight:800}
+  .cols{display:grid;grid-template-columns:1.05fr 1.25fr;gap:16px;margin-top:9px;position:relative}
+  .sec-h{font-size:12px;font-weight:800;text-align:center;color:#fff;letter-spacing:1px;padding:6px;margin:0}
+  .unit{margin-bottom:8px;border-radius:10px;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.25)}
+  .utbl{width:100%;border-collapse:collapse;background:#fff;color:#0a1568;table-layout:fixed}
+  .utbl th{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#fff;padding:5px 12px;font-weight:800}
+  .utbl td{padding:4px 12px;font-size:12.5px;border-bottom:1px solid #eef1f8;height:26px}
+  .utbl tr:last-child td{border-bottom:none}
+  .empty{padding:10px 12px;font-size:12px;color:#8893c9;background:#fff;text-align:center}
+  /* cumulative */
+  .cum-h{font-size:13px;font-weight:800;text-align:center;letter-spacing:1px;color:#cdd6ff;margin-bottom:9px;text-transform:uppercase}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+  .ccard{background:#fff;color:#0a1568;border-radius:10px;overflow:hidden;text-align:center;display:flex;flex-direction:column}
+  .ccard .cl{font-size:9.5px;font-weight:800;color:#fff;padding:6px 5px;line-height:1.2;letter-spacing:.2px}
+  .ccard .cv{font-size:23px;font-weight:900;padding:8px 4px;flex:1;display:flex;align-items:center;justify-content:center}
+  .b-blue .cl{background:#0075ff}
+  .b-purple .cl{background:#8b5cf6}
+  .b-grey .cl{background:#64748b}
+  .b-red .cl{background:#ee5d50}
+  .b-dark .cl{background:#334155}
+  .b-orange .cl{background:#f15a29}
+  .b-green .cl{background:#01b574}
+  .b-gold .cl{background:#f59e0b}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:800}
+  .pill.ok{background:#d1fae5;color:#065f46}
+  .pill.warn{background:#fef3c7;color:#92400e}
+  .pill.danger{background:#fee2e2;color:#991b1b}
+  .note{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 14px;font-size:10.5px;color:#cdd6ff;margin-top:12px;position:relative;text-align:center;line-height:1.5}
+  .ovl{position:fixed;inset:0;background:rgba(5,8,30,.9);display:flex;align-items:center;justify-content:center;color:#cdd6ff;font-size:16px;z-index:20}
+  .ovl.hide{display:none}
+  @media print{ @page{size:A4 landscape;margin:0} body{background:#fff} .toolbar,.ovl{display:none!important} .deck{padding:0} .sheet{margin:0;border-radius:0;box-shadow:none} }
+</style>
+  @media print{ @page{size:A4 landscape;margin:0} body{background:#fff} .toolbar,.ovl{display:none!important} .deck{padding:0} .sheet{margin:0;border-radius:0;box-shadow:none} }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>📅 Daily Report — Admin Operations</h1>
+  <label style="font-size:12px;color:#cdd6ff">Date</label>
+  <input type="date" id="dateSel" onchange="load(this.value)">
+  <button id="refreshBtn" class="tbtn" onclick="load(document.getElementById('dateSel').value)" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>Refresh</button>
+  <button onclick="window.print()">🖨️ Save as PDF</button>
+  <span class="sp"></span>
+  <span class="badge-live" id="liveBadge"><span class="dot"></span> Live</span>
+  <span class="status" id="status">Loading…</span>
+</div>
+
+<div class="deck">
+  <div class="sheet">
+    <div class="grid-bg"></div>
+    <div class="head">
+      <div>
+        <div class="ttl">REPORT OVERVIEW — DAILY</div>
+        <div class="dt" id="repDate">—</div>
+      </div>
+      <div>
+        <div class="logoTxt" style="font-size:26px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:-1px; color:#fff;">
+          nak<span style="color:#22e6a0">ngaji</span><span style="font-size:12px; vertical-align:super; color:#22e6a0; font-weight:600;">™</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <!-- LEFT: daily per-agent -->
+      <div>
+        <div class="unit"><div class="sec-h" style="background:#0075ff">RCU</div><div id="tRCU"></div></div>
+        <div class="unit"><div class="sec-h" style="background:#b45309">THU — MANUAL</div><div id="tTHUm"></div></div>
+        <div class="unit"><div class="sec-h" style="background:#f15a29">THU — BROADCAST</div><div id="tTHUb"></div></div>
+        <div class="unit"><div class="sec-h" style="background:#0e7490">PCU</div><div id="tPCU"></div></div>
+      </div>
+      <!-- RIGHT: cumulative -->
+      <div>
+        <div class="cum-h" style="text-align:left; margin-bottom: 12px;">
+          <div style="font-size:14px; font-weight:800; color:#fff; letter-spacing:0.5px;">CUMULATIVE PERFORMANCE — <span id="cumMonth">—</span></div>
+          <div style="font-size:11px; color:#a0aec0; margin-top:2px; font-weight:500; text-transform:none; letter-spacing:0;">Whole-Month Snapshot</div>
+        </div>
+        <div class="cards">
+          <!-- Row 1 -->
+          <div class="ccard b-blue"><div class="cl">OPEN (ONLINE)</div><div class="cv" id="cOpenOn">—</div></div>
+          <div class="ccard b-blue"><div class="cl">OPEN (PHYSICAL)</div><div class="cv" id="cOpenPh">—</div></div>
+          <div class="ccard b-purple"><div class="cl">OVERALL REQUEST OPEN</div><div class="cv" id="cOverallOpen">—</div></div>
+          <div class="ccard b-grey"><div class="cl">PENDING TUTOR</div><div class="cv" id="cPendingTutor">—</div></div>
+          
+          <!-- Row 2 -->
+          <div class="ccard b-red"><div class="cl">CANCEL (ONLINE)</div><div class="cv" id="cCancelOn">—</div></div>
+          <div class="ccard b-red"><div class="cl">CANCEL (PHYSICAL)</div><div class="cv" id="cCancelPh">—</div></div>
+          <div class="ccard b-dark"><div class="cl">TOTAL CANCEL</div><div class="cv" id="cCancelTot">—</div></div>
+          <div class="ccard b-orange"><div class="cl">REPLACEMENT</div><div class="cv" id="cRepl">—</div></div>
+          
+          <!-- Row 3 -->
+          <div class="ccard b-green"><div class="cl">COMPLETED (ONLINE)</div><div class="cv" id="cCompOn">—</div></div>
+          <div class="ccard b-green"><div class="cl">COMPLETED (PHYSICAL)</div><div class="cv" id="cCompPh">—</div></div>
+          <div class="ccard b-green"><div class="cl">TOTAL COMPLETED</div><div class="cv" id="cCompTot">—</div></div>
+          <div class="ccard b-gold"><div class="cl">COMPLETION RATE</div><div class="cv" id="cCompRate">—</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="note" id="note">ℹ️ Date Sources — RCU: Timestamp (Ticket Entered RCU) · THU & PCU: Latest Update Col AC (When Agent Took Action) · Secure = Assigned Unit Moved To PCU · PCU Completed / Cancelled = Moved To Master Request · Cumulative Cards Use Timestamp (Whole Month <span id="noteMonth">—</span>)</div>
+  </div>
+</div>
+
+<div class="ovl" id="ovl">⏳ Fetching live data…</div>
+
+<script>
+const EXEC='https://script.google.com/macros/s/AKfycbwuxsm01-O5fDZ_QvY0NLF9AxOafZHZHH7QyS7VDxhxY-ULyKd93iEHlmiUrWSnpKPS/exec';
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let cbN=0;
+function jsonp(url){return new Promise((res,rej)=>{const cb='__d'+(Date.now()+(cbN++));const s=document.createElement('script');
+  const t=setTimeout(()=>{cl();rej(new Error('timeout'))},25000);
+  window[cb]=d=>{clearTimeout(t);cl();res(d)};function cl(){delete window[cb];if(s.parentNode)s.parentNode.removeChild(s)}
+  s.onerror=()=>{clearTimeout(t);cl();rej(new Error('net'))};s.src=url+(url.indexOf('?')>=0?'&':'?')+'callback='+cb;document.body.appendChild(s)})}
+const $=id=>document.getElementById(id);
+const fmt=n=>n==null?'—':Number(n).toLocaleString('en-US');
+function prettyDate(s){const p=String(s).split('-');return (+p[2])+' '+MONTHS[(+p[1])-1]+' '+p[0]}
+
+function unitTable(rows, roleName, c1, c2, color, summary){
+  if(!rows||!rows.length) return '<div class="empty">No activity logged for this date.</div>';
+  let h='<table class="utbl"><thead><tr style="background:'+color+'">' +
+        '<th style="text-align:left; width: 40%;">AGENT</th>' +
+        '<th style="text-align:center; width: 20%;">'+c1+'</th>' +
+        '<th style="text-align:center; width: 20%;">'+c2+'</th>' +
+        '<th style="text-align:center; width: 20%;">RATE</th>' +
+        '</tr></thead><tbody>';
+  
+  if (roleName === 'PCU') {
+    h='<table class="utbl"><thead><tr style="background:'+color+'">' +
+      '<th style="text-align:left; width: 30%;">AGENT</th>' +
+      '<th style="text-align:center; width: 18%;">'+c1+'</th>' +
+      '<th style="text-align:center; width: 34%;">'+c2+'</th>' +
+      '<th style="text-align:center; width: 18%;">RATE</th>' +
+      '</tr></thead><tbody>';
+  }
+
+  h+=rows.map(r=>{
+    const key = r.agent + '|' + roleName;
+    const sAgent = summary && summary.staff ? summary.staff[key] : null;
+    const rateVal = sAgent && sAgent.handled ? Math.round(sAgent.secured / sAgent.handled * 100) : 0;
+    const rateCls = rateVal >= 80 ? 'ok' : rateVal >= 60 ? 'warn' : 'danger';
+    const col2Val = (roleName === 'PCU') ? '—' : (r.b || 0);
+    
+    return '<tr>' +
+           '<td>' + r.agent + '</td>' +
+           '<td class="n">' + fmt(r.a) + '</td>' +
+           '<td class="n">' + col2Val + '</td>' +
+           '<td style="text-align:center"><span class="pill ' + rateCls + '">' + rateVal + '%</span></td>' +
+           '</tr>';
+  }).join('');
+  return h+'</tbody></table>';
+}
+
+function render(d, s){
+  $('repDate').textContent=prettyDate(d.date);
+  $('cumMonth').textContent=MONTHS[(+d.month.split('-')[1])-1]+' '+d.month.split('-')[0];
+  $('noteMonth').textContent=MONTHS[(+d.month.split('-')[1])-1]+' '+d.month.split('-')[0];
+  
+  const dd=d.daily||{};
+  $('tRCU').innerHTML=unitTable(dd.rcu, 'RCU', 'ASSIGNED', 'PENDING', '#0075ff', s);
+  $('tTHUm').innerHTML=unitTable(dd.thuManual, 'THU (Manual)', 'ASSIGN', 'SECURE', '#b45309', s);
+  $('tTHUb').innerHTML=unitTable(dd.thuBroadcast, 'THU (Broadcast)', 'ASSIGN', 'SECURE', '#f15a29', s);
+  $('tPCU').innerHTML=unitTable(dd.pcu, 'PCU', 'ASSIGN', 'CATEGORY BREAKDOWN', '#0e7490', s);
+  
+  const c=d.cumulative||{};
+  const valOpenOnline = (c.openOnline || 0) - (c.completedOnline || 0) - (c.cancelOnline || 0);
+  const valOpenPhysical = (c.openPhysical || 0) - (c.completedPhysical || 0) - (c.cancelPhysical || 0);
+  const valOverallOpen = (c.overallOpen || 0) - (c.completed || 0) - (c.totalCancel || 0);
+  const valPendingTutor = c.pendingTutor || 0;
+  const valCancelOnline = c.cancelOnline || 0;
+  const valCancelPhysical = c.cancelPhysical || 0;
+  const valTotalCancel = c.totalCancel || 0;
+  const valReplacement = c.replacement || 0;
+  const valCompletedOnline = c.completedOnline || 0;
+  const valCompletedPhysical = c.completedPhysical || 0;
+  const valTotalCompleted = c.completed || 0;
+  const valIntake = c.overallOpen || 0;
+  const valCompletionRate = valIntake ? Math.round(valTotalCompleted / valIntake * 100) : 0;
+
+  $('cOpenOn').textContent=fmt(valOpenOnline);
+  $('cOpenPh').textContent=fmt(valOpenPhysical);
+  $('cOverallOpen').textContent=fmt(valOverallOpen);
+  $('cPendingTutor').textContent=fmt(valPendingTutor);
+  $('cCancelOn').textContent=fmt(valCancelOnline);
+  $('cCancelPh').textContent=fmt(valCancelPhysical);
+  $('cCancelTot').textContent=fmt(valTotalCancel);
+  $('cRepl').textContent=fmt(valReplacement);
+  $('cCompOn').textContent=fmt(valCompletedOnline);
+  $('cCompPh').textContent=fmt(valCompletedPhysical);
+  $('cCompTot').textContent=fmt(valTotalCompleted);
+  $('cCompRate').innerHTML=valCompletionRate + '<span style="font-size:14px;font-weight:700;margin-left:2px">%</span>';
+  
+  $('status').textContent='Live · '+prettyDate(d.date);
+}
+
+async function load(dateStr){
+  $('ovl').classList.remove('hide'); $('status').textContent='Loading '+dateStr+'…';
+  var rb=$('refreshBtn'); if(rb)rb.classList.add('spin');
+  var lb=$('liveBadge'); if(lb)lb.classList.remove('err');
+  try{
+    const targetMonth = dateStr.slice(0, 7);
+    const [d, s] = await Promise.all([
+      jsonp(EXEC+'?daily='+dateStr),
+      jsonp(EXEC+'?summary='+targetMonth)
+    ]);
+    render(d, s);
+  }
+  catch(e){ $('status').textContent='⚠️ Could not load data'; if(lb)lb.classList.add('err'); console.error(e); }
+  finally{ $('ovl').classList.add('hide'); if(rb)rb.classList.remove('spin'); }
+}
+(function init(){
+  const now=new Date();
+  const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  $('dateSel').value=today;
+  load(today);
+})();
+</script>
+</body>
+</html>
