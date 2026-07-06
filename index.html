@@ -42,7 +42,7 @@
   .preset{background:var(--panel);color:var(--muted);border:1px solid var(--line);padding:6px 11px;border-radius:20px;font-size:12px;cursor:pointer;font-weight:600}
   .preset:hover{color:var(--txt)}.preset.active{background:var(--accent);color:#fff;border-color:var(--accent)}
   .filter-info{margin-left:auto;font-size:12px;color:var(--muted)}
-  main{margin-left:var(--side);padding:26px 30px;max-width:1400px;min-width:0}
+  main{margin-left:var(--side);padding:26px 30px;min-width:0}
   nav,header,.filterbar,main{transition:margin-left .22s ease,width .22s ease}
   .panel,.kpi,.row>*{min-width:0}
   /* mini sidebar — collapse to icon-only rail (tabs still clickable) */
@@ -73,9 +73,9 @@
   .kpi.b5 .kico{background:rgba(88,44,255,.18)}.kpi.b5 .kico svg{fill:#9F7AEA}
   .kpi.b6 .kico{background:rgba(33,212,253,.15)}.kpi.b6 .kico svg{fill:var(--info)}
   .row{display:grid;gap:16px;margin-bottom:18px}.row.c2{grid-template-columns:1fr 1fr}.row.c3{grid-template-columns:1fr 1fr 1fr}
-  @media(max-width:1000px){.row.c2,.row.c3{grid-template-columns:1fr}}
+  #dailyReportRow{grid-template-columns:1.05fr 1.25fr;align-items:start;position:relative;z-index:1;width:100%}
   .row.main-grid{grid-template-columns:1.6fr 1fr;align-items:stretch}
-  @media(max-width:1000px){.row.main-grid{grid-template-columns:1fr}}
+  @media(max-width:1250px){.row.c2,.row.c3,#dailyReportRow,.row.main-grid{grid-template-columns:1fr}}
   .panel{background:var(--panel);backdrop-filter:blur(40px);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 20px 40px rgba(0,0,0,.35);transition:transform .25s,border-color .25s,box-shadow .25s}
   .panel:hover{transform:translateY(-2px);border-color:rgba(0,117,255,.4);box-shadow:0 0 0 1px rgba(0,117,255,.28),0 22px 48px rgba(0,117,255,.15)}
   .panel h3{font-size:14.5px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
@@ -113,6 +113,18 @@
   .wf-stat{display:flex;flex-direction:column;background:rgba(255,255,255,.13);border-radius:11px;padding:9px 13px}
   .wf-stat .wf-l{font-size:11.5px;color:rgba(255,255,255,.85);font-weight:600}
   .wf-stat .wf-v{font-size:19px;font-weight:800;color:#fff;margin-top:2px}
+  /* Cumulative cards inside report tab */
+  .ccard{background:#fff;color:#0a1568;border-radius:10px;overflow:hidden;text-align:center;display:flex;flex-direction:column;min-width:0;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+  .ccard .cl{font-size:9.5px;font-weight:800;color:#fff;padding:6px 5px;line-height:1.2;letter-spacing:.2px}
+  .ccard .cv{font-size:22px;font-weight:900;padding:8px 4px;flex:1;display:flex;align-items:center;justify-content:center;color:#0a1568}
+  .b-blue .cl{background:#0075ff}
+  .b-purple .cl{background:#8b5cf6}
+  .b-grey .cl{background:#64748b}
+  .b-red .cl{background:#ee5d50}
+  .b-dark .cl{background:#334155}
+  .b-orange .cl{background:#f15a29}
+  .b-green .cl{background:#01b574}
+  .b-gold .cl{background:#f59e0b}
   .hot-banner{background:linear-gradient(135deg,rgba(0,117,255,.20),rgba(88,44,255,.16));border:1px solid rgba(255,255,255,.16);font-size:14.5px;line-height:1.7}
   /* === Action Overview redesign === */
   .action-banner{display:flex;align-items:center;justify-content:space-between;gap:20px;border-radius:var(--radius);padding:22px 28px;margin-bottom:22px;background:linear-gradient(110deg,#e8443a 0%,#d12d6e 55%,#8b3df0 100%);box-shadow:0 16px 40px rgba(180,40,80,.35);flex-wrap:wrap}
@@ -203,6 +215,68 @@
     main{padding:16px 12px}
     .panel{padding:14px 12px}
     .mcard{padding:14px 12px}
+  }
+  
+  /* Print styling for printing the Daily Report sheet only */
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 10mm;
+    }
+    /* Hide all UI elements, sidebars, controls and other tabs when printing */
+    #nav,
+    header,
+    .filterbar,
+    .sec-title,
+    .sec-desc,
+    button,
+    input,
+    select,
+    .toolbar,
+    .preset,
+    .filter-info,
+    #overview,
+    #hotspots,
+    #daily,
+    #units,
+    #staff,
+    #trend,
+    #monthly,
+    #risk,
+    #data,
+    #dups,
+    #links,
+    #settings,
+    #loader {
+      display: none !important;
+    }
+    
+    /* Make sure dailyReportSheet is visible and fills the printable page */
+    #dailyReportSheet,
+    #dailyReportSheet * {
+      visibility: visible !important;
+    }
+    
+    #dailyReportSheet {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 15px !important;
+      border: none !important;
+      box-shadow: none !important;
+      background: #0b0f2d !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      zoom: 82% !important; /* Scale down to fit single page */
+    }
+    
+    .unit {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
   }
 </style>
 </head>
@@ -347,6 +421,8 @@
     <h2 class="sec-title">👥 Staff Workload <span class="tag" style="font-size:12px;color:var(--muted)">· Contribution mode</span></h2>
     <p class="sec-desc">Each staff member gets credit for EVERY request they touch. A single request can be counted across more than one unit — so the overall total exceeds the number of requests. By date range.</p>
     <div class="note">ℹ️ <b>Handled</b> = requests touched (workload). <b>Current</b> = ticket from this month (by Timestamp). <b>Outcome</b> by role: <b>RCU</b> = moved to THU · <b>THU</b> = Tutor Secured · <b>PCU</b> = Done Share Profile & above. Misspelled names = separate staff.</div>
+
+
     <div class="kpi-grid" id="roleKpis"></div>
     <div class="row c2">
       <div class="panel"><h3>Total Workload by Unit/Role <span class="tag">contribution</span></h3><div class="chart-wrap"><canvas id="chRole"></canvas></div></div>
@@ -408,14 +484,90 @@
   </section>
 
   <section id="report">
-    <h2 class="sec-title">📄 Daily Report (Auto)</h2>
-    <p class="sec-desc">Select a staff member → figures & list of Request IDs are generated automatically from live data, using the unit template. Cohort by the <b>date range</b> above (suggested "This month" or "All").</p>
-    <div class="toolbar">
-      <label class="small">Staff:</label>
-      <select id="repStaff" onchange="renderReport()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;min-width:200px"><option value="">— Select staff —</option></select>
-      <button class="btn ghost sm" id="copyBtn" onclick="copyReport()">📋 Copy Report Text</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h2 class="sec-title" style="margin-bottom:2px;">📄 Daily Report (Auto)</h2>
+        <p class="sec-desc" style="margin-bottom:0;">Synchronized with the date selector below or the date filters at the top.</p>
+      </div>
     </div>
-    <div id="reportBody"></div>
+
+    <!-- Date selector and Save as PDF button -->
+    <div style="display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-bottom: 12px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:12.5px; font-weight:700; color:#8893c9;">Report Date:</span>
+        <input type="date" id="repDateSel" style="background:#0f1535; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:6px 10px; font-size:12.5px; font-weight:700; outline:none;">
+      </div>
+      <button class="btn sm" onclick="printDailyReportSheet()" style="background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px;">
+        📄 Save as PDF
+      </button>
+    </div>
+
+    <!-- Daily report sheet -->
+    <div class="sheet" id="dailyReportSheet" style="width: 100%; background:#0b0f2d; color:#fff; border:1px solid var(--line); border-radius:14px; padding:24px; position:relative; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.5); margin-bottom: 20px;">
+      <div class="grid-bg" style="position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px); background-size:52px 52px; pointer-events:none;"></div>
+      <div class="head" style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 20px; position:relative; z-index:1;">
+        <div>
+          <div style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px;">REPORT OVERVIEW — DAILY</div>
+          <div style="font-size: 14px; color: var(--info); font-weight: 700; margin-top: 2px;" id="repDateHeader">—</div>
+        </div>
+        <div>
+          <img src="sifututor_logo.png" alt="SifuTutor" style="height: 42px; display: block;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logoTxt" style="display:none; font-size:24px; font-weight:800; color:#fff;">sif<span style="color:#f15a29">u</span>tutor</div>
+        </div>
+      </div>
+
+      <div id="dailyReportRow" class="row">
+        <!-- LEFT: agent daily tables -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div class="unit" style="border-radius:10px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.25);"><div style="font-size:12px; font-weight:800; text-align:center; color:#fff; letter-spacing:1px; padding:6px; background:#0075ff;">RCU</div><div id="repRCUTable"></div></div>
+          <div class="unit" style="border-radius:10px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.25);"><div style="font-size:12px; font-weight:800; text-align:center; color:#fff; letter-spacing:1px; padding:6px; background:#b45309;">THU — MANUAL</div><div id="repTHUmTable"></div></div>
+          <div class="unit" style="border-radius:10px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.25);"><div style="font-size:12px; font-weight:800; text-align:center; color:#fff; letter-spacing:1px; padding:6px; background:#f15a29;">THU — BROADCAST</div><div id="repTHUbTable"></div></div>
+          <div class="unit" style="border-radius:10px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.25);"><div style="font-size:12px; font-weight:800; text-align:center; color:#fff; letter-spacing:1px; padding:6px; background:#0e7490;">PCU</div><div id="repPCUTable"></div></div>
+        </div>
+
+        <!-- RIGHT: cumulative MTD snapshot -->
+        <div>
+          <div style="text-align:left; margin-bottom: 14px;">
+            <div style="font-size:13.5px; font-weight:800; color:#fff; letter-spacing:0.5px; text-transform:uppercase;">CUMULATIVE PERFORMANCE — <span id="repCumMonthHeader">—</span></div>
+            <div style="font-size:11px; color:var(--muted); margin-top:2px; font-weight:500;">Whole-Month Snapshot</div>
+          </div>
+          <div class="cards" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
+            <!-- Row 1 -->
+            <div class="ccard b-blue"><div class="cl">OPEN (ONLINE)</div><div class="cv" id="rcOpenOn">—</div></div>
+            <div class="ccard b-blue"><div class="cl">OPEN (PHYSICAL)</div><div class="cv" id="rcOpenPh">—</div></div>
+            <div class="ccard b-purple"><div class="cl">TOTAL REQUEST</div><div class="cv" id="rcOverallOpen">—</div></div>
+            <div class="ccard b-grey"><div class="cl">PENDING TUTOR</div><div class="cv" id="rcPendingTutor">—</div></div>
+            
+            <!-- Row 2 -->
+            <div class="ccard b-red"><div class="cl">CANCEL (ONLINE)</div><div class="cv" id="rcCancelOn">—</div></div>
+            <div class="ccard b-red"><div class="cl">CANCEL (PHYSICAL)</div><div class="cv" id="rcCancelPh">—</div></div>
+            <div class="ccard b-dark"><div class="cl">TOTAL CANCEL</div><div class="cv" id="rcCancelTot">—</div></div>
+            <div class="ccard b-orange"><div class="cl">REPLACEMENT</div><div class="cv" id="rcRepl">—</div></div>
+            
+            <!-- Row 3 -->
+            <div class="ccard b-green"><div class="cl">COMPLETED (ONLINE)</div><div class="cv" id="rcCompOn">—</div></div>
+            <div class="ccard b-green"><div class="cl">COMPLETED (PHYSICAL)</div><div class="cv" id="rcCompPh">—</div></div>
+            <div class="ccard b-green"><div class="cl">TOTAL COMPLETED</div><div class="cv" id="rcCompTot">—</div></div>
+            <div class="ccard b-gold"><div class="cl">COMPLETION RATE</div><div class="cv" id="rcCompRate">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note" style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:10px 14px; font-size:11px; color:var(--muted); margin-top:20px; text-align:center; line-height:1.5; position:relative; z-index:1;">
+        ℹ️ Date Sources — RCU: Timestamp (Ticket Entered RCU) · THU & PCU: Latest Update Col AC (When Agent Took Action) · Secure = Assigned Unit Moved To PCU · PCU Completed / Cancelled = Moved To Master Request · Cumulative Cards Use Timestamp (Whole Month <span id="repNoteMonthHeader">—</span>)
+      </div>
+    </div>
+
+    <!-- WhatsApp report text generator (flat card format) -->
+    <div class="panel" style="padding:14px; margin-top: 20px; border: 1px solid rgba(0, 117, 255, 0.4); box-shadow: 0 0 15px rgba(0, 117, 255, 0.15); background: rgba(11, 15, 45, 0.4);">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <span style="font-size:12.5px; font-weight:700; color:var(--info);">💬 Generate Agent WhatsApp Report Text:</span>
+        <label class="small" style="margin-left:8px; color: #cbd5e1; font-weight: 600;">Staff:</label>
+        <select id="repStaff" onchange="renderReport()" style="background:var(--panel2); border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:6px 10px; font-size:12.5px; min-width:180px;"><option value="">— Select staff —</option></select>
+        <button class="btn ghost sm" id="copyBtn" onclick="copyReport()">📋 Copy Report Text</button>
+      </div>
+      <div id="reportBody" style="margin-top:14px;"></div>
+    </div>
   </section>
 
   <section id="risk">
@@ -513,6 +665,14 @@ let range={from:null,to:null,preset:'all'};
 function loadCfg(){ try{return JSON.parse(localStorage.getItem(CFG_KEY))||{}}catch(e){return{}} }
 function saveCfg(){ localStorage.setItem(CFG_KEY,JSON.stringify(cfg)); }
 
+function getMsiaDate(ts){
+  if(!ts) return null;
+  const d=new Date(ts);
+  if(isNaN(d.getTime())) return null;
+  const utc=d.getTime()+(d.getTimezoneOffset()*60000);
+  return new Date(utc+(3600000*8));
+}
+
 /* ===== JSONP ===== */
 function refresh(){
   const url=(cfg.url||DEFAULT_URL).trim(); if(!url){openSettings();return;}
@@ -534,19 +694,24 @@ function ingest(payload){
   RAW=payload;
   let tabs=payload.tabs||(payload.rows?[{sheet:payload.sheet,rows:payload.rows}]:[]);
   tabs=tabs.filter(t=>SKIP_TABS.indexOf(String(t.sheet||'').toLowerCase().trim())===-1);
-  const byId={}; let noId=0; const occ={};
+  const allRows=[]; let noId=0; const occ={};
   tabs.forEach(t=>(t.rows||[]).forEach(r=>{
-    const id=s(field(r,['Request ID']));
-    if(!id){ noId++; return; }            // abai baris tiada Request ID
-    const n=normalize(r,t.sheet), ex=byId[id];
-    (occ[id]=occ[id]||[]).push({tab:t.sheet,stage:n.stage,subj:n['Subject | Level'],cat:n.cat});
-    if(!ex) byId[id]=n;                    // dedup: 1 Request ID = 1 ticket
-    else{ // stage AKTIF (RCU/THU/PCU = case dibuka semula/replacement) mengatasi arkib (Completed/Cancelled)
-      const isActive=st=>st==='RCU'||st==='THU'||st==='PCU';
-      const rank=x=> isActive(x.stage)?((x.stage==='PCU'?3:x.stage==='THU'?2:1)+10):(x.stage==='Cancelled'?2:1);
-      if(rank(n)>rank(ex)||(rank(n)===rank(ex)&&n.ts>ex.ts)) byId[id]=n; }
+    let id=s(field(r,['Request ID']));
+    let isTempId = false;
+    if(!id){ 
+      noId++; 
+      id = 'TEMP_NO_ID_' + noId;
+      isTempId = true;
+    }
+    const n=normalize(r,t.sheet);
+    n.sheet = t.sheet;
+    if (isTempId) n['Request ID'] = ''; // kekalkan kosong untuk paparan jadual
+    allRows.push(n);
+    if (!isTempId) {
+      (occ[id]=occ[id]||[]).push({tab:t.sheet,stage:n.stage,subj:n['Subject | Level'],cat:n.cat});
+    }
   }));
-  ALL=Object.values(byId);
+  ALL=allRows;
   window._noIdCount=noId;
   // kesan SEMUA Request ID berganda (muncul >1 kali, sama ada dalam tab sama atau merentas tab)
   DUPLICATES=Object.entries(occ).filter(([id,arr])=>arr.length>1)
@@ -634,9 +799,9 @@ function normalize(r,tab){
   const tsAssignPCU=pd(['Date Assigned PCU']);
   const tsReengSecured=pd(['Date Reengagement Secured']);
   const age=ts?Math.max(0,Math.floor((Date.now()-ts)/86400000)):null;
-  const d=ts?new Date(ts):null;
-  const month=d?['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]:s(field(r,['Month']));
-  const dayKey=d?d.toISOString().slice(0,10):'';
+  const d=ts?getMsiaDate(ts):null;
+  const month=d?['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getUTCMonth()]:s(field(r,['Month']));
+  const dayKey=d?(d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')):'';
   return {'Request ID':s(field(r,['Request ID'])),unit,cat,stage,type,urgent,secured,pendingTutor,agent,role,agents,
     'Subject | Level':s(field(r,['Subject | Level','Subject Level'])),'Mode':s(field(r,['Mode'])),
     age,ts,tsMovedThu,tsSecured,tsProfileShared,tsCompleted,tsAssignRCU,tsAssignTHU,tsAssignTHU_BC,tsAssignPCU,tsReengSecured,month,dayKey};
@@ -694,7 +859,7 @@ function destroy(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 function orderedStages(obj){const keys=Object.keys(obj);const ord=STAGE_ORDER.filter(s=>obj[s]!=null);keys.forEach(k=>{if(ord.indexOf(k)<0)ord.push(k);});return ord;}
 
 /* ===== RENDER ===== */
-function renderAll(){renderOverview();renderDaily();renderUnits();renderStaff();renderTrend();renderMonthly();renderReport();renderRisk();renderDataFilters();renderData();renderDups();}
+function renderAll(){renderOverview();renderDaily();renderUnits();renderStaff();renderTrend();renderMonthly();renderReport();renderDailyReport();renderRisk();renderDataFilters();renderData();renderDups();}
 function renderMonthly(){
   const unit=document.getElementById('monUnit').value;
   const basis=document.getElementById('monBasis').value;
@@ -758,7 +923,7 @@ function renderDaily(){
   // Masuk = ikut Timestamp · Secured = ikut Date Secured · Completed = ikut Date Completed
   const inRange=ts=>{ if(range.from==null&&range.to==null) return true; if(ts==null) return false;
     if(range.from!=null&&ts<range.from) return false; if(range.to!=null&&ts>range.to) return false; return true; };
-  const dayOf=ts=>new Date(ts).toISOString().slice(0,10);
+  const dayOf=ts=>{ const d=getMsiaDate(ts); return d ? (d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')) : ''; };
   const masuk={}, sec={}, prof={}, comp={};
   ALL.forEach(r=>{
     if(r.ts && inRange(r.ts)){ const k=dayOf(r.ts); masuk[k]=(masuk[k]||0)+1; }
@@ -968,7 +1133,7 @@ function copyReport(){
   document.body.removeChild(ta);
   const b=document.getElementById('copyBtn');const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1500);
 }
-function monthKeyOf(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function monthKeyOf(ts){const d=getMsiaDate(ts); return d ? (d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')) : '';}
 function monthLabel(key){const p=key.split('-');return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][(+p[1])-1]+" '"+p[0].slice(2);}
 function roleColor(role){if(role.indexOf('RCU')>-1)return C.blue;if(role.indexOf('Broadcast')>-1)return C.pink;if(role.indexOf('Manual')>-1)return C.amber;if(role.indexOf('PCU')>-1)return C.cyan;return C.slate;}
 const TREND_PAL=['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
@@ -1234,44 +1399,71 @@ function isOutcome(role,r){
 function renderStaff(){
   // CONTRIBUTION: setiap agent dalam setiap request dikira (1 request boleh kredit >1 staff/unit)
   const map={}; const roleAgg={};
-  VIEW.forEach(r=>{
-    (r.agents||[]).forEach(a=>{
-      const ok=isOutcome(a.role,r);
-      let pnd=0, sec=0, comp=0, canc=0;
-      if (r.stage === 'Completed') {
-        comp = 1;
-      } else if (r.stage === 'Cancelled') {
-        canc = 1;
-      } else {
-        if (a.role.indexOf('RCU') > -1) {
-          if (r.stage === 'RCU') pnd = 1;
-          else if (r.stage === 'THU' || r.stage === 'PCU') sec = 1;
-        } else if (a.role.indexOf('THU') > -1) {
-          if (r.stage === 'RCU' || r.stage === 'THU') pnd = 1;
-          else if (r.stage === 'PCU') sec = 1;
-        } else if (a.role.indexOf('PCU') > -1) {
-          if (r.tsProfileShared != null) sec = 1;
-          else pnd = 1;
+  
+  const inRange = ts => {
+    if (range.from == null && range.to == null) return true;
+    if (ts == null) return false;
+    return ts >= range.from && ts <= range.to;
+  };
+
+  ALL.forEach(r => {
+    (r.agents||[]).forEach(a => {
+      const role = a.role;
+      
+      // Check if ticket was assigned/handled in this date range
+      const tsAssign = role.indexOf('RCU') > -1 ? r.tsAssignRCU
+                     : role.indexOf('Broadcast') > -1 ? r.tsAssignTHU_BC
+                     : role.indexOf('THU') > -1 ? r.tsAssignTHU
+                     : role.indexOf('PCU') > -1 ? r.tsAssignPCU : null;
+      const isHandled = tsAssign ? inRange(tsAssign) : inRange(r.ts);
+      
+      if (!isHandled) return; // ONLY count tickets assigned in this date range!
+
+      let pend = 0, sec = 0, comp = 0, canc = 0, ok = 0;
+      
+      if (role.indexOf('RCU') > -1) {
+        if (r.stage === 'RCU') pend = 1;
+        else if (r.stage === 'THU' || r.stage === 'PCU') { sec = 1; ok = 1; }
+        else if (r.stage === 'Completed') { comp = 1; ok = 1; }
+        else if (r.stage === 'Cancelled') canc = 1;
+      } else if (role.indexOf('THU') > -1) {
+        if (r.stage === 'RCU' || r.stage === 'THU') pend = 1;
+        else if (r.stage === 'PCU') { sec = 1; ok = 1; }
+        else if (r.stage === 'Completed') { comp = 1; ok = 1; }
+        else if (r.stage === 'Cancelled') canc = 1;
+      } else if (role.indexOf('PCU') > -1) {
+        if (r.stage === 'PCU') {
+          if (r.tsProfileShared == null) pend = 1;
+          else { sec = 1; ok = 1; }
         }
+        else if (r.stage === 'Completed') { comp = 1; ok = 1; }
+        else if (r.stage === 'Cancelled') canc = 1;
       }
-      const key=a.name+'||'+a.role;
-      if(!map[key]) map[key]={name:a.name,role:a.role,handled:0,out:0,pend:0,sec:0,comp:0,canc:0};
-      map[key].handled++; if(ok) map[key].out++;
-      map[key].pend += pnd;
+      
+      const key = a.name+'||'+role;
+      if(!map[key]) map[key] = {name:a.name,role:role,handled:0,out:0,pend:0,sec:0,comp:0,canc:0};
+      
+      map[key].handled++;
+      map[key].pend += pend;
       map[key].sec += sec;
       map[key].comp += comp;
       map[key].canc += canc;
-
-      if(!roleAgg[a.role]) roleAgg[a.role]={handled:0,out:0,pend:0,sec:0,comp:0,canc:0};
-      roleAgg[a.role].handled++; if(ok) roleAgg[a.role].out++;
-      roleAgg[a.role].pend += pnd;
-      roleAgg[a.role].sec += sec;
-      roleAgg[a.role].comp += comp;
-      roleAgg[a.role].canc += canc;
+      map[key].out += ok;
+      
+      if(!roleAgg[role]) roleAgg[role] = {handled:0,out:0,pend:0,sec:0,comp:0,canc:0};
+      roleAgg[role].handled++;
+      roleAgg[role].pend += pend;
+      roleAgg[role].sec += sec;
+      roleAgg[role].comp += comp;
+      roleAgg[role].canc += canc;
+      roleAgg[role].out += ok;
     });
   });
-  let arr=Object.values(map).map(x=>({...x,rate:x.handled?Math.round(x.out/x.handled*100):0}))
-    .sort((a,b)=>b.handled-a.handled);
+
+  let arr=Object.values(map).map(x=>({
+    ...x,
+    rate: x.handled ? Math.min(100, Math.round(x.out/x.handled*100)) : (x.out ? 100 : 0)
+  })).sort((a,b)=>b.handled-a.handled);
 
   // role filter dropdown
   const fRole=document.getElementById('fRole'); const cur=fRole.value;
@@ -1322,48 +1514,48 @@ function renderStaff(){
 
     let unitHeader = '';
     if (rl.indexOf('THU') > -1) {
-      unitHeader = `<thead><tr>
-        <th>Staff / Unit</th>
-        <th>% Unit</th>
-        <th>Handled</th>
-        <th style="color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In Stage)</span></th>
-        <th style="color:#21D4FD">🔵 Secured <span class="small" style="color:#A0AEC0">(THU → PCU)</span></th>
-        <th style="color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
-        <th style="color:#EE5D50">🔴 Cancelled</th>
-        <th>Rate ✓</th>
+      unitHeader = `<thead><tr style="background:rgba(255,255,255,0.03);">
+        <th style="width:22%; padding:10px 12px; text-align:left;">Staff / Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">% Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">Handled</th>
+        <th style="width:13%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In Stage)</span></th>
+        <th style="width:16%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Secured <span class="small" style="color:#A0AEC0">(THU → PCU)</span></th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#EE5D50">🔴 Cancelled</th>
+        <th style="width:9%; padding:10px 12px; text-align:center;">Rate ✓</th>
       </tr></thead>`;
     } else if (rl === 'RCU') {
-      unitHeader = `<thead><tr>
-        <th>Staff / Unit</th>
-        <th>% Unit</th>
-        <th>Handled</th>
-        <th style="color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In RCU)</span></th>
-        <th style="color:#21D4FD">🔵 Moved <span class="small" style="color:#A0AEC0">(RCU → THU)</span></th>
-        <th style="color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
-        <th style="color:#EE5D50">🔴 Cancelled</th>
-        <th>Rate ✓</th>
+      unitHeader = `<thead><tr style="background:rgba(255,255,255,0.03);">
+        <th style="width:22%; padding:10px 12px; text-align:left;">Staff / Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">% Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">Handled</th>
+        <th style="width:13%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In RCU)</span></th>
+        <th style="width:16%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Moved <span class="small" style="color:#A0AEC0">(RCU → THU)</span></th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#EE5D50">🔴 Cancelled</th>
+        <th style="width:9%; padding:10px 12px; text-align:center;">Rate ✓</th>
       </tr></thead>`;
     } else if (rl === 'PCU') {
-      unitHeader = `<thead><tr>
-        <th>Staff / Unit</th>
-        <th>% Unit</th>
-        <th>Handled</th>
-        <th style="color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(At PCU)</span></th>
-        <th style="color:#21D4FD">🔵 Shared <span class="small" style="color:#A0AEC0">(Profile Shared)</span></th>
-        <th style="color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
-        <th style="color:#EE5D50">🔴 Cancelled</th>
-        <th>Rate ✓</th>
+      unitHeader = `<thead><tr style="background:rgba(255,255,255,0.03);">
+        <th style="width:22%; padding:10px 12px; text-align:left;">Staff / Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">% Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">Handled</th>
+        <th style="width:13%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(At PCU)</span></th>
+        <th style="width:16%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Shared <span class="small" style="color:#A0AEC0">(Profile Shared)</span></th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#EE5D50">🔴 Cancelled</th>
+        <th style="width:9%; padding:10px 12px; text-align:center;">Rate ✓</th>
       </tr></thead>`;
     } else {
-      unitHeader = `<thead><tr>
-        <th>Staff / Unit</th>
-        <th>% Unit</th>
-        <th>Handled</th>
-        <th style="color:#FFB547">🟠 Pending</th>
-        <th style="color:#21D4FD">🔵 Secured / Action</th>
-        <th style="color:#01B574">🟢 Completed</th>
-        <th style="color:#EE5D50">🔴 Cancelled</th>
-        <th>Rate ✓</th>
+      unitHeader = `<thead><tr style="background:rgba(255,255,255,0.03);">
+        <th style="width:22%; padding:10px 12px; text-align:left;">Staff / Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">% Unit</th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">Handled</th>
+        <th style="width:13%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending</th>
+        <th style="width:16%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Secured / Action</th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#01B574">🟢 Completed</th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#EE5D50">🔴 Cancelled</th>
+        <th style="width:9%; padding:10px 12px; text-align:center;">Rate ✓</th>
       </tr></thead>`;
     }
 
@@ -1372,29 +1564,29 @@ function renderStaff(){
       const displayName = (rl === 'PCU')
         ? `<span style="cursor:pointer; color:var(--info); font-weight:600; text-decoration:underline;" onclick="openPcuModal('${s.name}')">${s.name}</span>`
         : s.name;
-      return `<tr><td style="border-left:6px solid ${col}44;padding-left:26px">${displayName}</td>
-        <td style="color:#A0AEC0;font-size:12.5px">${pctUnit}% Unit</td>
-        <td style="font-weight:bold">${s.handled}</td>
-        <td style="color:#FFB547;font-weight:600">${s.pend}</td>
-        <td style="color:#21D4FD;font-weight:600">${s.sec}</td>
-        <td style="color:#01B574;font-weight:600">${s.comp}</td>
-        <td style="color:#EE5D50;font-weight:600">${s.canc}</td>
-        <td><span class="pill ${cls}">${s.rate}%</span></td></tr>`;}).join('');
+      return `<tr style="background:rgba(255,255,255,0.015);"><td style="border-left:6px solid ${col}44; padding:10px 12px 10px 26px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; color:#fff;">${displayName}</td>
+        <td style="color:#A0AEC0; font-size:12.5px; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-variant-numeric:tabular-nums;">${pctUnit}% Unit</td>
+        <td style="font-weight:700; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; color:#e2e8f0; font-variant-numeric:tabular-nums;">${s.handled}</td>
+        <td style="color:#FFB547; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.pend}</td>
+        <td style="color:#21D4FD; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.sec}</td>
+        <td style="color:#01B574; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.comp}</td>
+        <td style="color:#EE5D50; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.canc}</td>
+        <td style="text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06);"><span class="pill ${cls}">${s.rate}%</span></td></tr>`;}).join('');
 
-    html += `<table class="staff-tbl-nested" style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:28px">
+    html += `<table class="staff-tbl-nested" style="width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:28px; table-layout:fixed; border:1px solid rgba(255,255,255,0.08); background:rgba(15,23,42,0.5);">
       ${unitHeader}
       <tbody>
-        <tr style="background:${col}26;border-top:3px solid ${col}">
-          <td style="border-left:6px solid ${col}">
-            <span style="color:${col};font-weight:800;text-transform:uppercase;letter-spacing:.7px;font-size:13.5px">${rl}</span>
-            <span class="small"> · ${list.length} staff</span></td>
-          <td></td>
-          <td style="font-weight:800;font-size:15px">${th}</td>
-          <td style="font-weight:800;color:#FFB547">${tpend}</td>
-          <td style="font-weight:800;color:#21D4FD">${tsec}${rl.indexOf('THU')>-1?'<div class="small" style="font-weight:400;font-size:10.5px;color:#A0AEC0;margin-top:2px">At PCU Now</div>':''}</td>
-          <td style="font-weight:800;color:#01B574">${tcomp}</td>
-          <td style="font-weight:800;color:#EE5D50">${tcanc}</td>
-          <td><span class="pill ${trc}" style="font-size:12px">${tr}%</span></td>
+        <tr style="background:${col}22; border-top:2px solid ${col}; border-bottom:1px solid rgba(255,255,255,0.08);">
+          <td style="border-left:6px solid ${col}; padding:11px 12px; font-weight:800; text-transform:uppercase; letter-spacing:.7px; font-size:13px; color:#fff;">
+            <span style="color:${col};">${rl}</span>
+            <span class="small" style="font-weight:400; color:var(--muted); font-size:11px; text-transform:none; margin-left:4px;">· ${list.length} staff</span></td>
+          <td style="text-align:center; padding:11px 12px;"></td>
+          <td style="font-weight:800; font-size:14.5px; text-align:center; padding:11px 12px; color:#fff; font-variant-numeric:tabular-nums;">${th}</td>
+          <td style="font-weight:800; color:#FFB547; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tpend}</td>
+          <td style="font-weight:800; color:#21D4FD; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tsec}${rl.indexOf('THU')>-1?'<div class="small" style="font-weight:400;font-size:10px;color:#A0AEC0;margin-top:2px;text-transform:none;letter-spacing:0;">At PCU Now</div>':''}</td>
+          <td style="font-weight:800; color:#01B574; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcomp}</td>
+          <td style="font-weight:800; color:#EE5D50; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcanc}</td>
+          <td style="text-align:center; padding:11px 12px;"><span class="pill ${trc}" style="font-size:12px">${tr}%</span></td>
         </tr>
         ${tbodyRows}
       </tbody>
@@ -1587,8 +1779,15 @@ document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',(
   document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('main section').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+  if(b.dataset.tab==='report')renderDailyReport();
   if(window.innerWidth<=1024) document.body.classList.remove('nav-open'); }));
 document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.p)));
+const repDateSelEl = document.getElementById('repDateSel');
+if (repDateSelEl) {
+  repDateSelEl.addEventListener('change', function() {
+    renderDailyReport(this.value);
+  });
+}
 
 // menu toggle: drawer overlay on mobile, icon-rail on desktop
 function toggleNav(){
@@ -1599,6 +1798,209 @@ document.addEventListener('click',function(e){
   if(window.innerWidth<=1024 && document.body.classList.contains('nav-open') && !e.target.closest('#nav') && !e.target.closest('#navBurger'))
     document.body.classList.remove('nav-open');
 });
+function renderDailyReport(dateStr) {
+  if (!dateStr) {
+    if (range && range.from) {
+      const d = new Date(range.from);
+      dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    } else {
+      const now = new Date();
+      dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    }
+  }
+  const repDateSel = document.getElementById('repDateSel');
+  if (repDateSel) repDateSel.value = dateStr;
+  
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const prettyDate = (s) => {
+    const p = String(s).split('-');
+    return (+p[2]) + ' ' + MONTHS[(+p[1]) - 1] + ' ' + p[0];
+  };
+  
+  document.getElementById('repDateHeader').textContent = prettyDate(dateStr);
+  const targetMonth = dateStr.slice(0, 7);
+  const monthName = MONTHS[(+targetMonth.split('-')[1]) - 1] + ' ' + targetMonth.split('-')[0];
+  document.getElementById('repCumMonthHeader').textContent = monthName;
+  document.getElementById('repNoteMonthHeader').textContent = monthName;
+  
+  const dStr = (v) => {
+    const d = getMsiaDate(v);
+    return d ? (d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0')) : '';
+  };
+  
+  const rcuMap = {}, thuMMap = {}, thuBMap = {}, pcuMap = {};
+  const addAct = (m, agent, field, catVal) => {
+    if (!agent) return;
+    if (!m[agent]) m[agent] = { agent: agent, a: 0, b: 0, cats: {} };
+    m[agent][field]++;
+    if (field === 'a' && catVal) {
+      m[agent].cats[catVal] = (m[agent].cats[catVal] || 0) + 1;
+    }
+  };
+  
+  let tOn = 0, tPh = 0, cOn = 0, cPh = 0, xOn = 0, xPh = 0, pend = 0, repl = 0, shared = 0;
+  const localStaffMap = {};
+  
+  ALL.forEach(r => {
+    const rDate = r.ts ? dStr(r.ts) : '';
+    const rMKey = rDate.slice(0, 7);
+    const isOnline = String(r['Mode'] || '').toLowerCase().indexOf('online') > -1;
+    
+    const getAg = (role) => {
+      const found = (r.agents || []).find(a => a.role === role);
+      return found ? found.name : '';
+    };
+    const agRCU = getAg('RCU');
+    const agTHUm = getAg('THU (Manual)');
+    const agTHUb = getAg('THU (Broadcast)');
+    const agPCU = getAg('PCU');
+ 
+    if (dStr(r.ts) === dateStr && agRCU) {
+      addAct(rcuMap, agRCU, 'a');
+      if (r.stage === 'RCU') addAct(rcuMap, agRCU, 'b');
+    }
+    if (dStr(r.tsAssignTHU) === dateStr && agTHUm) addAct(thuMMap, agTHUm, 'a');
+    if (dStr(r.tsSecured) === dateStr && agTHUm) addAct(thuMMap, agTHUm, 'b');
+    
+    if (dStr(r.tsAssignTHU_BC) === dateStr && agTHUb) addAct(thuBMap, agTHUb, 'a');
+    if (dStr(r.tsSecured) === dateStr && agTHUb) addAct(thuBMap, agTHUb, 'b');
+    
+    if (dStr(r.tsAssignPCU) === dateStr && agPCU) addAct(pcuMap, agPCU, 'a', r.cat || '-');
+    if (dStr(r.tsProfileShared) === dateStr && agPCU) addAct(pcuMap, agPCU, 'b');
+    
+    if (rMKey === targetMonth) {
+      if (isOnline) tOn++; else tPh++;
+      if (r.stage === 'Completed') {
+        if (isOnline) cOn++; else cPh++;
+      } else if (r.stage === 'Cancelled') {
+        if (isOnline) xOn++; else xPh++;
+      } else if (r.stage === 'PCU') {
+        shared++;
+      } else {
+        pend++;
+      }
+      if (r.type === 'Replacement') repl++;
+    }
+
+    // Build local yearly staff map for calculating rates accurately (all-time / yearly overall KPI)
+    (r.agents || []).forEach(a => {
+      const role = a.role;
+      const key = a.name + '|' + role;
+      if (!localStaffMap[key]) localStaffMap[key] = { name: a.name, role: role, handled: 0, out: 0 };
+      
+      let ok = 0;
+      if (role.indexOf('RCU') > -1) {
+        if (r.stage !== 'RCU' && r.stage !== 'Cancelled') ok = 1;
+      } else if (role.indexOf('THU') > -1) {
+        if (r.stage !== 'RCU' && r.stage !== 'THU' && r.stage !== 'Cancelled') ok = 1;
+      } else if (role.indexOf('PCU') > -1) {
+        if (r.stage === 'Completed') ok = 1;
+      }
+      
+      localStaffMap[key].handled++;
+      localStaffMap[key].out += ok;
+    });
+  });
+  
+  const arrAct = (m) => Object.values(m).sort((x, y) => (y.a + y.b) - (x.a + x.b));
+  
+  const renderRepTable = (rows, roleName, c1, c2, color) => {
+    if(!rows||!rows.length) return '<div class="empty" style="padding:10px 12px; font-size:12px; color:#8893c9; background:rgba(15,23,42,0.4); text-align:center; border:1px solid rgba(255,255,255,0.08);">No activity logged for this date.</div>';
+    
+    let colWidths = (roleName === 'PCU') 
+      ? '<thead><tr style="background:'+color+'; color:#fff;"><th style="text-align:left; width:20%; padding:10px 12px;">AGENT</th><th style="text-align:center; width:12%; padding:10px 12px;">'+c1+'</th><th style="text-align:center; width:56%; padding:10px 12px;">'+c2+'</th><th style="text-align:center; width:12%; padding:10px 12px;">RATE</th></tr></thead>'
+      : '<thead><tr style="background:'+color+'; color:#fff;"><th style="text-align:left; width:40%; padding:10px 12px;">AGENT</th><th style="text-align:center; width:20%; padding:10px 12px;">'+c1+'</th><th style="text-align:center; width:20%; padding:10px 12px;">'+c2+'</th><th style="text-align:center; width:20%; padding:10px 12px;">RATE</th></tr></thead>';
+      
+    let h = '<table class="utbl" style="width:100%; border-collapse:collapse; background:rgba(15,23,42,0.5); color:#e2e8f0; table-layout:fixed; border:1px solid rgba(255,255,255,0.08);">' + colWidths + '<tbody>';
+    
+    h += rows.map(r => {
+      const key = r.agent + '|' + roleName;
+      let rateVal = 0;
+      if (localStaffMap[key]) {
+        const sAgent = localStaffMap[key];
+        rateVal = sAgent.handled ? Math.round(sAgent.out / sAgent.handled * 100) : 0;
+      } else if (SUMMARY && SUMMARY.staff && SUMMARY.staff[key]) {
+        const sAgent = SUMMARY.staff[key];
+        rateVal = sAgent.handled ? Math.round(sAgent.secured / sAgent.handled * 100) : 0;
+      }
+      const rateCls = rateVal >= 80 ? 'ok' : rateVal >= 60 ? 'warn' : 'danger';
+      let col2Val = '';
+      if (roleName === 'PCU') {
+        const catList = [];
+        if (r.cats) {
+          const sortedCats = Object.entries(r.cats).sort((x, y) => y[1] - x[1]);
+          sortedCats.forEach(([catName, cnt]) => {
+            let label = catName;
+            if (!label || label === '-') label = 'Uncategorized';
+            catList.push(
+              `<span style="display:inline-block; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#cbd5e1; border-radius:4px; padding:1px 5px; margin:1px; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer;" onclick="openPcuModal(\'${r.agent}\')">` +
+              `${label}: <span style="color:#00f0ff; font-weight:700;">${cnt}</span>` +
+              `</span>`
+            );
+          });
+        }
+        col2Val = `<div style="display:flex; flex-wrap:wrap; justify-content:flex-start; gap:2px; width:100%; padding:1px 0;">` +
+                  (catList.join('') || '—') +
+                  `</div>`;
+      } else {
+        col2Val = r.b || 0;
+      }
+      const agentVal = r.agent;
+      
+      const col2Align = (roleName === 'PCU') ? 'left' : 'center';
+      
+      return '<tr style="background:rgba(255,255,255,0.02);"><td style="padding:10px 12px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.08); font-weight:700; color:#fff;">' + agentVal + '</td>' +
+             '<td style="padding:10px 12px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.08); text-align:center; font-weight:800; color:#cbd5e1; font-variant-numeric:tabular-nums;">' + r.a + '</td>' +
+             '<td style="padding:10px 12px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.08); text-align:' + col2Align + '; font-weight:800; color:#cbd5e1; font-variant-numeric:tabular-nums;">' + col2Val + '</td>' +
+             '<td style="padding:10px 12px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.08); text-align:center;"><span class="pill ' + rateCls + '">' + rateVal + '%</span></td></tr>';
+    }).join('');
+    return h + '</tbody></table>';
+  };
+  
+  document.getElementById('repRCUTable').innerHTML = renderRepTable(arrAct(rcuMap), 'RCU', 'ASSIGNED', 'PENDING', '#0075ff');
+  document.getElementById('repTHUmTable').innerHTML = renderRepTable(arrAct(thuMMap), 'THU (Manual)', 'ASSIGN', 'SECURE', '#b45309');
+  document.getElementById('repTHUbTable').innerHTML = renderRepTable(arrAct(thuBMap), 'THU (Broadcast)', 'ASSIGN', 'SECURE', '#f15a29');
+  document.getElementById('repPCUTable').innerHTML = renderRepTable(arrAct(pcuMap), 'PCU', 'ASSIGN', 'CATEGORY BREAKDOWN', '#0e7490');
+  
+  const valOpenOnline = tOn - cOn - xOn;
+  const valOpenPhysical = tPh - cPh - xPh;
+  const valOverallOpen = tOn + tPh; // total intake
+  const valPendingTutor = pend;
+  const valCancelOnline = xOn;
+  const valCancelPhysical = xPh;
+  const valTotalCancel = xOn + xPh;
+  const valReplacement = repl;
+  const valCompletedOnline = cOn;
+  const valCompletedPhysical = cPh;
+  const valTotalCompleted = cOn + cPh;
+  const valIntake = tOn + tPh;
+  const valCompletionRate = valIntake ? (valTotalCompleted / valIntake * 100).toFixed(2) : '0.00';
+  
+  const fmt = (n) => n == null ? '—' : Number(n).toLocaleString('en-US');
+  
+  document.getElementById('rcOpenOn').textContent = fmt(valOpenOnline);
+  document.getElementById('rcOpenPh').textContent = fmt(valOpenPhysical);
+  document.getElementById('rcOverallOpen').textContent = fmt(valOverallOpen);
+  document.getElementById('rcPendingTutor').textContent = fmt(valPendingTutor);
+  document.getElementById('rcCancelOn').textContent = fmt(valCancelOnline);
+  document.getElementById('rcCancelPh').textContent = fmt(valCancelPhysical);
+  document.getElementById('rcCancelTot').textContent = fmt(valTotalCancel);
+  document.getElementById('rcRepl').textContent = fmt(valReplacement);
+  document.getElementById('rcCompOn').textContent = fmt(valCompletedOnline);
+  document.getElementById('rcCompPh').textContent = fmt(valCompletedPhysical);
+  document.getElementById('rcCompTot').textContent = fmt(valTotalCompleted);
+  const rcCompRate = document.getElementById('rcCompRate');
+  if (rcCompRate) {
+    rcCompRate.innerHTML = (valCompletionRate || 0) + '<span style="font-size:14px;font-weight:700;margin-left:2px">%</span>';
+  }
+}
+
+function printDailyReportSheet() {
+  document.body.classList.add('printing-daily-report');
+  window.print();
+  document.body.classList.remove('printing-daily-report');
+}
+
 if(!cfg.url)cfg.url=DEFAULT_URL;
 try{ if(localStorage.getItem('st_navmini')==='1') document.body.classList.add('nav-mini'); }catch(e){}
 try{ document.body.classList.remove('light'); localStorage.removeItem('st_theme'); }catch(e){}
