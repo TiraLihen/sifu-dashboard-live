@@ -34,7 +34,9 @@
   nav button:hover .ico{background:rgba(0,117,255,.2)}
   nav button.active .ico{background:linear-gradient(135deg,#0075FF,#21D4FD);box-shadow:0 6px 14px rgba(0,117,255,.45)}
   nav button.active .ico svg{fill:#fff}
-  @media(max-width:1024px){nav button .lbl{display:none}}
+  .nav-group-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#64748b;padding:12px 14px 4px;margin-top:6px}
+  body.nav-mini .nav-group-title{display:none}
+  @media(max-width:1024px){nav button .lbl,.nav-group-title{display:none}}
   /* date filter bar */
   .filterbar{margin-left:var(--side);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(15,21,53,.6);backdrop-filter:blur(20px);padding:12px 30px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:19}
   .filterbar label{font-size:12px;color:var(--muted);font-weight:600}
@@ -218,6 +220,21 @@
   }
   
   /* Print styling for printing the Daily Report sheet only */
+  body.printing-daily-report header,
+  body.printing-daily-report #nav,
+  body.printing-daily-report .filterbar,
+  body.printing-daily-report .overlay,
+  body.printing-daily-report #settings,
+  body.printing-daily-report #loader {
+    display: none !important;
+  }
+  body.printing-daily-report main > section:not(#report) {
+    display: none !important;
+  }
+  body.printing-daily-report #report > *:not(#dailyReportSheet) {
+    display: none !important;
+  }
+
   @media print {
     @page {
       size: A4 landscape;
@@ -233,8 +250,14 @@
       print-color-adjust: exact !important;
     }
 
-    /* Hide header, navigation, and all other non-print elements */
-    header, #nav, main > section:not(#report), #report > *:not(#dailyReportSheet) {
+    /* Hide header, navigation, filterbar, overlays and all other non-print elements */
+    header, #nav, .filterbar, .overlay, #settings, #loader {
+      display: none !important;
+    }
+    main > section:not(#report) {
+      display: none !important;
+    }
+    #report > *:not(#dailyReportSheet) {
       display: none !important;
     }
 
@@ -333,13 +356,92 @@
   <section id="overview" class="active">
     <h2 class="sec-title">🏠 Operation Overview</h2>
     <p class="sec-desc">Calculated automatically from Master Tutor Request based on the selected date range (by Timestamp).</p>
-    <div class="action-banner" id="actionBanner"></div>
-    <div class="kpi-grid" id="kpiGrid"></div>
-    <div class="row main-grid">
+    <div class="action-banner" id="actionBanner" style="margin-bottom:18px;"></div>
+
+    <div class="row c2" style="margin-bottom:18px;">
+      <div class="panel">
+        <h3>⚡ Today's Action <span class="tag">immediate operational tasks</span></h3>
+        <div class="kpi-grid" id="opTodaysAction" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
+      </div>
+      <div class="panel">
+        <h3>📈 Today's Progress <span class="tag">daily execution balance</span></h3>
+        <div class="kpi-grid" id="opTodaysProgress" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
+      </div>
+    </div>
+
+    <div class="row c2" style="margin-bottom:18px;">
+      <div class="panel" style="margin-bottom:0;">
+        <h3>⏳ Ticket Aging Breakdown <span class="tag">pending tutor duration</span></h3>
+        <div class="kpi-grid" id="opTicketAging" style="grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px;"></div>
+      </div>
+      <div class="panel" style="margin-bottom:0;">
+        <h3>❓ Pending Reason Breakdown <span class="tag">bottleneck sub-status</span></h3>
+        <div class="kpi-grid" id="opPendingReason" style="grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px;"></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpiGrid" style="margin-bottom:18px;"></div>
+
+    <div class="row main-grid" style="margin-bottom:18px;">
       <div class="panel"><h3>📊 Workflow Funnel <span class="tag">Raw count per tab · RCU → THU → PCU → Master Request</span></h3><div id="funnelBox" style="margin-top:6px"></div></div>
       <div class="metrics-col" id="metricsBox"></div>
     </div>
-    <div class="row c2" style="align-items:stretch">
+  </section>
+
+  <section id="hotspots">
+    <h2 class="sec-title">🗺️ Location &amp; Subject Analytics</h2>
+    <p class="sec-desc">Auto-detected from request addresses (server-side · no personal data) · latest month with data.</p>
+    <div class="panel hot-banner"><div id="hotInsight">🔥 Loading hotspots…</div></div>
+    <div class="row c3">
+      <div class="panel"><h3>📍 Hot States <span class="tag" id="stateTag">latest month</span></h3><div class="chart-wrap"><canvas id="chState"></canvas></div></div>
+      <div class="panel"><h3>🏙️ Hot Cities <span class="tag">district / town</span></h3><div class="chart-wrap"><canvas id="chCity"></canvas></div></div>
+      <div class="panel"><h3>📚 Hot Subjects <span class="tag">most requested</span></h3><div class="chart-wrap"><canvas id="chSubject"></canvas></div></div>
+    </div>
+  </section>
+
+  <section id="daily">
+    <h2 class="sec-title">📅 Daily Summary</h2>
+    <p class="sec-desc"><b>Incoming</b> = by Timestamp · <b>Secured</b> = Date Secured · <b>Share Profile</b> = Date Profile Shared · <b>Completed</b> = Date Completed (actual activity that day). By date range. <i>Note: Completed has full history (col AI); Secured & Share Profile auto-log from now on.</i></p>
+    <div class="kpi-grid" id="dailyKpis"></div>
+    <div class="row c2" style="margin-top:14px;">
+      <div class="panel"><h3>Incoming vs Secured+Completed <span class="tag">daily</span></h3><div class="chart-wrap"><canvas id="chDaily"></canvas></div></div>
+      <div class="panel"><h3 class="flex-between"><span>📋 Daily Breakdown</span><span class="small" id="dailyDays"></span></h3>
+        <div class="scroll"><table id="dailyTable">
+          <thead><tr><th>Date</th><th>Incoming</th><th>Secured</th><th>Share Profile</th><th>Completed</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px;">
+      <h3 class="flex-between"><span>👤 Activity by Staff</span>
+        <select id="dailyStaffRole" onchange="renderDaily()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="">All Units</option></select>
+      </h3>
+      <div class="scroll"><table id="dailyStaffTable">
+        <thead><tr><th>Staff</th><th>Role</th><th>Assigned</th><th>Secured</th><th>Share Profile</th><th>Completed</th><th>Total Activity</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section id="units">
+    <h2 class="sec-title">🏢 Workflow Stage &amp; Unit Breakdown</h2>
+    <div class="row c3" id="stageCards" style="margin-top:10px;"></div>
+    <div class="panel" style="margin-top:14px;">
+      <h3>Status Breakdown by Stage</h3>
+      <div class="chart-wrap"><canvas id="chStageBar"></canvas></div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h3>📋 Summary by Stage</h3>
+      <div style="overflow-x:auto"><table id="stageTable">
+        <thead><tr><th>Stage</th><th>Total</th><th>Replacement</th><th>Add Subject</th><th>New</th><th>Urgent</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h3>🔎 Detail by Category <span class="tag">actual sub-status from sheet</span></h3>
+      <div class="chart-wrap"><canvas id="chCategory"></canvas></div>
+    </div>
+    <div class="row c2" style="align-items:stretch; margin-top:14px;">
       <div class="panel">
         <h3>🌐 Class Mode <span class="tag">Online vs In-Person · monthly trend Jan–Dec</span></h3>
         <div class="row c2" style="gap:12px;margin-bottom:14px">
@@ -354,77 +456,17 @@
         <div class="chart-wrap" style="flex:1;min-height:320px"><canvas id="chModeStage"></canvas></div>
       </div>
     </div>
-    <div class="panel">
-      <h3 class="flex-between"><span>📅 Yearly Report 2026</span><span class="small" id="yearlyMeta">Jan – Dec · by Timestamp · independent from top date filter</span></h3>
-      <div class="scroll"><table class="yearly-tbl" id="yearlyTable">
-        <thead><tr><th>Month</th><th class="ta-r">Total</th><th class="ta-r">🌐 Online</th><th class="ta-r">🏠 In-Person</th><th class="ta-c">⏳ Pending Tutor</th><th class="ta-c">✅ Tutor Secured</th><th class="ta-c">🏁 Completed</th><th class="ta-c">✖ Cancelled</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-    </div>
-
-  </section>
-
-  <section id="hotspots">
-    <h2 class="sec-title">🔥 Hotspots — Demand by Location &amp; Subject</h2>
-    <p class="sec-desc">Auto-detected from request addresses (server-side · no personal data) · latest month with data.</p>
-    <div class="panel hot-banner"><div id="hotInsight">🔥 Loading hotspots…</div></div>
-    <div class="row c3">
-      <div class="panel"><h3>📍 Hot States <span class="tag" id="stateTag">latest month</span></h3><div class="chart-wrap"><canvas id="chState"></canvas></div></div>
-      <div class="panel"><h3>🏙️ Hot Cities <span class="tag">district / town</span></h3><div class="chart-wrap"><canvas id="chCity"></canvas></div></div>
-      <div class="panel"><h3>📚 Hot Subjects <span class="tag">most requested</span></h3><div class="chart-wrap"><canvas id="chSubject"></canvas></div></div>
-    </div>
-  </section>
-
-  <section id="daily">
-    <h2 class="sec-title">📅 Daily Summary</h2>
-    <p class="sec-desc"><b>Incoming</b> = by Timestamp · <b>Secured</b> = Date Secured · <b>Share Profile</b> = Date Profile Shared · <b>Completed</b> = Date Completed (actual activity that day). By date range. <i>Note: Completed has full history (col AI); Secured & Share Profile auto-log from now on.</i></p>
-    <div class="kpi-grid" id="dailyKpis"></div>
-    <div class="row c2">
-      <div class="panel"><h3>Incoming vs Secured+Completed <span class="tag">daily</span></h3><div class="chart-wrap"><canvas id="chDaily"></canvas></div></div>
-      <div class="panel"><h3 class="flex-between"><span>📋 Daily Breakdown</span><span class="small" id="dailyDays"></span></h3>
-        <div class="scroll"><table id="dailyTable">
-          <thead><tr><th>Date</th><th>Incoming</th><th>Secured</th><th>Share Profile</th><th>Completed</th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-      </div>
-    </div>
-    <div class="panel">
-      <h3 class="flex-between"><span>👤 Activity by Staff</span>
-        <select id="dailyStaffRole" onchange="renderDaily()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="">All Units</option></select>
-      </h3>
-      <div class="scroll"><table id="dailyStaffTable">
-        <thead><tr><th>Staff</th><th>Role</th><th>Assigned</th><th>Secured</th><th>Share Profile</th><th>Completed</th><th>Total Activity</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-    </div>
-  </section>
-
-  <section id="units">
-    <h2 class="sec-title">🏢 Workflow Stage & Unit</h2>
-    <p class="sec-desc">Status of each request: RCU/THU = pending tutor · PCU = tutor secured (handover) · Completed · Cancelled.</p>
-    <div class="row c3" id="stageCards"></div>
-    <div class="panel">
-      <h3>Status Breakdown by Stage</h3>
-      <div class="chart-wrap"><canvas id="chStageBar"></canvas></div>
-    </div>
-    <div class="panel" style="margin-top:16px">
-      <h3>📋 Summary by Stage</h3>
-      <div style="overflow-x:auto"><table id="stageTable">
-        <thead><tr><th>Stage</th><th>Total</th><th>Replacement</th><th>Add Subject</th><th>New</th><th>Urgent</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-    </div>
-    <div class="panel" style="margin-top:16px">
-      <h3>🔎 Detail by Category <span class="tag">actual sub-status from sheet</span></h3>
-      <div class="chart-wrap"><canvas id="chCategory"></canvas></div>
-    </div>
   </section>
 
   <section id="staff">
-    <h2 class="sec-title">👥 Staff Workload <span class="tag" style="font-size:12px;color:var(--muted)">· Contribution mode</span></h2>
-    <p class="sec-desc">Each staff member gets credit for EVERY request they touch. A single request can be counted across more than one unit — so the overall total exceeds the number of requests. By date range.</p>
-    <div class="note">ℹ️ <b>Handled</b> = requests touched (workload). <b>Current</b> = ticket from this month (by Timestamp). <b>Outcome</b> by role: <b>RCU</b> = moved to THU · <b>THU</b> = Tutor Secured · <b>PCU</b> = Done Share Profile & above. Misspelled names = separate staff.</div>
+    <h2 class="sec-title">👥 Staff Performance <span class="tag" style="font-size:12px;color:var(--muted)">· Contribution mode</span></h2>
+    <p class="sec-desc">Each staff member gets credit for EVERY request they touch. A single request can be counted across more than one unit.</p>
+    <div class="note">ℹ️ <b>Handled</b> = requests touched (workload). <b>Current</b> = ticket from this month (by Timestamp). <b>Outcome</b> by role: <b>RCU</b> = moved to THU · <b>THU</b> = Tutor Secured · <b>PCU</b> = Done Share Profile & above.</div>
 
+    <div class="panel" style="margin-bottom:16px; padding:16px;">
+      <h3 style="margin-bottom:10px;">📊 Staff Workload Overview <span class="tag">live operational summary</span></h3>
+      <div class="kpi-grid" id="opStaffWorkload" style="grid-template-columns: repeat(3, 1fr); gap: 12px;"></div>
+    </div>
 
     <div class="kpi-grid" id="roleKpis"></div>
     <div class="row c2">
@@ -435,24 +477,21 @@
       <h3 class="flex-between"><span>📋 Staff Table</span>
         <select id="fRole" onchange="renderStaff()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="">All Roles</option></select>
       </h3>
-      <div class="scroll" id="staffTableContainer">
-        <!-- Tables generated dynamically -->
-      </div>
+      <div class="scroll" id="staffTableContainer"></div>
     </div>
   </section>
 
   <section id="trend">
     <h2 class="sec-title">📈 Trend Comparison</h2>
-    <p class="sec-desc">Comparison by month (based on the Timestamp the request was opened). By date range — select "All" or "This year" to see the full picture.</p>
-    <div class="panel">
+    <div class="panel" style="margin-top:10px;">
       <h3>🩺 Operations Funnel Health <span class="tag">requests by month opened, split by current status</span></h3>
       <div class="chart-wrap"><canvas id="chTrendFunnel"></canvas></div>
     </div>
-    <div class="row c2">
+    <div class="row c2" style="margin-top:14px;">
       <div class="panel"><h3>🏢 Unit Performance — Handled / Month</h3><div class="chart-wrap"><canvas id="chTrendUnit"></canvas></div></div>
       <div class="panel"><h3>🏢 Unit Performance — Outcome Rate % / Month</h3><div class="chart-wrap"><canvas id="chTrendUnitRate"></canvas></div></div>
     </div>
-    <div class="panel">
+    <div class="panel" style="margin-top:14px;">
       <h3 class="flex-between"><span>👤 Individual Performance — Handled / Month</span>
         <select id="trendStaffSel" onchange="renderTrend()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="">Top 6 Staff</option></select>
       </h3>
@@ -461,48 +500,35 @@
   </section>
 
   <section id="monthly">
-    <h2 class="sec-title">📆 Monthly Performance</h2>
-    <p class="sec-desc">For each month: how many cases <b>came in</b> (Intake) vs how many that unit <b>resolved</b> — split into <b>New</b> (came in & resolved the same month) and <b>Backlog</b> (came in an earlier month, cleared now).</p>
-    <div class="toolbar">
-      <label class="small">Unit:</label>
-      <select id="monUnit" onchange="renderMonthly()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px">
-        <option>PCU</option><option>THU</option><option>RCU</option>
-      </select>
-      <label class="small" style="margin-left:8px">Basis:</label>
-      <select id="monBasis" onchange="renderMonthly()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px">
-        <option value="resolved">Resolved (output)</option>
-        <option value="assigned">Assigned (workload taken)</option>
-      </select>
+    <h2 class="sec-title">🗓️ Monthly Performance</h2>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;">
+      <select id="monUnit" onchange="renderMonthly()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="PCU">PCU</option><option value="THU">THU</option><option value="RCU">RCU</option></select>
+      <select id="monBasis" onchange="renderMonthly()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="resolved">Resolved Basis</option><option value="assigned">Assigned Basis</option></select>
     </div>
-    <div class="note" id="monBanner"></div>
-    <div class="kpi-grid" id="monKpis"></div>
-    <div class="panel"><h3>Resolved per Month — New vs Backlog</h3><div class="chart-wrap"><canvas id="chMonthly"></canvas></div></div>
-    <div class="panel" style="margin-top:16px"><h3>Monthly Scorecard</h3>
-      <div class="scroll"><table id="monTable">
-        <thead><tr><th>Month</th><th>Intake (came in)</th><th id="monResHdr">Resolved</th><th>• New</th><th>• Backlog</th><th>Same-Month Rate</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-      <div class="small" style="margin-top:8px">Resolved milestone: <b>PCU</b> = Completed · <b>THU</b> = Tutor Secured · <b>RCU</b> = Moved to THU. Same-Month Rate = New ÷ Intake (how well fresh cases are cleared same month).</div>
-    </div>
+    <div id="monBanner"></div>
+    <div class="kpi-grid" id="monKpis" style="margin-top:14px;"></div>
+    <div class="panel" style="margin-top:14px;"><div class="chart-wrap"><canvas id="chMonthly"></canvas></div></div>
+    <div class="panel" style="margin-top:14px;"><div class="scroll"><table id="monTable">
+      <thead><tr><th>Month</th><th>Intake</th><th id="monResHdr">Resolved</th><th>Net Backlog</th><th>Action</th></tr></thead>
+      <tbody></tbody>
+    </table></div></div>
   </section>
 
   <section id="report">
+    <h2 class="sec-title">📄 Daily Report</h2>
+    <!-- Daily report generator -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
       <div>
-        <h2 class="sec-title" style="margin-bottom:2px;">📄 Daily Report (Auto)</h2>
+        <h3 style="margin-bottom:2px; font-weight:800;">📄 Daily Report (Auto)</h3>
         <p class="sec-desc" style="margin-bottom:0;">Synchronized with the date selector below or the date filters at the top.</p>
       </div>
-    </div>
-
-    <!-- Date selector and Save as PDF button -->
-    <div style="display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-bottom: 12px; flex-wrap:wrap;">
-      <div style="display:flex; align-items:center; gap:8px;">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
         <span style="font-size:12.5px; font-weight:700; color:#8893c9;">Report Date:</span>
         <input type="date" id="repDateSel" style="background:#0f1535; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:6px 10px; font-size:12.5px; font-weight:700; outline:none;">
+        <button class="btn sm" onclick="printDailyReportSheet()" style="background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px;">
+          📄 Save as PDF
+        </button>
       </div>
-      <button class="btn sm" onclick="printDailyReportSheet()" style="background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px;">
-        📄 Save as PDF
-      </button>
     </div>
 
     <!-- Daily report sheet -->
@@ -520,7 +546,6 @@
       </div>
 
       <div id="dailyReportRow" class="row">
-        <!-- LEFT: agent daily tables -->
         <div style="display:flex; flex-direction:column; gap:16px;">
           <div class="unit" style="border-radius:10px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.25);"><div style="font-size:12px; font-weight:800; text-align:center; color:#fff; letter-spacing:1px; padding:6px; background:#0075ff;">RCU</div><div id="repRCUTable"></div></div>
           <div class="unit" style="border-radius:10px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.25);"><div style="font-size:12px; font-weight:800; text-align:center; color:#fff; letter-spacing:1px; padding:6px; background:#b45309;">THU — MANUAL</div><div id="repTHUmTable"></div></div>
@@ -528,26 +553,20 @@
           <div class="unit" style="border-radius:10px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.25);"><div style="font-size:12px; font-weight:800; text-align:center; color:#fff; letter-spacing:1px; padding:6px; background:#0e7490;">PCU</div><div id="repPCUTable"></div></div>
         </div>
 
-        <!-- RIGHT: cumulative MTD snapshot -->
         <div>
           <div style="text-align:left; margin-bottom: 14px;">
             <div style="font-size:13.5px; font-weight:800; color:#fff; letter-spacing:0.5px; text-transform:uppercase;">CUMULATIVE PERFORMANCE — <span id="repCumMonthHeader">—</span></div>
             <div style="font-size:11px; color:var(--muted); margin-top:2px; font-weight:500;">Whole-Month Snapshot</div>
           </div>
           <div class="cards" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
-            <!-- Row 1 -->
             <div class="ccard b-blue"><div class="cl">OPEN (ONLINE)</div><div class="cv" id="rcOpenOn">—</div></div>
             <div class="ccard b-blue"><div class="cl">OPEN (PHYSICAL)</div><div class="cv" id="rcOpenPh">—</div></div>
             <div class="ccard b-purple"><div class="cl">TOTAL REQUEST</div><div class="cv" id="rcOverallOpen">—</div></div>
             <div class="ccard b-grey"><div class="cl">PENDING TUTOR</div><div class="cv" id="rcPendingTutor">—</div></div>
-            
-            <!-- Row 2 -->
             <div class="ccard b-red"><div class="cl">CANCEL (ONLINE)</div><div class="cv" id="rcCancelOn">—</div></div>
             <div class="ccard b-red"><div class="cl">CANCEL (PHYSICAL)</div><div class="cv" id="rcCancelPh">—</div></div>
             <div class="ccard b-dark"><div class="cl">TOTAL CANCEL</div><div class="cv" id="rcCancelTot">—</div></div>
             <div class="ccard b-orange"><div class="cl">REPLACEMENT</div><div class="cv" id="rcRepl">—</div></div>
-            
-            <!-- Row 3 -->
             <div class="ccard b-green"><div class="cl">COMPLETED (ONLINE)</div><div class="cv" id="rcCompOn">—</div></div>
             <div class="ccard b-green"><div class="cl">COMPLETED (PHYSICAL)</div><div class="cv" id="rcCompPh">—</div></div>
             <div class="ccard b-green"><div class="cl">TOTAL COMPLETED</div><div class="cv" id="rcCompTot">—</div></div>
@@ -557,12 +576,12 @@
       </div>
 
       <div class="note" style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:10px 14px; font-size:11px; color:var(--muted); margin-top:20px; text-align:center; line-height:1.5; position:relative; z-index:1;">
-        ℹ️ Date Sources — RCU: Timestamp (Ticket Entered RCU) · THU & PCU: Latest Update Col AC (When Agent Took Action) · Secure = Assigned Unit Moved To PCU · PCU Completed / Cancelled = Moved To Master Request · Cumulative Cards Use Timestamp (Whole Month <span id="repNoteMonthHeader">—</span>)
+        ℹ️ Date Sources — RCU: Timestamp · THU &amp; PCU: Col AC · Cumulative Cards Use Timestamp (Whole Month <span id="repNoteMonthHeader">—</span>)
       </div>
     </div>
 
-    <!-- WhatsApp report text generator (flat card format) -->
-    <div class="panel" style="padding:14px; margin-top: 20px; border: 1px solid rgba(0, 117, 255, 0.4); box-shadow: 0 0 15px rgba(0, 117, 255, 0.15); background: rgba(11, 15, 45, 0.4);">
+    <!-- WhatsApp report generator -->
+    <div class="panel" style="padding:14px; margin-bottom:20px; border: 1px solid rgba(0, 117, 255, 0.4); background: rgba(11, 15, 45, 0.4);">
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
         <span style="font-size:12.5px; font-weight:700; color:var(--info);">💬 Generate Agent WhatsApp Report Text:</span>
         <label class="small" style="margin-left:8px; color: #cbd5e1; font-weight: 600;">Staff:</label>
@@ -574,14 +593,13 @@
   </section>
 
   <section id="risk">
-    <h2 class="sec-title">🚨 Urgent & Aging Monitoring</h2>
-    <p class="sec-desc">Urgent (from Special Request) & oldest pending-tutor requests (RCU/THU) — age from Timestamp.</p>
-    <div class="kpi-grid" id="riskKpis"></div>
+    <h2 class="sec-title">🚨 Urgent &amp; Aging Bottlenecks</h2>
+    <div class="kpi-grid" id="riskKpis" style="margin-bottom:16px;"></div>
     <div class="row c2">
       <div class="panel"><h3>Pending Tutor Age Distribution <span class="tag">days</span></h3><div class="chart-wrap sm"><canvas id="chAging"></canvas></div></div>
       <div class="panel"><h3>Urgent by Stage</h3><div class="chart-wrap sm"><canvas id="chUrgentUnit"></canvas></div></div>
     </div>
-    <div class="panel">
+    <div class="panel" style="margin-top:14px;">
       <h3 class="flex-between"><span>🔴 Longest Pending Tutor (Top 30)</span><span class="small">still in RCU/THU, not yet reached PCU</span></h3>
       <div class="scroll"><table id="agingTable">
         <thead><tr><th>Request ID</th><th>Stage</th><th>Subject | Level</th><th>Type</th><th>Agent</th><th>Age (days)</th><th>SLA Status (target 7d)</th><th>Urgent</th></tr></thead>
@@ -591,14 +609,13 @@
   </section>
 
   <section id="data">
-    <h2 class="sec-title">📋 Request Data</h2>
-    <p class="sec-desc">All requests in the date range (without personal information). Filter & search.</p>
-    <div class="toolbar">
-      <input id="search" placeholder="🔍 Search Request ID / subject / agent…" oninput="renderData()" style="min-width:240px">
-      <select id="fStage" onchange="renderData()"><option value="">All Stages</option></select>
-      <select id="fType" onchange="renderData()"><option value="">All Types</option><option>New</option><option>Replacement</option><option>Add Subject</option></select>
-      <select id="fMode" onchange="renderData()"><option value="">All Modes</option><option>In-Person</option><option>Online</option></select>
-      <button class="btn ghost sm" onclick="exportCSV()">⬇️ Export CSV</button>
+    <h2 class="sec-title">📋 Request Data Search</h2>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+      <input type="text" id="search" placeholder="Search ID, Subject, Agent..." onkeyup="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:260px;">
+      <select id="fStage" onchange="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;"><option value="">All Stages</option></select>
+      <select id="fType" onchange="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;"><option value="">All Types</option><option>New</option><option>Replacement</option><option>Add Subject</option></select>
+      <select id="fMode" onchange="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;"><option value="">All Modes</option><option>Online</option><option>In-Person</option></select>
+      <button class="btn sm" onclick="exportCSV()" style="margin-left:auto;">📥 Export CSV</button>
       <span class="small" id="dataCount"></span>
     </div>
     <div class="panel"><div class="scroll"><table id="dataTable">
@@ -678,58 +695,71 @@ function getMsiaDate(ts){
 
 /* ===== JSONP ===== */
 function refresh(){
-  const url=(cfg.url||DEFAULT_URL).trim(); if(!url){openSettings();return;}
+  const url=(cfg.url||DEFAULT_URL).trim(); if(!url){hideLoader();openSettings();return;}
   setLive('loading');
   const cb='__ingest_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
   const s=document.createElement('script'); let done=false;
-  window[cb]=function(p){done=true;clean();ingest(p);};
+  window[cb]=function(p){
+    done=true;
+    clean();
+    try { ingest(p); } catch(e) { console.error(e); } finally { hideLoader(); }
+  };
   function clean(){try{delete window[cb]}catch(e){} if(s.parentNode)s.parentNode.removeChild(s);}
   s.onerror=function(){if(!done){clean();setLive('err');hideLoader();failNote();}};
   s.src=url+sep+'callback='+cb+'&_t='+Date.now(); document.body.appendChild(s);
-  setTimeout(function(){if(!done){clean();setLive('err');hideLoader();failNote();}},25000);
+  setTimeout(function(){if(!done){clean();setLive('err');hideLoader();failNote();}},90000);
 }
-function failNote(){document.getElementById('alerts').innerHTML='<li><span>❌ Connection failed. Check the URL in ⚙️ Settings & make sure the deployment is set to "Anyone".</span><span class="pill danger">ERROR</span></li>';}
+function failNote(){
+  const elAlerts = document.getElementById('alerts');
+  if (elAlerts) elAlerts.innerHTML='<li><span>❌ Connection failed. Check the URL in ⚙️ Settings & make sure the deployment is set to "Anyone".</span><span class="pill danger">ERROR</span></li>';
+}
 
 /* ===== INGEST ===== */
 function s(v){return String(v==null?'':v).trim();}
 const SKIP_TABS=['config_hidden','sheet 4','sheet4']; // tab yang TIDAK dikira dalam dashboard
 function ingest(payload){
-  RAW=payload;
-  let tabs=payload.tabs||(payload.rows?[{sheet:payload.sheet,rows:payload.rows}]:[]);
-  tabs=tabs.filter(t=>SKIP_TABS.indexOf(String(t.sheet||'').toLowerCase().trim())===-1);
-  const allRows=[]; let noId=0; const occ={};
-  tabs.forEach(t=>(t.rows||[]).forEach(r=>{
-    let id=s(field(r,['Request ID']));
-    let isTempId = false;
-    if(!id){ 
-      noId++; 
-      id = 'TEMP_NO_ID_' + noId;
-      isTempId = true;
-    }
-    const n=normalize(r,t.sheet);
-    n.sheet = t.sheet;
-    if (isTempId) n['Request ID'] = ''; // kekalkan kosong untuk paparan jadual
-    allRows.push(n);
-    if (!isTempId) {
-      (occ[id]=occ[id]||[]).push({tab:t.sheet,stage:n.stage,subj:n['Subject | Level'],cat:n.cat});
-    }
-  }));
-  ALL=allRows;
-  window._noIdCount=noId;
-  // kesan SEMUA Request ID berganda (muncul >1 kali, sama ada dalam tab sama atau merentas tab)
-  DUPLICATES=Object.entries(occ).filter(([id,arr])=>arr.length>1)
-    .map(([id,arr])=>{
-      const tabCounts={}; arr.forEach(o=>tabCounts[o.tab]=(tabCounts[o.tab]||0)+1);
-      const stages=[...new Set(arr.map(o=>o.stage))];
-      const hasActive=stages.some(st=>st==='RCU'||st==='THU'||st==='PCU');
-      const hasArchive=stages.some(st=>st==='Completed'||st==='Cancelled');
-      const kind=(hasActive&&hasArchive)?'Reopened (Replacement)':
-                 hasActive?'Duplicate in active tab':'Duplicate in archive';
-      return {id,tabs:Object.keys(tabCounts),tabCounts,stages,subj:arr[0].subj,count:arr.length,kind,hasActive,hasArchive};
-    })
-    .sort((a,b)=>b.count-a.count);
-  setLive('on',payload.updated);
-  applyRange(); hideLoader();
+  try {
+    RAW=payload;
+    let tabs=payload.tabs||(payload.rows?[{sheet:payload.sheet,rows:payload.rows}]:[]);
+    tabs=tabs.filter(t=>SKIP_TABS.indexOf(String(t.sheet||'').toLowerCase().trim())===-1);
+    const allRows=[]; let noId=0; const occ={};
+    tabs.forEach(t=>(t.rows||[]).forEach(r=>{
+      let id=s(field(r,['Request ID']));
+      let isTempId = false;
+      if(!id){ 
+        noId++; 
+        id = 'TEMP_NO_ID_' + noId;
+        isTempId = true;
+      }
+      const n=normalize(r,t.sheet);
+      n.sheet = t.sheet;
+      if (isTempId) n['Request ID'] = '';
+      allRows.push(n);
+      if (!isTempId) {
+        (occ[id]=occ[id]||[]).push({tab:t.sheet,stage:n.stage,subj:n['Subject | Level'],cat:n.cat});
+      }
+    }));
+    ALL=allRows;
+    window._noIdCount=noId;
+    DUPLICATES=Object.entries(occ).filter(([id,arr])=>arr.length>1)
+      .map(([id,arr])=>{
+        const tabCounts={}; arr.forEach(o=>tabCounts[o.tab]=(tabCounts[o.tab]||0)+1);
+        const stages=[...new Set(arr.map(o=>o.stage))];
+        const hasActive=stages.some(st=>st==='RCU'||st==='THU'||st==='PCU');
+        const hasArchive=stages.some(st=>st==='Completed'||st==='Cancelled');
+        const kind=(hasActive&&hasArchive)?'Reopened (Replacement)':
+                   hasActive?'Duplicate in active tab':'Duplicate in archive';
+        return {id,tabs:Object.keys(tabCounts),tabCounts,stages,subj:arr[0].subj,count:arr.length,kind,hasActive,hasArchive};
+      })
+      .sort((a,b)=>b.count-a.count);
+    setLive('on',payload.updated);
+    applyRange();
+  } catch(e) {
+    console.error('Ingest error:', e);
+    setLive('err');
+  } finally {
+    hideLoader();
+  }
 }
 // Mapping Category -> stage (dari Config_Hidden). Boleh tambah category baru di sini.
 const CATEGORY_STAGE={
@@ -770,7 +800,7 @@ function field(r,candidates){
 function deriveType(repRaw){
   const v=s(repRaw).toUpperCase();
   if(v==='R'||v.indexOf('REPLAC')>-1) return 'Replacement';
-  if(v==='A'||v==='ADD'||v.indexOf('ADD')>-1) return 'Add Subject';
+  if(v==='A'||v.indexOf('ADD')>-1) return 'Add Subject';
   return 'New';
 }
 function normalize(r,tab){
@@ -862,10 +892,28 @@ function destroy(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 function orderedStages(obj){const keys=Object.keys(obj);const ord=STAGE_ORDER.filter(s=>obj[s]!=null);keys.forEach(k=>{if(ord.indexOf(k)<0)ord.push(k);});return ord;}
 
 /* ===== RENDER ===== */
-function renderAll(){renderOverview();renderDaily();renderUnits();renderStaff();renderTrend();renderMonthly();renderReport();renderDailyReport();renderRisk();renderDataFilters();renderData();renderDups();}
+function renderAll(){
+  const safe = (fn) => { try { if (typeof fn === 'function') fn(); } catch(e) { console.error('Render error:', e); } };
+  safe(renderOverview);
+  safe(renderDaily);
+  safe(renderUnits);
+  safe(renderStaff);
+  safe(renderTrend);
+  safe(renderMonthly);
+  safe(renderReport);
+  safe(renderDailyReport);
+  safe(renderRisk);
+  safe(renderDataFilters);
+  safe(renderData);
+  safe(renderDups);
+  safe(renderLinks);
+}
 function renderMonthly(){
-  const unit=document.getElementById('monUnit').value;
-  const basis=document.getElementById('monBasis').value;
+  const elUnit=document.getElementById('monUnit');
+  const elBasis=document.getElementById('monBasis');
+  if(!elUnit || !elBasis) return;
+  const unit=elUnit.value;
+  const basis=elBasis.value;
   const outDate = basis==='assigned'
     ? (r=> unit==='PCU'?r.tsAssignPCU : unit==='THU'?(r.tsAssignTHU||r.tsAssignTHU_BC) : r.tsAssignRCU)
     : (r=> unit==='PCU'?r.tsCompleted : unit==='THU'?r.tsSecured : r.tsMovedThu);
@@ -921,6 +969,7 @@ function renderMonthly(){
     return `<tr><td><b>${monthLabel(m)}</b></td><td>${intk}</td><td><b>${res}</b></td><td>${nw}</td>
       <td>${bk?'<span class="pill warn">'+bk+'</span>':0}</td><td>${res?'<span class="pill '+cls+'">'+rate+'%</span>':'<span class="small">—</span>'}</td></tr>`;
   }).join('')||'<tr><td colspan="6" class="small">No data.</td></tr>';
+  renderYearly();
 }
 function renderDaily(){
   // Masuk = ikut Timestamp · Secured = ikut Date Secured · Completed = ikut Date Completed
@@ -1215,6 +1264,102 @@ function exportDups(){
   const blob=new Blob([lines.join('\n')],{type:'text/csv'});const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='duplicate_request_ids.csv';a.click();
 }
+function isToday(ts) {
+  if (!ts) return false;
+  const d = getMsiaDate(ts);
+  if (!d) return false;
+  const now = getMsiaDate(Date.now());
+  return (
+    d.getUTCFullYear() === now.getUTCFullYear() &&
+    d.getUTCMonth() === now.getUTCMonth() &&
+    d.getUTCDate() === now.getUTCDate()
+  );
+}
+
+function renderOperationalOverview() {
+  // 1. TODAY'S ACTION
+  const newToday = ALL.filter(r => isToday(r.ts)).length;
+  const needBlast = VIEW.filter(r => _norm(r.cat) === 'broadcast' || _norm(r.cat) === 'channelgroupwa' || (r.stage === 'THU' && !r.agent)).length;
+  const needFollowUpTutor = VIEW.filter(r => _norm(r.cat) === 'manualindividual' || _norm(r.cat) === 'verifytutor' || _norm(r.cat) === 'reengagementtutor' || r.stage === 'THU').length;
+  const needFollowUpParent = VIEW.filter(r => _norm(r.cat) === 'pendingresponseparents' || _norm(r.cat) === 'pendingconfirmation').length;
+  const readyToClose = VIEW.filter(r => _norm(r.cat) === 'doneshareprofile' || _norm(r.cat) === 'pendingpayment').length;
+  const critical = VIEW.filter(r => r.urgent || (r.pendingTutor && r.age > 14)).length;
+
+  const actionCards = [
+    { l: 'New Tickets Today', v: newToday, f: 'Received today', c: 'b1' },
+    { l: 'Need Blast Tutor', v: needBlast, f: 'Broadcast / WA', c: 'b3' },
+    { l: 'Need Follow Up Tutor', v: needFollowUpTutor, f: 'Manual / Verify', c: 'b6' },
+    { l: 'Need Follow Up Parent', v: needFollowUpParent, f: 'Parents response', c: 'b5' },
+    { l: 'Ready To Close', v: readyToClose, f: 'Shared / Payment', c: 'b2' },
+    { l: 'Critical Tickets', v: critical, f: 'Urgent / >14 days', c: 'b4' }
+  ];
+  const elAction = document.getElementById('opTodaysAction');
+  if (elAction) {
+    elAction.innerHTML = actionCards.map(k =>
+      `<div class="kpi ${k.c}"><div class="label">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`
+    ).join('');
+  }
+
+  // 2. TODAY'S PROGRESS
+  const receivedToday = newToday;
+  const closedToday = ALL.filter(r => (r.stage === 'Completed' || r.stage === 'Cancelled') && (isToday(r.tsCompleted) || isToday(r.ts))).length;
+  const backlogDiff = closedToday - receivedToday;
+  const backlogText = backlogDiff > 0 ? `+${backlogDiff} net reduced` : backlogDiff < 0 ? `${backlogDiff} net added` : '0 net change';
+  const backlogCls = backlogDiff > 0 ? 'b2' : backlogDiff < 0 ? 'b4' : 'b1';
+
+  const progressCards = [
+    { l: 'Ticket Received Today', v: receivedToday, f: 'Fresh intake', c: 'b1' },
+    { l: 'Ticket Closed Today', v: closedToday, f: 'Completed / Cancelled', c: 'b2' },
+    { l: 'Backlog Reduced Today', v: backlogDiff > 0 ? `+${backlogDiff}` : `${backlogDiff}`, f: backlogText, c: backlogCls }
+  ];
+  const elProgress = document.getElementById('opTodaysProgress');
+  if (elProgress) {
+    elProgress.innerHTML = progressCards.map(k =>
+      `<div class="kpi ${k.c}"><div class="label">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`
+    ).join('');
+  }
+
+  // 3. TICKET AGING
+  const age0_7 = VIEW.filter(r => r.pendingTutor && r.age != null && r.age <= 7).length;
+  const age8_30 = VIEW.filter(r => r.pendingTutor && r.age != null && r.age >= 8 && r.age <= 30).length;
+  const age31_60 = VIEW.filter(r => r.pendingTutor && r.age != null && r.age > 30 && r.age <= 60).length;
+  const age60Plus = VIEW.filter(r => r.pendingTutor && r.age != null && r.age > 60).length;
+
+  const agingCards = [
+    { l: '0–7 Days', v: age0_7, f: 'Fresh pending', c: 'b2' },
+    { l: '8–30 Days', v: age8_30, f: 'Moderate age', c: 'b3' },
+    { l: '>30 Days', v: age31_60, f: 'High age', c: 'b5' },
+    { l: '>60 Days', v: age60Plus, f: 'Critical backlog', c: 'b4' }
+  ];
+  const elAging = document.getElementById('opTicketAging');
+  if (elAging) {
+    elAging.innerHTML = agingCards.map(k =>
+      `<div class="kpi ${k.c}"><div class="label">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`
+    ).join('');
+  }
+
+  // 4. PENDING REASON BREAKDOWN
+  const pBlast = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'broadcast' || _norm(r.cat) === 'channelgroupwa' || _norm(r.cat) === 'opentreq')).length;
+  const pWaitTutor = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'manualindividual' || _norm(r.cat) === 'verifytutor' || _norm(r.cat) === 'reengagementtutor')).length;
+  const pWaitParent = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'pendingresponseparents' || _norm(r.cat) === 'pendingconfirmation')).length;
+  const pPendingFollowUp = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'pendingpayment' || _norm(r.cat) === '' || _norm(r.cat) === '-')).length;
+  const pCompNotClosed = VIEW.filter(r => r.stage === 'PCU' && _norm(r.cat) === 'doneshareprofile').length;
+
+  const reasonCards = [
+    { l: 'Need Blast', v: pBlast, f: 'Open / Channel WA', c: 'b1' },
+    { l: 'Waiting Tutor', v: pWaitTutor, f: 'Manual / Verify', c: 'b3' },
+    { l: 'Waiting Parent', v: pWaitParent, f: 'Parents response', c: 'b5' },
+    { l: 'Pending Follow Up', v: pPendingFollowUp, f: 'Payment / Followup', c: 'b6' },
+    { l: 'Completed Not Closed', v: pCompNotClosed, f: 'Done Share Profile', c: 'b2' }
+  ];
+  const elReason = document.getElementById('opPendingReason');
+  if (elReason) {
+    elReason.innerHTML = reasonCards.map(k =>
+      `<div class="kpi ${k.c}"><div class="label" style="font-size:11px;">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`
+    ).join('');
+  }
+}
+
 function renderOverview(){
   const total=VIEW.length;
   const rcu=VIEW.filter(r=>r.stage==='RCU').length;
@@ -1231,57 +1376,78 @@ function renderOverview(){
   const cancRate=total?Math.round(cancelled/total*100):0;
   const active=rcu+thu+pcu, alerts=thuUnassigned+urgent;
   const pctT=n=>total?Math.round(n/total*1000)/10:0;
+
+  renderOperationalOverview();
   // ACTION BANNER
-  document.getElementById('actionBanner').innerHTML=
-    '<div class="ab-left"><div class="ab-eye">⚠ Live Action Snapshot</div>'+
-    '<div class="ab-head">'+alerts+' tickets need your attention right now</div>'+
-    '<div class="ab-sub">'+thuUnassigned+' unassigned at THU stage · '+urgent+' past deadline. Reassign or escalate to clear the bottleneck and protect SLA.</div>'+
-    '<button class="ab-btn" onclick="document.querySelector(\'#nav button[data-tab=staff]\').click()">View Staff Workload →</button></div>'+
-    '<div class="ab-right"><div class="ab-num">'+alerts+'</div><div class="ab-lbl">Total Alerts</div></div>';
+  const elBanner = document.getElementById('actionBanner');
+  if (elBanner) {
+    elBanner.innerHTML=
+      '<div class="ab-left"><div class="ab-eye">⚠ Live Action Snapshot</div>'+
+      '<div class="ab-head">'+alerts+' tickets need your attention right now</div>'+
+      '<div class="ab-sub">'+thuUnassigned+' unassigned at THU stage · '+urgent+' past deadline. Reassign or escalate to clear the bottleneck and protect SLA.</div>'+
+      '<button class="ab-btn" onclick="document.querySelector(\'#nav button[data-tab=staff]\').click()">View Staff Workload →</button></div>'+
+      '<div class="ab-right"><div class="ab-num">'+alerts+'</div><div class="ab-lbl">Total Alerts</div></div>';
+  }
+  const closedToday = ALL.filter(r => (r.stage === 'Completed' || r.stage === 'Cancelled') && (isToday(r.tsCompleted) || isToday(r.ts))).length;
+  const newToday = ALL.filter(r => isToday(r.ts)).length;
+  const netToday = closedToday - newToday;
+  const slaCompRate = completed ? Math.round(VIEW.filter(r => r.stage === 'Completed' && (r.age == null || r.age <= 7)).length / completed * 100) : 100;
+
   // KPIs
   const kpis=[
-    {l:'Total Requests',v:total,f:'Within date range',c:'b1',i:'M4 19h2V9H4zm5 0h2V5H9zm5 0h2v-7h-2zm5 0h2V3h-2z'},
-    {l:'Pending Tutor',v:pending,f:'RCU / THU (sourcing)',c:'b3',i:'M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L21 19.5l-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z'},
-    {l:'⚠ THU Unassigned',v:thuUnassigned,f:(thu?Math.round(thuUnassigned/thu*100):0)+'% of THU · no staff picked up',c:'b4',i:'M1 21h22L12 2 1 21zm12-3h-2v-2h2zm0-4h-2v-4h2z'},
-    {l:'Tutor Secured (PCU)',v:pcu,f:'Handover / verify',c:'b6',i:'M19 3h-4.18A3 3 0 0 0 12 1a3 3 0 0 0-2.82 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 0a1 1 0 1 1-1 1 1 1 0 0 1 1-1zm-1.3 14L7 13.3l1.4-1.4 2.3 2.3 5.9-5.9L18 9.7z'},
-    {l:'Completed',v:completed,f:compRate+'% completion',c:'b2',i:'M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1.3 14.2L6.5 12l1.4-1.4 2.8 2.8 5.4-5.4L17.5 9.4z'},
-    {l:'Cancelled',v:cancelled,f:cancRate+'% cancel',c:'b4',i:'M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm5 13.6L15.6 17 12 13.4 8.4 17 7 15.6 10.6 12 7 8.4 8.4 7 12 10.6 15.6 7 17 8.4 13.4 12z'},
-    {l:'Urgent',v:urgent,f:'Past deadline',c:'b5',i:'M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6.3-6V11a6.3 6.3 0 0 0-5-6.2V4a1.3 1.3 0 0 0-2.6 0v.8A6.3 6.3 0 0 0 5.7 11v5l-1.7 1.7v.8h16v-.8z'}
+    {l:'Total Pending',v:pending,f:'RCU / THU (sourcing)',c:'b3',i:'M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L21 19.5l-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z'},
+    {l:'New Tickets Today',v:newToday,f:'Fresh intake today',c:'b1',i:'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'},
+    {l:'Closed Today',v:closedToday,f:'Completed / Cancelled today',c:'b2',i:'M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1.3 14.2L6.5 12l1.4-1.4 2.8 2.8 5.4-5.4L17.5 9.4z'},
+    {l:'Backlog Reduced Today',v:(netToday>=0?'+':'')+netToday,f:(netToday>=0?'Net reduced':'Net added'),c:netToday>=0?'b2':'b4',i:'M19 13H5v-2h14v2z'},
+    {l:'SLA Performance',v:slaCompRate+'%',f:'Completed within SLA (7d)',c:'b6',i:'M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1.3 14.2L6.5 12l1.4-1.4 2.8 2.8 5.4-5.4L17.5 9.4z'},
+    {l:'Critical Tickets',v:urgent,f:'Urgent / >14 days',c:'b4',i:'M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6.3-6V11a6.3 6.3 0 0 0-5-6.2V4a1.3 1.3 0 0 0-2.6 0v.8A6.3 6.3 0 0 0 5.7 11v5l-1.7 1.7v.8h16v-.8z'}
   ];
-  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`<div class="kpi ${k.c}"><div class="kico"><svg viewBox="0 0 24 24"><path d="${k.i}"/></svg></div><div class="label">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`).join('');
-  renderClassMode();
-  renderYearly();
+  const elGrid = document.getElementById('kpiGrid');
+  if (elGrid) {
+    elGrid.innerHTML=kpis.map(k=>`<div class="kpi ${k.c}"><div class="kico"><svg viewBox="0 0 24 24"><path d="${k.i}"/></svg></div><div class="label">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`).join('');
+  }
+
   // FUNNEL (cumulative conversion, cancelled = drop-off)
-  const reachedTHU=thu+pcu+completed, reachedPCU=pcu+completed, reachedRCU=rcu+thu+pcu+completed;
-  const cv=(a,b)=>b?Math.round(a/b*1000)/10:0;
-  const convRT=cv(reachedTHU,reachedRCU), convTP=cv(reachedPCU,reachedTHU), convPC=cv(completed,reachedPCU);
-  const maxF=Math.max(rcu,thu,pcu,completed,cancelled,1);
-  const stages=[
-    {n:'RCU',d:'RCU tab rows · new arrivals',v:rcu,col:'#3b82f6',ic:'📥',conv:null},
-    {n:'THU',d:'THU tab rows · searching for tutor',v:thu,col:'#f59e0b',ic:'🔎',conv:convRT},
-    {n:'PCU',d:'PCU tab rows · profile sharing / payment',v:pcu,col:'#06b6d4',ic:'📋',conv:convTP},
-    {n:'Completed',d:'Master Request · status Completed',v:completed,col:'#22c55e',ic:'✅',conv:convPC},
-    {n:'Cancelled',d:'Master Request · status Cancelled',v:cancelled,col:'#ef4444',ic:'✖',conv:'drop'}
-  ];
-  let fh='';
-  stages.forEach(s=>{
-    if(s.conv==='drop') fh+='<div class="fnl-conv drop">⚠ Drop-off</div>';
-    else if(s.conv!=null) fh+='<div class="fnl-conv">↓ '+s.conv+'% conversion</div>';
-    const w=s.v>0?Math.max(Math.round(s.v/maxF*100),3):0;
-    fh+='<div class="fnl-row"><span class="fnl-ico">'+s.ic+'</span><div class="fnl-main">'+
-      '<div class="fnl-top"><span class="fnl-name">'+s.n+'</span><span class="fnl-vp"><b style="color:'+s.col+'">'+s.v.toLocaleString()+'</b> <span class="pill" style="background:'+s.col+'22;color:'+s.col+'">'+pctT(s.v)+'%</span></span></div>'+
-      '<div class="fnl-desc">'+s.d+'</div><div class="fnl-bar"><span style="width:'+w+'%;background:'+s.col+'"></span></div></div></div>';
-  });
-  document.getElementById('funnelBox').innerHTML=fh;
+  const elFunnel = document.getElementById('funnelBox');
+  if (elFunnel) {
+    const reachedTHU=thu+pcu+completed, reachedPCU=pcu+completed, reachedRCU=rcu+thu+pcu+completed;
+    const cv=(a,b)=>b?Math.round(a/b*1000)/10:0;
+    const convRT=cv(reachedTHU,reachedRCU), convTP=cv(reachedPCU,reachedTHU), convPC=cv(completed,reachedPCU);
+    const maxF=Math.max(rcu,thu,pcu,completed,cancelled,1);
+    const stages=[
+      {n:'RCU',d:'RCU tab rows · new arrivals',v:rcu,col:'#3b82f6',ic:'📥',conv:null},
+      {n:'THU',d:'THU tab rows · searching for tutor',v:thu,col:'#f59e0b',ic:'🔎',conv:convRT},
+      {n:'PCU',d:'PCU tab rows · profile sharing / payment',v:pcu,col:'#06b6d4',ic:'📋',conv:convTP},
+      {n:'Completed',d:'Master Request · status Completed',v:completed,col:'#22c55e',ic:'✅',conv:convPC},
+      {n:'Cancelled',d:'Master Request · status Cancelled',v:cancelled,col:'#ef4444',ic:'✖',conv:'drop'}
+    ];
+    let fh='';
+    stages.forEach(s=>{
+      if(s.conv==='drop') fh+='<div class="fnl-conv drop">⚠ Drop-off</div>';
+      else if(s.conv!=null) fh+='<div class="fnl-conv">↓ '+s.conv+'% conversion</div>';
+      const w=s.v>0?Math.max(Math.round(s.v/maxF*100),3):0;
+      fh+='<div class="fnl-row"><span class="fnl-ico">'+s.ic+'</span><div class="fnl-main">'+
+        '<div class="fnl-top"><span class="fnl-name">'+s.n+'</span><span class="fnl-vp"><b style="color:'+s.col+'">'+s.v.toLocaleString()+'</b> <span class="pill" style="background:'+s.col+'22;color:'+s.col+'">'+pctT(s.v)+'%</span></span></div>'+
+        '<div class="fnl-desc">'+s.d+'</div><div class="fnl-bar"><span style="width:'+w+'%;background:'+s.col+'"></span></div></div></div>';
+    });
+    elFunnel.innerHTML=fh;
+  }
+
   // METRIC PANELS
-  document.getElementById('metricsBox').innerHTML=
-    '<div class="mcard mc-green"><div class="mc-lbl">✅ Success Rate</div><div class="mc-val">'+compRate+'%</div><div class="mc-sub">'+completed.toLocaleString()+' of '+total.toLocaleString()+' completed</div></div>'+
-    '<div class="mcard mc-amber"><div class="mc-lbl">⏳ Active Pipeline</div><div class="mc-val">'+active.toLocaleString()+'</div><div class="mc-sub">'+pctT(active)+'% still in workflow</div></div>'+
-    '<div class="mcard mc-red"><div class="mc-lbl">✖ Cancellation Rate</div><div class="mc-val">'+cancRate+'%</div><div class="mc-sub">'+cancelled.toLocaleString()+' cancelled</div></div>'+
-    '<div class="mcard mc-blue"><div class="mc-lbl">📊 Stage Conversion</div>'+
-      '<div class="mc-row"><span>RCU → THU</span><b style="color:#21D4FD">'+convRT+'%</b></div>'+
-      '<div class="mc-row"><span>THU → PCU</span><b style="color:#21D4FD">'+convTP+'%</b></div>'+
-      '<div class="mc-row"><span>PCU → Completed</span><b style="color:#21D4FD">'+convPC+'%</b></div></div>';
+  const elMetrics = document.getElementById('metricsBox');
+  if (elMetrics) {
+    const reachedTHU=thu+pcu+completed, reachedPCU=pcu+completed, reachedRCU=rcu+thu+pcu+completed;
+    const cv=(a,b)=>b?Math.round(a/b*1000)/10:0;
+    const convRT=cv(reachedTHU,reachedRCU), convTP=cv(reachedPCU,reachedTHU), convPC=cv(completed,reachedPCU);
+    elMetrics.innerHTML=
+      '<div class="mcard mc-green"><div class="mc-lbl">✅ Success Rate</div><div class="mc-val">'+compRate+'%</div><div class="mc-sub">'+completed.toLocaleString()+' of '+total.toLocaleString()+' completed</div></div>'+
+      '<div class="mcard mc-amber"><div class="mc-lbl">⏳ Active Pipeline</div><div class="mc-val">'+active.toLocaleString()+'</div><div class="mc-sub">'+pctT(active)+'% still in workflow</div></div>'+
+      '<div class="mcard mc-red"><div class="mc-lbl">✖ Cancellation Rate</div><div class="mc-val">'+cancRate+'%</div><div class="mc-sub">'+cancelled.toLocaleString()+' cancelled</div></div>'+
+      '<div class="mcard mc-blue"><div class="mc-lbl">📊 Stage Conversion</div>'+
+        '<div class="mc-row"><span>RCU → THU</span><b style="color:#21D4FD">'+convRT+'%</b></div>'+
+        '<div class="mc-row"><span>THU → PCU</span><b style="color:#21D4FD">'+convTP+'%</b></div>'+
+        '<div class="mc-row"><span>PCU → Completed</span><b style="color:#21D4FD">'+convPC+'%</b></div></div>';
+  }
 }
 
 function renderYearly(){
@@ -1382,6 +1548,7 @@ function renderUnits(){
     data:{labels:byCat.map(e=>e[0]),datasets:[{label:'Request',data:byCat.map(e=>e[1]),
       backgroundColor:byCat.map(e=>stageColor(deriveStage(e[0],''))),borderRadius:5}]},
     options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}});
+  renderClassMode();
 }
 
 // Outcome ikut peranan.
@@ -1467,6 +1634,20 @@ function renderStaff(){
     ...x,
     rate: x.handled ? Math.min(100, Math.round(x.out/x.handled*100)) : (x.out ? 100 : 0)
   })).sort((a,b)=>b.handled-a.handled);
+
+  // STAFF WORKLOAD OVERVIEW SUMMARY WIDGET
+  const openTickets = VIEW.filter(r => r.stage === 'RCU' || r.stage === 'THU' || r.stage === 'PCU').length;
+  const closedTodayStaff = ALL.filter(r => (r.stage === 'Completed' || r.stage === 'Cancelled') && (isToday(r.tsCompleted) || isToday(r.ts))).length;
+  const pendingTickets = VIEW.filter(r => r.pendingTutor).length;
+
+  const elStaffWk = document.getElementById('opStaffWorkload');
+  if (elStaffWk) {
+    elStaffWk.innerHTML = [
+      { l: 'Open Tickets', v: openTickets, f: 'Active in workflow (RCU/THU/PCU)', c: 'b1' },
+      { l: 'Closed Today', v: closedTodayStaff, f: 'Completed / Cancelled today', c: 'b2' },
+      { l: 'Pending Tickets', v: pendingTickets, f: 'Sourcing pending tutor', c: 'b3' }
+    ].map(k => `<div class="kpi ${k.c}"><div class="label">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`).join('');
+  }
 
   // role filter dropdown
   const fRole=document.getElementById('fRole'); const cur=fRole.value;
@@ -1598,7 +1779,48 @@ function renderStaff(){
   document.getElementById('staffTableContainer').innerHTML=html||'<div class="small" style="padding:12px">No agents detected in this range.</div>';
 }
 
+function renderAgingAndReasons() {
+  const age0_7 = VIEW.filter(r => r.pendingTutor && r.age != null && r.age <= 7).length;
+  const age8_30 = VIEW.filter(r => r.pendingTutor && r.age != null && r.age >= 8 && r.age <= 30).length;
+  const age31_60 = VIEW.filter(r => r.pendingTutor && r.age != null && r.age > 30 && r.age <= 60).length;
+  const age60Plus = VIEW.filter(r => r.pendingTutor && r.age != null && r.age > 60).length;
+
+  const agingCards = [
+    { l: '0–7 Days', v: age0_7, f: 'Fresh pending', c: 'b2' },
+    { l: '8–30 Days', v: age8_30, f: 'Moderate age', c: 'b3' },
+    { l: '>30 Days', v: age31_60, f: 'High age', c: 'b5' },
+    { l: '>60 Days', v: age60Plus, f: 'Critical backlog', c: 'b4' }
+  ];
+  const elAging = document.getElementById('opTicketAging');
+  if (elAging) {
+    elAging.innerHTML = agingCards.map(k =>
+      `<div class="kpi ${k.c}"><div class="label">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`
+    ).join('');
+  }
+
+  const pBlast = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'broadcast' || _norm(r.cat) === 'channelgroupwa' || _norm(r.cat) === 'opentreq')).length;
+  const pWaitTutor = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'manualindividual' || _norm(r.cat) === 'verifytutor' || _norm(r.cat) === 'reengagementtutor')).length;
+  const pWaitParent = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'pendingresponseparents' || _norm(r.cat) === 'pendingconfirmation')).length;
+  const pPendingFollowUp = VIEW.filter(r => r.pendingTutor && (_norm(r.cat) === 'pendingpayment' || _norm(r.cat) === '' || _norm(r.cat) === '-')).length;
+  const pCompNotClosed = VIEW.filter(r => r.stage === 'PCU' && _norm(r.cat) === 'doneshareprofile').length;
+
+  const reasonCards = [
+    { l: 'Need Blast', v: pBlast, f: 'Open / Channel WA', c: 'b1' },
+    { l: 'Waiting Tutor', v: pWaitTutor, f: 'Manual / Verify', c: 'b3' },
+    { l: 'Waiting Parent', v: pWaitParent, f: 'Parents response', c: 'b5' },
+    { l: 'Pending Follow Up', v: pPendingFollowUp, f: 'Payment / Followup', c: 'b6' },
+    { l: 'Completed Not Closed', v: pCompNotClosed, f: 'Done Share Profile', c: 'b2' }
+  ];
+  const elReason = document.getElementById('opPendingReason');
+  if (elReason) {
+    elReason.innerHTML = reasonCards.map(k =>
+      `<div class="kpi ${k.c}"><div class="label" style="font-size:11px;">${k.l}</div><div class="val">${k.v}</div><div class="foot">${k.f}</div></div>`
+    ).join('');
+  }
+}
+
 function renderRisk(){
+  renderAgingAndReasons();
   const pend=VIEW.filter(r=>r.pendingTutor&&r.age!=null);
   const urgent=VIEW.filter(r=>r.urgent);
   const b=[0,0,0,0]; pend.forEach(r=>{if(r.age<=3)b[0]++;else if(r.age<=7)b[1]++;else if(r.age<=14)b[2]++;else b[3]++;});
@@ -1625,13 +1847,14 @@ function renderRisk(){
 
 /* ===== DATA TABLE ===== */
 function renderDataFilters(){
-  const sel=document.getElementById('fStage'); const cur=sel.value;
+  const sel=document.getElementById('fStage'); if(!sel) return; const cur=sel.value;
   const stages=orderedStages(groupCount(ALL,r=>r.stage));
   sel.innerHTML='<option value="">All Stages</option>'+stages.map(s=>`<option ${s===cur?'selected':''}>${s}</option>`).join('');
 }
 function currentFiltered(){
-  const q=s(document.getElementById('search').value).toLowerCase();
-  const fs=document.getElementById('fStage').value, ft=document.getElementById('fType').value, fm=document.getElementById('fMode').value;
+  const elSearch=document.getElementById('search'), elStage=document.getElementById('fStage'), elType=document.getElementById('fType'), elMode=document.getElementById('fMode');
+  const q=elSearch?s(elSearch.value).toLowerCase():'';
+  const fs=elStage?elStage.value:'', ft=elType?elType.value:'', fm=elMode?elMode.value:'';
   return VIEW.filter(r=>{
     if(fs&&r.stage!==fs)return false; if(ft&&r.type!==ft)return false;
     if(fm&&modeBucket(r['Mode'])!==fm)return false;
@@ -1640,14 +1863,18 @@ function currentFiltered(){
   });
 }
 function renderData(){
+  const elTable=document.getElementById('dataTable'); if(!elTable) return;
   let rows=currentFiltered();
   rows.sort((a,b)=>{let x=a[sortKey],y=b[sortKey]; if(sortKey==='age'){x=x==null?-1:x;y=y==null?-1:y;}
     if(typeof x==='string')x=x.toLowerCase(); if(typeof y==='string')y=y.toLowerCase(); return (x>y?1:x<y?-1:0)*sortDir;});
-  document.getElementById('dataCount').textContent=rows.length+' request';
-  document.querySelector('#dataTable tbody').innerHTML=rows.slice(0,500).map(r=>`
-    <tr><td>${r['Request ID']||'—'}</td><td><span class="pill ${r.stage==='Completed'?'ok':r.stage==='Cancelled'?'danger':r.stage==='PCU'?'info':'warn'}">${r.stage}</span></td>
-    <td>${r['Subject | Level']||''}</td><td>${r.type}</td><td>${r['Mode']||''}</td><td>${r.agent||'—'}</td>
-    <td>${r.age==null?'—':r.age+'h'}</td><td>${r.month||'—'}</td></tr>`).join('');
+  const elCount=document.getElementById('dataCount'); if(elCount) elCount.textContent=rows.length+' request';
+  const tbody=elTable.querySelector('tbody');
+  if(tbody){
+    tbody.innerHTML=rows.slice(0,500).map(r=>`
+      <tr><td>${r['Request ID']||'—'}</td><td><span class="pill ${r.stage==='Completed'?'ok':r.stage==='Cancelled'?'danger':r.stage==='PCU'?'info':'warn'}">${r.stage}</span></td>
+      <td>${r['Subject | Level']||''}</td><td>${r.type}</td><td>${r['Mode']||''}</td><td>${r.agent||'—'}</td>
+      <td>${r.age==null?'—':r.age+'h'}</td><td>${r.month||'—'}</td></tr>`).join('');
+  }
 }
 function sortData(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;}renderData();}
 function exportCSV(){
@@ -1781,8 +2008,10 @@ function hbarSm(canvasId,key,entries,color){
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('main section').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
-  if(b.dataset.tab==='report')renderDailyReport();
+  b.classList.add('active');
+  const target = document.getElementById(b.dataset.tab);
+  if(target) target.classList.add('active');
+  if(b.dataset.tab==='reports' || b.dataset.tab==='report') renderDailyReport();
   if(window.innerWidth<=1024) document.body.classList.remove('nav-open'); }));
 document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.p)));
 const repDateSelEl = document.getElementById('repDateSel');
@@ -1999,9 +2228,32 @@ function renderDailyReport(dateStr) {
 }
 
 function printDailyReportSheet() {
+  const fb = document.querySelector('.filterbar');
+  const hdr = document.querySelector('header');
+  const nav = document.querySelector('#nav');
+  const otherSections = document.querySelectorAll('main > section:not(#report)');
+  const reportToolbar = document.querySelector('#report > *:not(#dailyReportSheet)');
+  
+  if (fb) fb.style.setProperty('display', 'none', 'important');
+  if (hdr) hdr.style.setProperty('display', 'none', 'important');
+  if (nav) nav.style.setProperty('display', 'none', 'important');
+  otherSections.forEach(s => s.style.setProperty('display', 'none', 'important'));
+  if (reportToolbar) reportToolbar.style.setProperty('display', 'none', 'important');
+  
   document.body.classList.add('printing-daily-report');
+  
+  // Force browser layout recalculation
+  document.body.offsetHeight;
+  
   window.print();
+  
   document.body.classList.remove('printing-daily-report');
+  
+  if (fb) fb.style.removeProperty('display');
+  if (hdr) hdr.style.removeProperty('display');
+  if (nav) nav.style.removeProperty('display');
+  otherSections.forEach(s => s.style.removeProperty('display'));
+  if (reportToolbar) reportToolbar.style.removeProperty('display');
 }
 
 if(!cfg.url)cfg.url=DEFAULT_URL;
