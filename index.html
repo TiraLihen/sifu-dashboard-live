@@ -702,12 +702,15 @@ function failNote(){
 
 /* ===== INGEST ===== */
 function s(v){return String(v==null?'':v).trim();}
-const SKIP_TABS=['config_hidden','sheet 4','sheet4']; // tab yang TIDAK dikira dalam dashboard
+const SKIP_KEYWORDS=['config','hidden','sheet 4','sheet4']; // keyword tab yang TIDAK dikira dalam dashboard
 function ingest(payload){
   try {
     RAW=payload;
     let tabs=payload.tabs||(payload.rows?[{sheet:payload.sheet,rows:payload.rows}]:[]);
-    tabs=tabs.filter(t=>SKIP_TABS.indexOf(String(t.sheet||'').toLowerCase().trim())===-1);
+    tabs=tabs.filter(t=>{
+      const name = String(t.sheet||'').toLowerCase();
+      return !SKIP_KEYWORDS.some(kw => name.indexOf(kw) > -1);
+    });
     const allRows=[]; let noId=0; const occ={};
     tabs.forEach(t=>(t.rows||[]).forEach(r=>{
       let id=s(field(r,['Request ID']));
