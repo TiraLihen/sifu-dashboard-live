@@ -6,12 +6,15 @@
 <title>Admin Support — Live Operation Dashboard · Sifu Tutor</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#060B26;--bg1:#0F1535;--panel:linear-gradient(127deg,rgba(6,11,38,.74) 28%,rgba(26,31,55,.5) 100%);--panel2:rgba(255,255,255,.06);--line:rgba(255,255,255,.12);--txt:#ffffff;--muted:#A0AEC0;
+  :root{--bg:#080B1F;--bg1:#0E1330;--panel:linear-gradient(135deg,rgba(15,22,55,0.72) 0%,rgba(10,14,38,0.85) 100%);--panel2:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);--txt:#ffffff;--muted:#94A3B8;
+    --font-heading:'Outfit','Segoe UI',sans-serif;--font-body:'Inter','Segoe UI',sans-serif;
     --accent:#0075FF;--accent2:#582CFF;--ok:#01B574;--warn:#FFB547;--danger:#EE5D50;--info:#21D4FD;--radius:20px;--side:232px}
-  *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans','Segoe UI',Roboto,system-ui,sans-serif}
-  body{background:#060B26;background-image:radial-gradient(1100px 700px at 88% -8%,rgba(0,117,255,.25),transparent 55%),radial-gradient(900px 700px at 10% 8%,rgba(88,44,255,.18),transparent 55%),linear-gradient(180deg,#0A0E26,#0B1031);background-attachment:fixed;color:var(--txt);font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-body)}
+  h1,h2,h3,h4,.sec-title,.val,.ab-head,.mc-val,.cm-n{font-family:var(--font-heading)}
+  body{background:#080B1F;background-image:radial-gradient(1200px 800px at 85% -10%,rgba(0,117,255,.22),transparent 60%),radial-gradient(1000px 700px at 15% 15%,rgba(88,44,255,.15),transparent 60%),linear-gradient(180deg,#060919,#0A0E2B);background-attachment:fixed;color:var(--txt);font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
   a{color:var(--accent)}
   header{margin-left:var(--side);background:rgba(15,21,53,.55);backdrop-filter:blur(20px);padding:18px 30px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line)}
   header h1{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
@@ -324,17 +327,23 @@
 
 <nav id="nav">
   <div class="navlogo"><img src="sifututor_logo.png" alt="Sifu Tutor" onerror="this.parentElement.innerHTML='<span style=&quot;font-weight:800;font-size:15px;letter-spacing:.1em;color:#fff&quot;>⚡ SIFU OPS</span>'"></div>
-  <button data-tab="overview" class="active"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></span><span class="lbl">Overview</span></button>
-  <button data-tab="hotspots"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg></span><span class="lbl">Hotspots</span></button>
-  <button data-tab="daily"><span class="ico"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14zM7 11h5v5H7z"/></svg></span><span class="lbl">Daily</span></button>
-  <button data-tab="units"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v3H4zm3 6h10v3H7zm3 6h4v3h-4z"/></svg></span><span class="lbl">Workflow &amp; Unit</span></button>
+  
+  <div class="nav-group-title">🏠 Executive &amp; Ops</div>
+  <button data-tab="overview" class="active"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></span><span class="lbl">Home &amp; Pulse</span></button>
+  <button data-tab="daily"><span class="ico"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14zM7 11h5v5H7z"/></svg></span><span class="lbl">Daily Performance</span></button>
+
+  <div class="nav-group-title">📊 Analytics &amp; Units</div>
+  <button data-tab="units"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v3H4zm3 6h10v3H7zm3 6h4v3h-4z"/></svg></span><span class="lbl">Stages &amp; Units</span></button>
+  <button data-tab="hotspots"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg></span><span class="lbl">Hotspots Analytics</span></button>
+
+  <div class="nav-group-title">👥 Team &amp; Risk</div>
   <button data-tab="staff"><span class="ico"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.7 0-8 1.3-8 4v3h10v-3c0-1 .5-1.9 1.3-2.6A12 12 0 0 0 8 13zm8 0c-.3 0-.7 0-1.1.1A5 5 0 0 1 18 17v3h6v-3c0-2.7-5.3-4-8-4z"/></svg></span><span class="lbl">Staff Workload</span></button>
-  <button data-tab="trend"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 19h2V9H4zm5 0h2V5H9zm5 0h2v-7h-2zm5 0h2V3h-2z"/></svg></span><span class="lbl">Trend</span></button>
-  <button data-tab="monthly"><span class="ico"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14zm-8.5-2L7 14.5 8.1 13.4l2.4 2.4 4.4-4.4L16 12.5z"/></svg></span><span class="lbl">Monthly</span></button>
+  <button data-tab="risk"><span class="ico"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg></span><span class="lbl">SLA &amp; Risk Control</span></button>
+
+  <div class="nav-group-title">📄 BI &amp; Reports</div>
+  <button data-tab="data"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 5h18v4H3zm0 6h18v4H3zm0 6h18v2H3z"/></svg></span><span class="lbl">Request Explorer</span></button>
   <button data-tab="report"><span class="ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm2 16H8v-2h8zm0-4H8v-2h8zm-3-5V3.5L18.5 9z"/></svg></span><span class="lbl">Daily Report</span></button>
-  <button data-tab="risk"><span class="ico"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg></span><span class="lbl">Urgent &amp; Aging</span></button>
-  <button data-tab="data"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 5h18v4H3zm0 6h18v4H3zm0 6h18v2H3z"/></svg></span><span class="lbl">Request Data</span></button>
-  <button data-tab="links"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z"/></svg></span><span class="lbl">Quick Links</span></button>
+  <button data-tab="links"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z"/></svg></span><span class="lbl">Operational Links</span></button>
 </nav>
 
 <div class="filterbar">
@@ -353,35 +362,14 @@
 
 <main>
   <section id="overview" class="active">
-    <h2 class="sec-title">🏠 Operation Overview</h2>
+    <h2 class="sec-title">🏠 Home &amp; Executive Operational Pulse</h2>
     <p class="sec-desc">Calculated automatically from Master Tutor Request based on the selected date range (by Timestamp).</p>
-    <div class="action-banner" id="actionBanner" style="margin-bottom:18px;"></div>
+    
+    <div class="action-banner" id="actionBanner" style="margin-bottom:20px;"></div>
 
-    <div class="row c2" style="margin-bottom:18px;">
-      <div class="panel">
-        <h3>⚡ Today's Action <span class="tag">immediate operational tasks</span></h3>
-        <div class="kpi-grid" id="opTodaysAction" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
-      </div>
-      <div class="panel">
-        <h3>📈 Today's Progress <span class="tag">daily execution balance</span></h3>
-        <div class="kpi-grid" id="opTodaysProgress" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
-      </div>
-    </div>
+    <div class="kpi-grid" id="kpiGrid" style="margin-bottom:20px;"></div>
 
-    <div class="row c2" style="margin-bottom:18px;">
-      <div class="panel" style="margin-bottom:0;">
-        <h3>⏳ Ticket Aging Breakdown <span class="tag">pending tutor duration</span></h3>
-        <div class="kpi-grid" id="opTicketAging" style="grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px;"></div>
-      </div>
-      <div class="panel" style="margin-bottom:0;">
-        <h3>❓ Pending Reason Breakdown <span class="tag">bottleneck sub-status</span></h3>
-        <div class="kpi-grid" id="opPendingReason" style="grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px;"></div>
-      </div>
-    </div>
-
-    <div class="kpi-grid" id="kpiGrid" style="margin-bottom:18px;"></div>
-
-    <div class="row main-grid" style="margin-bottom:18px;">
+    <div class="row main-grid" style="margin-bottom:20px;">
       <div class="panel"><h3>📊 Workflow Funnel <span class="tag">Raw count per tab · RCU → THU → PCU → Master Request</span></h3><div id="funnelBox" style="margin-top:6px"></div></div>
       <div class="metrics-col" id="metricsBox"></div>
     </div>
@@ -399,8 +387,20 @@
   </section>
 
   <section id="daily">
-    <h2 class="sec-title">📅 Daily Summary</h2>
-    <p class="sec-desc"><b>Incoming</b> = by Timestamp · <b>Secured</b> = Date Secured · <b>Share Profile</b> = Date Profile Shared · <b>Completed</b> = Date Completed (actual activity that day). By date range. <i>Note: Completed has full history (col AI); Secured & Share Profile auto-log from now on.</i></p>
+    <h2 class="sec-title">📅 Daily Operational Summary</h2>
+    <p class="sec-desc"><b>Incoming</b> = by Timestamp · <b>Secured</b> = Date Secured · <b>Share Profile</b> = Date Profile Shared · <b>Completed</b> = Date Completed (actual activity that day).</p>
+
+    <div class="row c2" style="margin-bottom:18px;">
+      <div class="panel">
+        <h3>⚡ Today's Action <span class="tag">immediate operational tasks</span></h3>
+        <div class="kpi-grid" id="opTodaysAction" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
+      </div>
+      <div class="panel">
+        <h3>📈 Today's Progress <span class="tag">daily execution balance</span></h3>
+        <div class="kpi-grid" id="opTodaysProgress" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
+      </div>
+    </div>
+
     <div class="kpi-grid" id="dailyKpis"></div>
     <div class="row c2" style="margin-top:14px;">
       <div class="panel"><h3>Incoming vs Secured+Completed <span class="tag">daily</span></h3><div class="chart-wrap"><canvas id="chDaily"></canvas></div></div>
@@ -592,7 +592,20 @@
   </section>
 
   <section id="risk">
-    <h2 class="sec-title">🚨 Urgent &amp; Aging Bottlenecks</h2>
+    <h2 class="sec-title">🚨 SLA &amp; Risk Control Management</h2>
+    <p class="sec-desc">Monitoring urgent requests, SLA breach risks, aging tickets, and operational bottleneck sub-statuses.</p>
+
+    <div class="row c2" style="margin-bottom:18px;">
+      <div class="panel" style="margin-bottom:0;">
+        <h3>⏳ Ticket Aging Breakdown <span class="tag">pending tutor duration</span></h3>
+        <div class="kpi-grid" id="opTicketAging" style="grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px;"></div>
+      </div>
+      <div class="panel" style="margin-bottom:0;">
+        <h3>❓ Pending Reason Breakdown <span class="tag">bottleneck sub-status</span></h3>
+        <div class="kpi-grid" id="opPendingReason" style="grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px;"></div>
+      </div>
+    </div>
+
     <div class="kpi-grid" id="riskKpis" style="margin-bottom:16px;"></div>
     <div class="row c2">
       <div class="panel"><h3>Pending Tutor Age Distribution <span class="tag">days</span></h3><div class="chart-wrap sm"><canvas id="chAging"></canvas></div></div>
