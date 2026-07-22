@@ -90,10 +90,31 @@
   th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line)}
   th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:600;cursor:pointer;user-select:none}
   tbody tr:hover{background:var(--panel2)}
-  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-  .pill.ok{background:rgba(34,197,94,.15);color:#4ade80}.pill.warn{background:rgba(245,158,11,.15);color:#fbbf24}
-  .pill.danger{background:rgba(239,68,68,.15);color:#f87171}.pill.info{background:rgba(6,182,212,.15);color:#22d3ee}
   .pill.muted{background:var(--panel2);color:var(--muted)}.pill.purple{background:rgba(139,92,246,.15);color:#c4b5fd}
+  
+  select.status-select-pill {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
+    padding-right: 24px !important;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  select.status-select-pill.ok { background-color: rgba(1, 181, 116, 0.25); color: #01B574; border: 1px solid #01B574; }
+  select.status-select-pill.warn { background-color: rgba(255, 181, 71, 0.25); color: #FFB547; border: 1px solid #FFB547; }
+  select.status-select-pill.cyan { background-color: rgba(33, 212, 253, 0.25); color: #21D4FD; border: 1px solid #21D4FD; }
+  select.status-select-pill.danger { background-color: rgba(238, 93, 80, 0.25); color: #EE5D50; border: 1px solid #EE5D50; }
+  select.status-select-pill.info { background-color: rgba(0, 117, 255, 0.25); color: #0075FF; border: 1px solid #0075FF; }
   .alert-list{list-style:none}.alert-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:12.5px}
   .alert-list li:last-child{border-bottom:none}
   .note{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:12px 14px;font-size:12.5px;color:#bfdbfe;margin-bottom:18px}
@@ -607,9 +628,9 @@
     </div>
 
     <div class="kpi-grid" id="riskKpis" style="margin-bottom:16px;"></div>
-    <div class="row c2">
-      <div class="panel"><h3>Pending Tutor Age Distribution <span class="tag">days</span></h3><div class="chart-wrap sm"><canvas id="chAging"></canvas></div></div>
-      <div class="panel"><h3>Urgent by Stage</h3><div class="chart-wrap sm"><canvas id="chUrgentUnit"></canvas></div></div>
+    <div class="panel" style="margin-bottom:16px;">
+      <h3>Pending Tutor Age Distribution <span class="tag">days</span></h3>
+      <div class="chart-wrap sm"><canvas id="chAging"></canvas></div>
     </div>
     <div class="panel" style="margin-top:14px;">
       <h3 class="flex-between"><span>🔴 Longest Pending Tutor (Top 30)</span><span class="small">still in RCU/THU, not yet reached PCU</span></h3>
@@ -665,10 +686,10 @@
     </div>
   </div>
 </div>
-<div class="overlay" id="loader"><div class="spinner"></div><div id="loaderText">Loading data from Master Tutor Request…</div></div>
+<div class="overlay hidden" id="loader"><div class="spinner"></div><div id="loaderText">Loading data from Master Tutor Request…</div></div>
 
 <div class="overlay hidden" id="pcuModal" onclick="if(event.target===this) closePcuModal()">
-  <div class="panel" style="max-width:680px;width:95%;box-sizing:border-box;position:relative;background:#0F1535;border:1px solid var(--line);box-shadow:0 24px 50px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;padding:24px;">
+  <div class="panel" style="max-width:880px;width:95%;box-sizing:border-box;position:relative;background:#0F1535;border:1px solid var(--line);box-shadow:0 24px 50px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;padding:24px;">
     <div id="pcuModalContent"></div>
   </div>
 </div>
@@ -681,6 +702,14 @@ let cfg=loadCfg();
 let RAW=null, ALL=[], VIEW=[], DUPLICATES=[], charts={}, sortKey='age', sortDir=-1, autoTimer=null, jsonpId=0;
 let range={from:null,to:null,preset:'all'};
 
+function showLoader(txt){
+  const el=document.getElementById('loaderText'); if(el&&txt) el.innerText=txt;
+  const l=document.getElementById('loader'); if(l) l.classList.remove('hidden');
+}
+function hideLoader(){
+  const l=document.getElementById('loader'); if(l) l.classList.add('hidden');
+}
+
 function loadCfg(){ try{return JSON.parse(localStorage.getItem(CFG_KEY))||{}}catch(e){return{}} }
 function saveCfg(){ localStorage.setItem(CFG_KEY,JSON.stringify(cfg)); }
 
@@ -692,21 +721,64 @@ function getMsiaDate(ts){
   return new Date(utc+(3600000*8));
 }
 
-/* ===== JSONP ===== */
+const CACHE_KEY = 'st_data_cache_v2';
+
+function loadCachedData() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+
+function saveCachedData(payload) {
+  try {
+    if (payload && (payload.tabs || payload.rows)) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+    }
+  } catch(e) {
+    console.warn('Cache quota:', e);
+  }
+}
+
+/* ===== JSONP & INSTANT CACHE ===== */
 function refresh(){
   const url=(cfg.url||DEFAULT_URL).trim(); if(!url){hideLoader();openSettings();return;}
-  setLive('loading');
+  
+  // Guarantee full-screen overlay is hidden within 500ms so dashboard is immediately usable
+  setTimeout(function(){ hideLoader(); }, 500);
+  
+  // 1. Instant Cache Load (0.01s startup)
+  const cached = loadCachedData();
+  let loadedFromCache = false;
+  if (cached && !RAW) {
+    try {
+      ingest(cached);
+      loadedFromCache = true;
+      hideLoader();
+      setLive('loading');
+    } catch(e) {
+      console.warn('Cache ingest error:', e);
+    }
+  } else {
+    setLive('loading');
+  }
+
+  // 2. Fetch fresh live data from Apps Script
   const cb='__ingest_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
   const s=document.createElement('script'); let done=false;
   window[cb]=function(p){
     done=true;
     clean();
-    try { ingest(p); } catch(e) { console.error(e); } finally { hideLoader(); }
+    try {
+      saveCachedData(p);
+      ingest(p);
+    } catch(e) { console.error(e); } finally { hideLoader(); }
   };
   function clean(){try{delete window[cb]}catch(e){} if(s.parentNode)s.parentNode.removeChild(s);}
-  s.onerror=function(){if(!done){clean();setLive('err');hideLoader();failNote();}};
+  s.onerror=function(){if(!done){clean();setLive('err');hideLoader();if(!loadedFromCache)failNote();}};
   s.src=url+sep+'callback='+cb+'&_t='+Date.now(); document.body.appendChild(s);
-  setTimeout(function(){if(!done){clean();setLive('err');hideLoader();failNote();}},90000);
+  setTimeout(function(){if(!done){clean();if(!loadedFromCache){setLive('err');hideLoader();failNote();}}},90000);
 }
 function failNote(){
   const elAlerts = document.getElementById('alerts');
@@ -725,7 +797,7 @@ function ingest(payload){
       return !SKIP_KEYWORDS.some(kw => name.indexOf(kw) > -1);
     });
     const allRows=[]; let noId=0; const occ={};
-    tabs.forEach(t=>(t.rows||[]).forEach(r=>{
+    tabs.forEach(t=>(t.rows||[]).forEach((r, idx)=>{
       let id=s(field(r,['Request ID']));
       let isTempId = false;
       if(!id){ 
@@ -735,6 +807,8 @@ function ingest(payload){
       }
       const n=normalize(r,t.sheet);
       n.sheet = t.sheet;
+      n.gid = t.gid != null ? t.gid : (t.sheetId != null ? t.sheetId : null);
+      n.rowNum = r._row || r.rowNum || (idx + 2);
       if (isTempId) n['Request ID'] = '';
       allRows.push(n);
       if (!isTempId) {
@@ -763,6 +837,61 @@ function ingest(payload){
     hideLoader();
   }
 }
+
+const SHEET_GIDS = {
+  'rcu': '1382892376',
+  'thu': '1054022162',
+  'pcu': '1294300215',
+  'master requests': '798650660',
+  'master tutor request': '798650660',
+  'master': '798650660'
+};
+
+function getSheetRowUrl(r) {
+  if (!r) return '#';
+  const baseSheetUrl = 'https://docs.google.com/spreadsheets/d/1CN7PyGSA-55Ft0neB1c23m3JhSHelEm2C72ro0ksnjQ/edit';
+  const rowNum = r.rowNum || (r.rawRow && (r.rawRow._row || r.rawRow.rowNum));
+
+  let gid = r.gid || (r.rawRow && (r.rawRow.gid || r.rawRow._gid));
+
+  if (!gid && r.sheet) {
+    const sName = String(r.sheet).toLowerCase().trim();
+    if (SHEET_GIDS[sName]) {
+      gid = SHEET_GIDS[sName];
+    } else if (sName.indexOf('rcu') > -1) {
+      gid = SHEET_GIDS['rcu'];
+    } else if (sName.indexOf('thu') > -1) {
+      gid = SHEET_GIDS['thu'];
+    } else if (sName.indexOf('pcu') > -1) {
+      gid = SHEET_GIDS['pcu'];
+    } else if (sName.indexOf('master') > -1) {
+      gid = SHEET_GIDS['master requests'];
+    }
+  }
+
+  // Fallback by stage if sheet tab GID is still missing
+  if (!gid && r.stage) {
+    const stg = String(r.stage).toLowerCase().trim();
+    if (stg === 'rcu') gid = SHEET_GIDS['rcu'];
+    else if (stg === 'thu') gid = SHEET_GIDS['thu'];
+    else if (stg === 'pcu') gid = SHEET_GIDS['pcu'];
+    else if (stg === 'completed' || stg === 'cancelled') gid = SHEET_GIDS['master requests'];
+  }
+
+  const hashParts = [];
+  if (gid != null && String(gid).trim() !== '') {
+    hashParts.push(`gid=${gid}`);
+  }
+  if (rowNum != null && rowNum > 0) {
+    hashParts.push(`range=T${rowNum}`);
+  }
+
+  if (hashParts.length) {
+    return baseSheetUrl + '#' + hashParts.join('&');
+  }
+  return baseSheetUrl;
+}
+
 // Mapping Category -> stage (dari Config_Hidden). Boleh tambah category baru di sini.
 const CATEGORY_STAGE={
   'open treq':'RCU',
@@ -793,10 +922,23 @@ function deriveStageByTab(tab,cat,unit){
 }
 // Cari nilai kolum secara fleksibel — abaikan ruang/simbol/huruf besar-kecil pada header.
 function _norm(x){return String(x).toLowerCase().replace(/[^a-z0-9]/g,'');}
-function field(r,candidates){
-  for(const c of candidates){ if(Object.prototype.hasOwnProperty.call(r,c)) return r[c]; }
-  const targets=candidates.map(_norm);
-  for(const k in r){ if(targets.indexOf(_norm(k))>-1) return r[k]; }
+function field(r, candidates) {
+  if (!r) return '';
+  for (let i = 0; i < candidates.length; i++) {
+    const c = candidates[i];
+    if (r[c] !== undefined) return r[c];
+  }
+  if (!r._normKeys) {
+    const map = {};
+    for (const k in r) {
+      map[_norm(k)] = r[k];
+    }
+    r._normKeys = map;
+  }
+  for (let i = 0; i < candidates.length; i++) {
+    const target = _norm(candidates[i]);
+    if (r._normKeys[target] !== undefined) return r._normKeys[target];
+  }
   return '';
 }
 function deriveType(repRaw){
@@ -805,6 +947,27 @@ function deriveType(repRaw){
   if(v==='A'||v.indexOf('ADD')>-1) return 'Add Subject';
   return 'New';
 }
+function parseDateMsia(str) {
+  if (!str) return null;
+  const sStr = String(str).trim();
+  if (!sStr) return null;
+  let ts = Date.parse(sStr);
+  if (!isNaN(ts) && ts > 0) return ts;
+
+  const m = sStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+  if (m) {
+    const day = parseInt(m[1], 10);
+    const month = parseInt(m[2], 10) - 1;
+    const year = parseInt(m[3], 10);
+    const hours = m[4] ? parseInt(m[4], 10) : 0;
+    const mins = m[5] ? parseInt(m[5], 10) : 0;
+    const secs = m[6] ? parseInt(m[6], 10) : 0;
+    const d = new Date(year, month, day, hours, mins, secs);
+    if (!isNaN(d.getTime())) return d.getTime();
+  }
+  return null;
+}
+
 function normalize(r,tab){
   const unit=s(field(r,['Assigned Unit']))||tab||'—';
   const cat=s(field(r,['Category']));
@@ -813,17 +976,16 @@ function normalize(r,tab){
   const urgent=/urgent/i.test(s(field(r,['Special Request'])));
   const secured=(stage==='PCU'||stage==='Completed');
   const pendingTutor=(stage!=='PCU'&&stage!=='Completed'&&stage!=='Cancelled');
-  // Keutamaan: THU Broadcast (agent kedua) dahulu, kemudian Manual, PCU, RCU
   const agentCols=['Assigned Agent THU (Broadcast)','Assigned Agent THU (Manual)','Assigned Agent PCU','Assigned Agent RCU'];
   let agent='',role='';
-  const agents=[]; // SEMUA agent yang menyentuh request (untuk mod contribution)
+  const agents=[];
   for(const c of agentCols){const v=s(field(r,[c])); if(v&&v.toUpperCase()!=='PIC'){
     const rl=c.replace('Assigned Agent ','');
     agents.push({name:v,role:rl});
-    if(!agent){agent=v;role=rl;} // ownership = yang pertama (Broadcast diutamakan)
+    if(!agent){agent=v;role=rl;}
   }}
-  let ts=Date.parse(s(field(r,['Timestamp']))); if(isNaN(ts))ts=0;
-  const pd=x=>{const t=Date.parse(s(field(r,x)));return isNaN(t)?null:t;};
+  let ts = parseDateMsia(field(r,['Timestamp'])) || 0;
+  const pd = x => parseDateMsia(field(r,x));
   const tsMovedThu=pd(['Date Moved to THU']);
   const tsSecured=pd(['Date Secured']);
   const tsProfileShared=pd(['Date Profile Shared']);
@@ -837,8 +999,11 @@ function normalize(r,tab){
   const d=ts?getMsiaDate(ts):null;
   const month=d?['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getUTCMonth()]:s(field(r,['Month']));
   const dayKey=d?(d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')):'';
+  const note=s(field(r,['Note','Notes','Base Note','Base Notes','Special Request']));
+  const remark=s(field(r,['Remarks','Remark','Customer Remark','Description'])) || note;
   return {'Request ID':s(field(r,['Request ID'])),unit,cat,stage,type,urgent,secured,pendingTutor,agent,role,agents,
     'Subject | Level':s(field(r,['Subject | Level','Subject Level'])),'Mode':s(field(r,['Mode'])),
+    note,remark,rawRow:r,
     age,ts,tsMovedThu,tsSecured,tsProfileShared,tsCompleted,tsAssignRCU,tsAssignTHU,tsAssignTHU_BC,tsAssignPCU,tsReengSecured,month,dayKey};
 }
 
@@ -1703,25 +1868,24 @@ function renderStaff(){
     let unitHeader = '';
     if (rl.indexOf('THU') > -1) {
       unitHeader = `<thead><tr style="background:rgba(255,255,255,0.03);">
-        <th style="width:22%; padding:10px 12px; text-align:left;">Staff / Unit</th>
-        <th style="width:10%; padding:10px 12px; text-align:center;">% Unit</th>
-        <th style="width:10%; padding:10px 12px; text-align:center;">Handled</th>
-        <th style="width:13%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In Stage)</span></th>
-        <th style="width:16%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Secured <span class="small" style="color:#A0AEC0">(THU → PCU)</span></th>
+        <th style="width:20%; padding:10px 12px; text-align:left;">Staff / Unit</th>
+        <th style="width:8%; padding:10px 12px; text-align:center;">% Unit</th>
+        <th style="width:9%; padding:10px 12px; text-align:center;">Handled</th>
+        <th style="width:10%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In Stage)</span></th>
+        <th style="width:12%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Secured <span class="small" style="color:#A0AEC0">(THU → PCU)</span></th>
         <th style="width:10%; padding:10px 12px; text-align:center; color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
-        <th style="width:10%; padding:10px 12px; text-align:center; color:#EE5D50">🔴 Cancelled</th>
+        <th style="width:9%; padding:10px 12px; text-align:center; color:#EE5D50">🔴 Cancelled</th>
+        <th style="width:13%; padding:10px 12px; text-align:center; color:#c4b5fd">🟣 Overall <span class="small" style="color:#A0AEC0">(Sec+Comp+Canc)</span></th>
         <th style="width:9%; padding:10px 12px; text-align:center;">Rate ✓</th>
       </tr></thead>`;
     } else if (rl === 'RCU') {
       unitHeader = `<thead><tr style="background:rgba(255,255,255,0.03);">
-        <th style="width:22%; padding:10px 12px; text-align:left;">Staff / Unit</th>
-        <th style="width:10%; padding:10px 12px; text-align:center;">% Unit</th>
-        <th style="width:10%; padding:10px 12px; text-align:center;">Handled</th>
-        <th style="width:13%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In RCU)</span></th>
-        <th style="width:16%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Moved <span class="small" style="color:#A0AEC0">(RCU → THU)</span></th>
-        <th style="width:10%; padding:10px 12px; text-align:center; color:#01B574">🟢 Completed <span class="small" style="color:#A0AEC0">(Master)</span></th>
-        <th style="width:10%; padding:10px 12px; text-align:center; color:#EE5D50">🔴 Cancelled</th>
-        <th style="width:9%; padding:10px 12px; text-align:center;">Rate ✓</th>
+        <th style="width:28%; padding:10px 12px; text-align:left;">Staff / Unit</th>
+        <th style="width:12%; padding:10px 12px; text-align:center;">% Unit</th>
+        <th style="width:14%; padding:10px 12px; text-align:center;">Handled</th>
+        <th style="width:18%; padding:10px 12px; text-align:center; color:#FFB547">🟠 Pending <span class="small" style="color:#A0AEC0">(In RCU)</span></th>
+        <th style="width:18%; padding:10px 12px; text-align:center; color:#21D4FD">🔵 Moved <span class="small" style="color:#A0AEC0">(RCU → THU)</span></th>
+        <th style="width:10%; padding:10px 12px; text-align:center;">Rate ✓</th>
       </tr></thead>`;
     } else if (rl === 'PCU') {
       unitHeader = `<thead><tr style="background:rgba(255,255,255,0.03);">
@@ -1749,9 +1913,27 @@ function renderStaff(){
 
     let tbodyRows = list.map(s=>{const cls=s.rate>=80?'ok':s.rate>=60?'warn':'danger';
       const pctUnit = th ? Math.round(s.handled / th * 100) : 0;
-      const displayName = (rl === 'PCU')
-        ? `<span style="cursor:pointer; color:var(--info); font-weight:600; text-decoration:underline;" onclick="openPcuModal('${s.name}')">${s.name}</span>`
-        : s.name;
+      const displayName = `<span style="cursor:pointer; color:var(--info); font-weight:600; text-decoration:underline;" onclick="openStaffModal('${s.name}', '${rl}')" title="Klik untuk lihat tiket pending &amp; butiran">${s.name}</span>`;
+      if (rl === 'RCU') {
+        return `<tr style="background:rgba(255,255,255,0.015);"><td style="border-left:6px solid ${col}44; padding:10px 12px 10px 26px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; color:#fff;">${displayName}</td>
+          <td style="color:#A0AEC0; font-size:12.5px; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-variant-numeric:tabular-nums;">${pctUnit}% Unit</td>
+          <td style="font-weight:700; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; color:#e2e8f0; font-variant-numeric:tabular-nums;">${s.handled}</td>
+          <td style="color:#FFB547; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.pend}</td>
+          <td style="color:#21D4FD; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.sec}</td>
+          <td style="text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06);"><span class="pill ${cls}">${s.rate}%</span></td></tr>`;
+      }
+      if (rl.indexOf('THU') > -1) {
+        const overall = s.sec + s.comp + s.canc;
+        return `<tr style="background:rgba(255,255,255,0.015);"><td style="border-left:6px solid ${col}44; padding:10px 12px 10px 26px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; color:#fff;">${displayName}</td>
+          <td style="color:#A0AEC0; font-size:12.5px; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-variant-numeric:tabular-nums;">${pctUnit}% Unit</td>
+          <td style="font-weight:700; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; color:#e2e8f0; font-variant-numeric:tabular-nums;">${s.handled}</td>
+          <td style="color:#FFB547; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.pend}</td>
+          <td style="color:#21D4FD; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.sec}</td>
+          <td style="color:#01B574; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.comp}</td>
+          <td style="color:#EE5D50; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.canc}</td>
+          <td style="color:#c4b5fd; font-weight:800; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; font-variant-numeric:tabular-nums;">${overall}</td>
+          <td style="text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06);"><span class="pill ${cls}">${s.rate}%</span></td></tr>`;
+      }
       return `<tr style="background:rgba(255,255,255,0.015);"><td style="border-left:6px solid ${col}44; padding:10px 12px 10px 26px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; color:#fff;">${displayName}</td>
         <td style="color:#A0AEC0; font-size:12.5px; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-variant-numeric:tabular-nums;">${pctUnit}% Unit</td>
         <td style="font-weight:700; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; color:#e2e8f0; font-variant-numeric:tabular-nums;">${s.handled}</td>
@@ -1761,21 +1943,52 @@ function renderStaff(){
         <td style="color:#EE5D50; font-weight:600; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12.5px; font-variant-numeric:tabular-nums;">${s.canc}</td>
         <td style="text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06);"><span class="pill ${cls}">${s.rate}%</span></td></tr>`;}).join('');
 
+    let totalRowHtml = '';
+    if (rl === 'RCU') {
+      totalRowHtml = `<tr style="background:${col}22; border-top:2px solid ${col}; border-bottom:1px solid rgba(255,255,255,0.08);">
+        <td style="border-left:6px solid ${col}; padding:11px 12px; font-weight:800; text-transform:uppercase; letter-spacing:.7px; font-size:13px; color:#fff;">
+          <span style="color:${col};">${rl}</span>
+          <span class="small" style="font-weight:400; color:var(--muted); font-size:11px; text-transform:none; margin-left:4px;">· ${list.length} staff</span></td>
+        <td style="text-align:center; padding:11px 12px;"></td>
+        <td style="font-weight:800; font-size:14.5px; text-align:center; padding:11px 12px; color:#fff; font-variant-numeric:tabular-nums;">${th}</td>
+        <td style="font-weight:800; color:#FFB547; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tpend}</td>
+        <td style="font-weight:800; color:#21D4FD; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tsec}</td>
+        <td style="text-align:center; padding:11px 12px;"><span class="pill ${trc}" style="font-size:12px">${tr}%</span></td>
+      </tr>`;
+    } else if (rl.indexOf('THU') > -1) {
+      const toverall = tsec + tcomp + tcanc;
+      totalRowHtml = `<tr style="background:${col}22; border-top:2px solid ${col}; border-bottom:1px solid rgba(255,255,255,0.08);">
+        <td style="border-left:6px solid ${col}; padding:11px 12px; font-weight:800; text-transform:uppercase; letter-spacing:.7px; font-size:13px; color:#fff;">
+          <span style="color:${col};">${rl}</span>
+          <span class="small" style="font-weight:400; color:var(--muted); font-size:11px; text-transform:none; margin-left:4px;">· ${list.length} staff</span></td>
+        <td style="text-align:center; padding:11px 12px;"></td>
+        <td style="font-weight:800; font-size:14.5px; text-align:center; padding:11px 12px; color:#fff; font-variant-numeric:tabular-nums;">${th}</td>
+        <td style="font-weight:800; color:#FFB547; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tpend}</td>
+        <td style="font-weight:800; color:#21D4FD; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tsec}<div class="small" style="font-weight:400;font-size:10px;color:#A0AEC0;margin-top:2px;text-transform:none;letter-spacing:0;">At PCU Now</div></td>
+        <td style="font-weight:800; color:#01B574; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcomp}</td>
+        <td style="font-weight:800; color:#EE5D50; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcanc}</td>
+        <td style="font-weight:800; color:#c4b5fd; text-align:center; padding:11px 12px; font-size:14px; font-variant-numeric:tabular-nums;">${toverall}</td>
+        <td style="text-align:center; padding:11px 12px;"><span class="pill ${trc}" style="font-size:12px">${tr}%</span></td>
+      </tr>`;
+    } else {
+      totalRowHtml = `<tr style="background:${col}22; border-top:2px solid ${col}; border-bottom:1px solid rgba(255,255,255,0.08);">
+        <td style="border-left:6px solid ${col}; padding:11px 12px; font-weight:800; text-transform:uppercase; letter-spacing:.7px; font-size:13px; color:#fff;">
+          <span style="color:${col};">${rl}</span>
+          <span class="small" style="font-weight:400; color:var(--muted); font-size:11px; text-transform:none; margin-left:4px;">· ${list.length} staff</span></td>
+        <td style="text-align:center; padding:11px 12px;"></td>
+        <td style="font-weight:800; font-size:14.5px; text-align:center; padding:11px 12px; color:#fff; font-variant-numeric:tabular-nums;">${th}</td>
+        <td style="font-weight:800; color:#FFB547; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tpend}</td>
+        <td style="font-weight:800; color:#21D4FD; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tsec}</td>
+        <td style="font-weight:800; color:#01B574; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcomp}</td>
+        <td style="font-weight:800; color:#EE5D50; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcanc}</td>
+        <td style="text-align:center; padding:11px 12px;"><span class="pill ${trc}" style="font-size:12px">${tr}%</span></td>
+      </tr>`;
+    }
+
     html += `<table class="staff-tbl-nested" style="width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:28px; table-layout:fixed; border:1px solid rgba(255,255,255,0.08); background:rgba(15,23,42,0.5);">
       ${unitHeader}
       <tbody>
-        <tr style="background:${col}22; border-top:2px solid ${col}; border-bottom:1px solid rgba(255,255,255,0.08);">
-          <td style="border-left:6px solid ${col}; padding:11px 12px; font-weight:800; text-transform:uppercase; letter-spacing:.7px; font-size:13px; color:#fff;">
-            <span style="color:${col};">${rl}</span>
-            <span class="small" style="font-weight:400; color:var(--muted); font-size:11px; text-transform:none; margin-left:4px;">· ${list.length} staff</span></td>
-          <td style="text-align:center; padding:11px 12px;"></td>
-          <td style="font-weight:800; font-size:14.5px; text-align:center; padding:11px 12px; color:#fff; font-variant-numeric:tabular-nums;">${th}</td>
-          <td style="font-weight:800; color:#FFB547; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tpend}</td>
-          <td style="font-weight:800; color:#21D4FD; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tsec}${rl.indexOf('THU')>-1?'<div class="small" style="font-weight:400;font-size:10px;color:#A0AEC0;margin-top:2px;text-transform:none;letter-spacing:0;">At PCU Now</div>':''}</td>
-          <td style="font-weight:800; color:#01B574; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcomp}</td>
-          <td style="font-weight:800; color:#EE5D50; text-align:center; padding:11px 12px; font-size:13.5px; font-variant-numeric:tabular-nums;">${tcanc}</td>
-          <td style="text-align:center; padding:11px 12px;"><span class="pill ${trc}" style="font-size:12px">${tr}%</span></td>
-        </tr>
+        ${totalRowHtml}
         ${tbodyRows}
       </tbody>
     </table>`;
@@ -1826,7 +2039,7 @@ function renderAgingAndReasons() {
 function renderRisk(){
   renderAgingAndReasons();
   const pend=VIEW.filter(r=>r.pendingTutor&&r.age!=null);
-  const urgent=VIEW.filter(r=>r.urgent);
+  const urgent=VIEW.filter(r=>r.urgent && r.stage!=='PCU' && r.stage!=='Completed' && r.stage!=='Cancelled');
   const b=[0,0,0,0]; pend.forEach(r=>{if(r.age<=3)b[0]++;else if(r.age<=7)b[1]++;else if(r.age<=14)b[2]++;else b[3]++;});
   const k=[{l:'Urgent Requests',v:urgent.length,c:'b4'},{l:'Pending > 14 days',v:b[3],c:'b4'},{l:'Pending 8-14 days',v:b[2],c:'b3'},{l:'Total Pending',v:pend.length,c:'b5'}];
   document.getElementById('riskKpis').innerHTML=k.map(x=>`<div class="kpi ${x.c}"><div class="label">${x.l}</div><div class="val">${x.v}</div><div class="foot">needs attention</div></div>`).join('');
@@ -1834,11 +2047,7 @@ function renderRisk(){
   charts.chAging=new Chart(document.getElementById('chAging'),{type:'bar',
     data:{labels:['1-3 days','4-7 days','8-14 days','>14 days'],datasets:[{label:'Pending',data:b,backgroundColor:[C.green,C.amber,'#fb923c',C.red],borderRadius:6}]},
     options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
-  const ug=groupCount(urgent,r=>r.stage);
   destroy('chUrgentUnit');
-  charts.chUrgentUnit=new Chart(document.getElementById('chUrgentUnit'),{type:'bar',
-    data:{labels:Object.keys(ug),datasets:[{label:'Urgent',data:Object.values(ug),backgroundColor:C.red,borderRadius:6}]},
-    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
   const SLA=7;
   document.querySelector('#agingTable tbody').innerHTML=pend.sort((a,b)=>b.age-a.age).slice(0,30).map(r=>{
     const cls=r.age>14?'danger':r.age>7?'warn':'muted';
@@ -2263,109 +2472,276 @@ function printDailyReportSheet() {
 if(!cfg.url)cfg.url=DEFAULT_URL;
 try{ if(localStorage.getItem('st_navmini')==='1') document.body.classList.add('nav-mini'); }catch(e){}
 try{ document.body.classList.remove('light'); localStorage.removeItem('st_theme'); }catch(e){}
-function openPcuModal(agentName){
-  if(!SUMMARY) return;
-  const PCU_OUTCOME_CATS=['Done Share Profile','Reengagement Tutor','Pending Payment','Pending Confirmation'];
-  const pcuAll = VIEW.filter(r => (r.agents||[]).some(a => a.name === agentName && a.role === 'PCU'));
-  const pcuNow = pcuAll.filter(r => r.stage === 'PCU');
-  const completedCount = pcuAll.filter(r => r.stage === 'Completed').length;
-  const cancelledCount = pcuAll.filter(r => r.stage === 'Cancelled').length;
-  
+function formatTs(ts) {
+  if (!ts || isNaN(ts)) return '—';
+  const d = new Date(ts);
+  if (isNaN(d.getTime())) return '—';
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+}
+
+function getLatestUpdateDateStr(r) {
+  const dates = [
+    r.tsProfileShared,
+    r.tsSecured,
+    r.tsReengSecured,
+    r.tsAssignPCU,
+    r.tsAssignTHU_BC,
+    r.tsAssignTHU,
+    r.tsMovedThu,
+    r.tsAssignRCU,
+    r.tsCompleted,
+    r.ts
+  ].filter(t => t != null && t > 0);
+
+  if (!dates.length) return '—';
+  return formatTs(Math.max(...dates));
+}
+
+function openStaffModal(agentName, roleName){
+  if (!agentName) return;
+
+  const getAg = (r, colName) => {
+    const raw = r.rawRow || r;
+    return s(field(raw, [colName]));
+  };
+
+  const isRoleMatch = (role, target) => {
+    if (!role || !target) return false;
+    return _norm(role) === _norm(target);
+  };
+
+  // Find all pending tickets assigned to this agent strictly by current Sheet tab (r.sheet)
+  const pendingTickets = ALL.filter(r => {
+    const agRCU = getAg(r, 'Assigned Agent RCU');
+    const agTHUm = getAg(r, 'Assigned Agent THU (Manual)');
+    const agTHUb = getAg(r, 'Assigned Agent THU (Broadcast)');
+    const agPCU = getAg(r, 'Assigned Agent PCU');
+
+    const sTab = (r.sheet || '').toLowerCase().trim();
+    const stg = r.stage;
+
+    // Strict Sheet Tab checks:
+    const isThuSheet = (sTab === 'thu' || stg === 'THU');
+    const isPcuSheet = (sTab === 'pcu' || stg === 'PCU');
+    const isRcuSheet = (sTab === 'rcu' || stg === 'RCU');
+
+    if (isRoleMatch(roleName, 'THU (Broadcast)') || isRoleMatch(roleName, 'THU Broadcast')) {
+      if (agTHUb !== agentName) return false;
+      return isThuSheet;
+    }
+    
+    if (isRoleMatch(roleName, 'THU (Manual)') || isRoleMatch(roleName, 'THU Manual') || isRoleMatch(roleName, 'THU')) {
+      if (agTHUm !== agentName) return false;
+      if (agTHUb && agTHUb.toUpperCase() !== 'PIC') return false; // Broadcast priority rule
+      return isThuSheet;
+    }
+
+    if (isRoleMatch(roleName, 'PCU')) {
+      if (agPCU !== agentName) return false;
+      return isPcuSheet; // Must physically be in the PCU sheet tab! If moved back to THU, it will NOT appear here!
+    }
+
+    if (isRoleMatch(roleName, 'RCU')) {
+      if (agRCU !== agentName) return false;
+      return isRcuSheet;
+    }
+
+    // Default fallback: match active owner by current active sheet
+    const activeAg = (agTHUb && agTHUb.toUpperCase() !== 'PIC') ? agTHUb
+                   : (agTHUm && agTHUm.toUpperCase() !== 'PIC') ? agTHUm
+                   : (agPCU && agPCU.toUpperCase() !== 'PIC') ? agPCU
+                   : agRCU;
+    return activeAg === agentName && (isThuSheet || isPcuSheet || isRcuSheet);
+  });
+
+  // Calculate statistics for this agent
+  const totalPending = pendingTickets.length;
+
+  // Category breakdown for pending tickets
   const catCounts = {};
-  pcuNow.forEach(r => {
-    const cat = r.cat || 'Unspecified';
+  pendingTickets.forEach(r => {
+    const cat = r.cat || r.stage || 'Unspecified';
     catCounts[cat] = (catCounts[cat] || 0) + 1;
   });
-  
-  const sortedCats = Object.entries(catCounts).sort((a,b) => b[1] - a[1]);
-  const totalPcuNow = pcuNow.length;
-  
-  let doneCount = 0, pendingCount = 0;
-  sortedCats.forEach(([cat, count]) => {
-    const isDone = PCU_OUTCOME_CATS.some(c => _norm(cat) === _norm(c));
-    if (isDone) doneCount += count;
-    else pendingCount += count;
-  });
+  const sortedCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
 
-  const catRows = sortedCats.map(([cat, count]) => {
-    const pct = totalPcuNow ? Math.round(count / totalPcuNow * 100) : 0;
-    const isDone = PCU_OUTCOME_CATS.some(c => _norm(cat) === _norm(c));
-    const pill = isDone ? '<span class="pill ok">Done Category</span>' : '<span class="pill warn">Still Pending</span>';
-    return `<tr>
-      <td style="font-weight: 600; color: #fff; padding: 10px 11px;">${cat}</td>
-      <td style="color: var(--txt); padding: 10px 11px;"><b style="font-size: 15px;">${count}</b> <span style="font-size: 11px; color: var(--muted);">(${pct}%)</span></td>
-      <td style="padding: 10px 11px;">${pill}</td>
+  // Overall tickets handled/completed by this agent in current date range VIEW
+  const allAgentTickets = VIEW.filter(r => (r.agents || []).some(a => a.name === agentName && (!roleName || isRoleMatch(a.role, roleName))));
+  const handledCount = allAgentTickets.length;
+  const completedCount = allAgentTickets.filter(r => r.stage === 'Completed').length;
+  const cancelledCount = allAgentTickets.filter(r => r.stage === 'Cancelled').length;
+
+  // Render pending tickets list table
+  const ticketRows = pendingTickets.map(r => {
+    const reqId = r['Request ID'] || '—';
+    const catText = r.cat || r.stage || 'Pending';
+    const normCat = _norm(catText);
+    const subj = r['Subject | Level'] || '—';
+    const updateDate = getLatestUpdateDateStr(r);
+    const noteAG = r.note || r.remark || s(field(r.rawRow || r, ['Note', 'Notes', 'Base Note', 'Base Notes', 'Special Request', 'Remarks', 'Remark'])) || '—';
+    const sheetUrl = getSheetRowUrl(r);
+    const rowLabel = r.rowNum ? `Row ${r.rowNum}` : 'Sheet';
+
+    const stageCls = (normCat.indexOf('doneshareprofile') > -1 || normCat.indexOf('completed') > -1 || r.stage === 'Completed') ? 'ok'
+                   : (normCat.indexOf('pendingpayment') > -1 || normCat.indexOf('pendingconfirmation') > -1) ? 'warn'
+                   : (normCat.indexOf('verifytutor') > -1 || normCat.indexOf('pendingresponse') > -1 || normCat.indexOf('reengagement') > -1 || r.stage === 'PCU') ? 'cyan'
+                   : (normCat.indexOf('cancel') > -1 || r.stage === 'Cancelled') ? 'danger'
+                   : 'info';
+
+    const STATUS_OPTIONS = [
+      'Open TReq',
+      'Waiting Tutor',
+      'Broadcast',
+      'Manual Individual',
+      'Verify Tutor',
+      'Pending Response Parents',
+      'Done Share Profile',
+      'Reengagement Tutor',
+      'Pending Payment',
+      'Pending Confirmation',
+      'Completed',
+      'Cancelled'
+    ];
+    const optionsHtml = STATUS_OPTIONS.map(opt => `<option value="${opt}" ${_norm(opt) === normCat ? 'selected' : ''} style="background:#0F172A; color:#fff; font-weight:600;">${opt}</option>`).join('');
+
+    return `<tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.06);">
+      <td style="font-weight: 800; padding: 10px 11px; white-space: nowrap;">
+        <a href="${sheetUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--info); font-weight: 800; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;" title="Klik untuk melompat terus ke Column T, ${rowLabel} (Tab ${r.sheet || ''}) dalam Google Sheets">${reqId} ↗</a>
+      </td>
+      <td style="padding: 10px 11px; white-space: nowrap;">
+        <select class="status-select-pill ${stageCls}" onchange="updateTicketStatusDirect('${reqId}', '${r.sheet || ''}', '${r.rowNum || ''}', this)" title="Tukar status untuk simpan terus ke Google Sheets">
+          ${optionsHtml}
+        </select>
+      </td>
+      <td style="color: #e2e8f0; font-size: 12.5px; padding: 10px 11px; min-width: 130px;">${subj}</td>
+      <td style="color: #21D4FD; font-weight: 600; font-size: 11.5px; padding: 10px 11px; white-space: nowrap; font-variant-numeric: tabular-nums;">${updateDate}</td>
+      <td style="color: #cbd5e1; font-size: 12px; padding: 10px 11px; max-width: 280px; line-height: 1.4; word-break: break-word;">${noteAG}</td>
     </tr>`;
-  }).join('') || `<tr><td colspan="3" class="small" style="text-align: center; color: var(--muted); padding: 16px;">No active PCU cases currently.</td></tr>`;
+  }).join('') || `<tr><td colspan="5" class="small" style="text-align: center; color: var(--muted); padding: 24px;">Tiada tiket pending aktif bagi staf ini.</td></tr>`;
+
+  // Category breakdown pills
+  const catPills = sortedCats.map(([cat, count]) => {
+    return `<span class="pill muted" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; margin-right: 6px; margin-bottom: 6px; font-size: 11.5px; padding: 4px 10px; display: inline-block;">
+      ${cat}: <b style="color: #21D4FD; font-size: 13px;">${count}</b>
+    </span>`;
+  }).join('') || '<span class="small" style="color: var(--muted);">Tiada kategori pending</span>';
+
+  const roleTitle = roleName ? ` — ${roleName}` : '';
 
   const html = `
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 18px;">
       <div>
-        <h2 style="color:var(--ok); font-size: 24px; font-weight: 800; margin-bottom: 4px;">${agentName}</h2>
-        <div style="font-size:11px; color:var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">PCU - Category Breakdown</div>
+        <h2 style="color:#fff; font-size: 24px; font-weight: 900; margin-bottom: 4px; font-family: var(--font-heading);">${agentName}<span style="color:var(--info); font-size: 16px; font-weight: 600; margin-left: 8px;">${roleTitle}</span></h2>
+        <div style="font-size:11.5px; color:var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Senarai Tiket Pending &amp; Maklumat Operasi Staf</div>
       </div>
       <button onclick="closePcuModal()" style="background:rgba(255,255,255,.08); border:none; color:#fff; width: 32px; height: 32px; border-radius: 50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-weight:bold; font-size: 14px; transition: 0.15s;" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">✕</button>
     </div>
-    
-    <div class="row c3" style="gap:14px; margin-bottom: 22px;">
-      <div class="mcard" style="padding: 14px 16px; display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Total at PCU Now</div>
-        <div style="font-size: 28px; font-weight: 900; margin: 4px 0 2px; color: #fff;">${totalPcuNow}</div>
-        <div style="font-size: 11px; color: var(--muted);">Currently In PCU Tab</div>
+
+    <!-- Summary Metrics -->
+    <div class="row c3" style="gap:12px; margin-bottom: 20px;">
+      <div class="mcard" style="padding: 12px 14px; border-color: rgba(255, 181, 71, 0.3); background: linear-gradient(135deg, rgba(255, 181, 71, 0.12), rgba(255, 181, 71, 0.02));">
+        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Jumlah Tiket Pending</div>
+        <div style="font-size: 26px; font-weight: 900; margin: 2px 0; color: var(--warn);">${totalPending}</div>
+        <div style="font-size: 11px; color: var(--muted);">Masih belum selesai / dalam tindakan</div>
       </div>
-      <div class="mcard" style="padding: 14px 16px; border-color: rgba(1, 181, 116, 0.3); background: linear-gradient(135deg, rgba(1, 181, 116, 0.12), rgba(1, 181, 116, 0.02)); display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Done Categories</div>
-        <div style="font-size: 28px; font-weight: 900; margin: 4px 0 2px; color: var(--ok);">${doneCount}</div>
-        <div style="font-size: 11px; color: var(--muted);">PCU Work Essentially Done</div>
+      <div class="mcard" style="padding: 12px 14px; border-color: rgba(0, 117, 255, 0.3); background: linear-gradient(135deg, rgba(0, 117, 255, 0.12), rgba(0, 117, 255, 0.02));">
+        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Handled Dalam Julat Tarikh</div>
+        <div style="font-size: 26px; font-weight: 900; margin: 2px 0; color: var(--accent);">${handledCount}</div>
+        <div style="font-size: 11px; color: var(--muted);">Jumlah tiket dikendalikan</div>
       </div>
-      <div class="mcard" style="padding: 14px 16px; border-color: rgba(255, 181, 71, 0.3); background: linear-gradient(135deg, rgba(255, 181, 71, 0.12), rgba(255, 181, 71, 0.02)); display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Still Pending</div>
-        <div style="font-size: 28px; font-weight: 900; margin: 4px 0 2px; color: var(--warn);">${pendingCount}</div>
-        <div style="font-size: 11px; color: var(--muted);">Verify / Awaiting Reply</div>
+      <div class="mcard" style="padding: 12px 14px; border-color: rgba(1, 181, 116, 0.3); background: linear-gradient(135deg, rgba(1, 181, 116, 0.12), rgba(1, 181, 116, 0.02));">
+        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Completed / Selesai</div>
+        <div style="font-size: 26px; font-weight: 900; margin: 2px 0; color: var(--ok);">${completedCount}</div>
+        <div style="font-size: 11px; color: var(--muted);">${cancelledCount} dibatalkan</div>
       </div>
     </div>
 
-    <div style="font-size:12px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 12px; text-transform:uppercase; letter-spacing:0.05em;">Breakdown by Category</div>
-    <div class="scroll" style="max-height: 220px; overflow-y: auto; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,.15);">
-      <table style="width:100%; border-collapse:collapse; font-size:13px;">
-        <thead>
-          <tr style="background: rgba(255,255,255,.02);">
-            <th style="padding: 10px 11px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Category</th>
-            <th style="padding: 10px 11px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Count</th>
-            <th style="padding: 10px 11px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Status</th>
+    <!-- Category Breakdown Pills -->
+    <div style="font-size:11.5px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 8px; text-transform:uppercase; letter-spacing:0.05em;">Ringkasan Kategori Status Pending</div>
+    <div style="margin-bottom: 18px; display:flex; flex-wrap:wrap; gap:4px;">
+      ${catPills}
+    </div>
+
+    <!-- Detailed Tickets Table -->
+    <div style="font-size:11.5px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 10px; text-transform:uppercase; letter-spacing:0.05em;">📌 Senarai Tiket Belum Selesai / Pending (${totalPending})</div>
+    <div class="scroll" style="max-height: 340px; overflow-y: auto; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(11, 17, 32, 0.7); position: relative;">
+      <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+        <thead style="position: sticky; top: 0; z-index: 10; background: #0F172A;">
+          <tr style="background: #0F172A; border-bottom: 2px solid var(--line);">
+            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; position: sticky; top: 0; background: #0F172A; z-index: 10;">Request ID</th>
+            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; position: sticky; top: 0; background: #0F172A; z-index: 10;">Status / Kategori</th>
+            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; background: #0F172A; z-index: 10;">Subjek &amp; Level</th>
+            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; position: sticky; top: 0; background: #0F172A; z-index: 10;">Update Terkini</th>
+            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; background: #0F172A; z-index: 10;">Note (Column AG)</th>
           </tr>
         </thead>
         <tbody>
-          ${catRows}
+          ${ticketRows}
         </tbody>
       </table>
     </div>
-
-    <div style="font-size:12px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 12px; text-transform:uppercase; letter-spacing:0.05em;">Historical (In Current Date Range)</div>
-    <div class="row c2" style="gap:14px; margin-bottom: 22px;">
-      <div class="mcard" style="padding: 14px 16px; border-color: rgba(1, 181, 116, 0.2); background: rgba(1, 181, 116, 0.03); display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase;">Completed</div>
-        <div style="font-size: 26px; font-weight: 900; margin: 4px 0 2px; color: var(--ok);">${completedCount}</div>
-        <div style="font-size: 11px; color: var(--muted);">Fully Closed In Master Requests</div>
-      </div>
-      <div class="mcard" style="padding: 14px 16px; border-color: rgba(238, 93, 80, 0.2); background: rgba(238, 93, 80, 0.03); display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase;">Cancelled</div>
-        <div style="font-size: 26px; font-weight: 900; margin: 4px 0 2px; color: var(--danger);">${cancelledCount}</div>
-        <div style="font-size: 11px; color: var(--muted);">Tickets Cancelled</div>
-      </div>
-    </div>
-
-    <div style="border: 1px solid rgba(1, 181, 116, 0.25); background: rgba(1, 181, 116, 0.04); border-radius: 12px; padding: 12px 14px; font-size: 12px; color: #a3f7d4; line-height: 1.5;">
-      <b style="color: var(--ok);">Done Categories</b> = Done Share Profile · Reengagement Tutor · Pending Payment · Pending Confirmation
-      <div style="margin-top: 4px; color: var(--muted); font-size: 11px;">Tickets in these categories: PCU has done the main work (Profile Shared, Payment Pending, etc.) — just waiting for the next step.</div>
-    </div>
   `;
+
   document.getElementById('pcuModalContent').innerHTML = html;
   document.getElementById('pcuModal').classList.remove('hidden');
 }
 
+function openPcuModal(agentName){
+  openStaffModal(agentName, 'PCU');
+}
+
 function closePcuModal(){
   document.getElementById('pcuModal').classList.add('hidden');
+}
+
+function updateTicketStatusDirect(reqId, sheetName, rowNum, selectEl) {
+  if (!selectEl) return;
+  const newStatus = selectEl.value;
+  if (!newStatus) return;
+
+  const normCat = _norm(newStatus);
+  const stageCls = (normCat.indexOf('doneshareprofile') > -1 || normCat.indexOf('completed') > -1 || normCat.indexOf('secured') > -1) ? 'ok'
+                 : (normCat.indexOf('pendingpayment') > -1 || normCat.indexOf('pendingconfirmation') > -1) ? 'warn'
+                 : (normCat.indexOf('verifytutor') > -1 || normCat.indexOf('pendingresponse') > -1 || normCat.indexOf('reengagement') > -1) ? 'cyan'
+                 : (normCat.indexOf('cancel') > -1) ? 'danger'
+                 : 'info';
+
+  selectEl.className = `status-select-pill ${stageCls}`;
+  selectEl.style.opacity = '0.5';
+
+  const ticket = ALL.find(t => t['Request ID'] === reqId || (t.rowNum == rowNum && t.sheet === sheetName));
+  if (ticket) {
+    ticket.cat = newStatus;
+  }
+
+  const webhookUrl = cfg.url || DEFAULT_URL;
+
+  const script = document.createElement('script');
+  script.src = webhookUrl + (webhookUrl.indexOf('?') > -1 ? '&' : '?') + 
+               'action=updateStatus&requestId=' + encodeURIComponent(reqId) + 
+               '&sheet=' + encodeURIComponent(sheetName) + 
+               '&row=' + encodeURIComponent(rowNum) + 
+               '&status=' + encodeURIComponent(newStatus) + 
+               '&_t=' + Date.now();
+  document.body.appendChild(script);
+
+  try {
+    fetch(webhookUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'updateStatus', requestId: reqId, sheet: sheetName, row: rowNum, status: newStatus })
+    }).catch(e => console.log('POST:', e));
+  } catch(e) {}
+
+  setTimeout(() => {
+    selectEl.style.opacity = '1';
+  }, 500);
 }
 
 renderLinks(); setupAuto(); refresh(); loadSummary();
