@@ -39,6 +39,13 @@
   nav button.active .ico svg{fill:#fff}
   .nav-group-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#64748b;padding:12px 14px 4px;margin-top:6px}
   body.nav-mini .nav-group-title{display:none}
+  .nav-dd .dd-arrow{margin-left:auto;transition:transform .2s;font-size:11px;color:var(--muted)}
+  .nav-dd.open .dd-arrow{transform:rotate(90deg)}
+  .nav-dd-menu{overflow:hidden;max-height:0;transition:max-height .25s ease;display:flex;flex-direction:column;gap:5px}
+  .nav-dd.open .nav-dd-menu{max-height:170px;margin-top:5px}
+  .nav-sub{padding-left:38px!important;font-size:12.5px!important}
+  .nav-sub .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.55}
+  body.nav-mini .nav-dd-menu,body.nav-mini .nav-dd .dd-arrow{display:none}
   @media(max-width:1024px){nav button .lbl,.nav-group-title{display:none}}
   /* date filter bar */
   .filterbar{margin-left:var(--side);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(15,21,53,.6);backdrop-filter:blur(20px);padding:12px 30px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:19}
@@ -358,7 +365,14 @@
   <button data-tab="hotspots"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg></span><span class="lbl">Hotspots Analytics</span></button>
 
   <div class="nav-group-title">👥 Team &amp; Risk</div>
-  <button data-tab="staff"><span class="ico"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.7 0-8 1.3-8 4v3h10v-3c0-1 .5-1.9 1.3-2.6A12 12 0 0 0 8 13zm8 0c-.3 0-.7 0-1.1.1A5 5 0 0 1 18 17v3h6v-3c0-2.7-5.3-4-8-4z"/></svg></span><span class="lbl">Staff Workload</span></button>
+  <div class="nav-dd" id="staffDD">
+    <button class="nav-dd-toggle" onclick="toggleStaffDD(event)"><span class="ico"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.7 0-8 1.3-8 4v3h10v-3c0-1 .5-1.9 1.3-2.6A12 12 0 0 0 8 13zm8 0c-.3 0-.7 0-1.1.1A5 5 0 0 1 18 17v3h6v-3c0-2.7-5.3-4-8-4z"/></svg></span><span class="lbl">Staff Workload</span><span class="dd-arrow">▸</span></button>
+    <div class="nav-dd-menu">
+      <button data-tab="staff" data-group="admin" class="nav-sub"><span class="dot"></span><span class="lbl">Admin Support</span></button>
+      <button data-tab="staff" data-group="pic" class="nav-sub"><span class="dot"></span><span class="lbl">PIC</span></button>
+    </div>
+  </div>
+  <button data-tab="assign"><span class="ico"><svg viewBox="0 0 24 24"><path d="M10 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-1 2c-2.7 0-8 1.3-8 4v2h10v-2c0-1.1.3-2.1.9-3A13 13 0 0 0 9 14zm11 1h-2v-2h-2v2h-2v2h2v2h2v-2h2z"/></svg></span><span class="lbl">Assign THU</span></button>
   <button data-tab="risk"><span class="ico"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg></span><span class="lbl">SLA &amp; Risk Control</span></button>
 
   <div class="nav-group-title">📄 BI &amp; Reports</div>
@@ -479,7 +493,7 @@
   </section>
 
   <section id="staff">
-    <h2 class="sec-title">👥 Staff Performance <span class="tag" style="font-size:12px;color:var(--muted)">· Contribution mode</span></h2>
+    <h2 class="sec-title">👥 Staff Performance <span id="staffGroupTag" class="pill info" style="font-size:12px">Admin Support</span> <span class="tag" style="font-size:12px;color:var(--muted)">· Contribution mode</span></h2>
     <p class="sec-desc">Each staff member gets credit for EVERY request they touch. A single request can be counted across more than one unit.</p>
     <div class="note">ℹ️ <b>Handled</b> = requests touched (workload). <b>Current</b> = ticket from this month (by Timestamp). <b>Outcome</b> by role: <b>RCU</b> = moved to THU · <b>THU</b> = Tutor Secured · <b>PCU</b> = Done Share Profile & above.</div>
 
@@ -610,6 +624,25 @@
       </div>
       <div id="reportBody" style="margin-top:14px;"></div>
     </div>
+  </section>
+
+  <section id="assign">
+    <h2 class="sec-title">🔵 Assign THU (Manual) <span class="pill ok" style="font-size:11px">Live · sync ke Sheet</span></h2>
+    <p class="sec-desc">Assign staf THU (Manual) kepada tiket — <b>terus disimpan ke Google Sheet</b> (nama diisi pada kolum "Assigned Agent THU (Manual)", sel bertukar <b style="color:#7cc0ff">biru</b> dalam sheet supaya staf tahu ia auto-assign, dan Date Assigned THU distamp). Perlu deploy versi baharu Apps Script dahulu.</p>
+    <div class="toolbar">
+      <label class="small" style="font-weight:600">Papar:</label>
+      <select id="assignFilter" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
+        <option value="unassigned">THU belum ada agent</option>
+        <option value="all">Semua THU</option>
+        <option value="auto">Yang di-auto-assign sahaja</option>
+      </select>
+      <input type="text" id="assignSearch" placeholder="Cari ID / subjek..." onkeyup="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:220px">
+      <span class="small" id="assignCount"></span>
+    </div>
+    <div class="panel"><div class="scroll"><table id="assignTable">
+      <thead><tr><th>Request ID</th><th>Tarikh</th><th>PIC</th><th>Subject | Level</th><th>Mode</th><th>Age</th><th>Agent semasa</th><th>Special Request</th><th style="color:#7cc0ff">🔵 Assign THU (Manual)</th></tr></thead>
+      <tbody></tbody>
+    </table></div></div>
   </section>
 
   <section id="risk">
@@ -816,6 +849,7 @@ function ingest(payload){
       }
     }));
     ALL=allRows;
+    if(typeof applyAutoAssign==='function') applyAutoAssign();
     window._noIdCount=noId;
     DUPLICATES=Object.entries(occ).filter(([id,arr])=>arr.length>1)
       .map(([id,arr])=>{
@@ -979,7 +1013,8 @@ function normalize(r,tab){
   const agentCols=['Assigned Agent THU (Broadcast)','Assigned Agent THU (Manual)','Assigned Agent PCU','Assigned Agent RCU'];
   let agent='',role='';
   const agents=[];
-  for(const c of agentCols){const v=s(field(r,[c])); if(v&&v.toUpperCase()!=='PIC'){
+  for(const c of agentCols){const v=s(field(r,[c])); const vu=v.toUpperCase();
+    if(v && vu!=='PIC' && vu!=='ANONYMOUS' && vu.indexOf('ASSIGNED AGENT')<0){
     const rl=c.replace('Assigned Agent ','');
     agents.push({name:v,role:rl});
     if(!agent){agent=v;role=rl;}
@@ -1065,6 +1100,7 @@ function renderAll(){
   safe(renderDaily);
   safe(renderUnits);
   safe(renderStaff);
+  safe(renderAssign);
   safe(renderTrend);
   safe(renderMonthly);
   safe(renderReport);
@@ -1738,7 +1774,14 @@ function isOutcome(role,r){
 function renderStaff(){
   // CONTRIBUTION: setiap agent dalam setiap request dikira (1 request boleh kredit >1 staff/unit)
   const map={}; const roleAgg={};
-  
+
+  // PIC vs Admin Support: nama bermula dengan perkataan "PIC" => PIC, selebihnya => Admin Support
+  const group = window.staffGroup || 'admin';
+  const isPIC = nm => /^\s*pic\b/i.test(nm||'');
+  const inGroup = nm => group==='pic' ? isPIC(nm) : !isPIC(nm);
+  const ticketInGroup = r => (r.agents||[]).some(a => inGroup(a.name));
+  const gt=document.getElementById('staffGroupTag'); if(gt) gt.textContent = group==='pic' ? 'PIC' : 'Admin Support';
+
   const inRange = ts => {
     if (range.from == null && range.to == null) return true;
     if (ts == null) return false;
@@ -1747,11 +1790,14 @@ function renderStaff(){
 
   ALL.forEach(r => {
     (r.agents||[]).forEach(a => {
-      const role = a.role;
-      
-      // Check if ticket was assigned/handled in this date range
-      const tsAssign = role.indexOf('RCU') > -1 ? r.tsAssignRCU
-                     : role.indexOf('Broadcast') > -1 ? r.tsAssignTHU_BC
+      const origRole = a.role;
+      if (!inGroup(a.name)) return; // asingkan ikut kumpulan (PIC / Admin Support)
+      // gabungkan THU (Broadcast) ke dalam THU (Manual) untuk Staff Table
+      const role = origRole.indexOf('Broadcast') > -1 ? 'THU (Manual)' : origRole;
+
+      // Check if ticket was assigned/handled in this date range (guna peranan ASAL utk tarikh)
+      const tsAssign = origRole.indexOf('RCU') > -1 ? r.tsAssignRCU
+                     : origRole.indexOf('Broadcast') > -1 ? r.tsAssignTHU_BC
                      : role.indexOf('THU') > -1 ? r.tsAssignTHU
                      : role.indexOf('PCU') > -1 ? r.tsAssignPCU : null;
       const isHandled = tsAssign ? inRange(tsAssign) : inRange(r.ts);
@@ -1799,15 +1845,16 @@ function renderStaff(){
     });
   });
 
-  let arr=Object.values(map).map(x=>({
-    ...x,
-    rate: x.handled ? Math.min(100, Math.round(x.out/x.handled*100)) : (x.out ? 100 : 0)
-  })).sort((a,b)=>b.handled-a.handled);
+  let arr=Object.values(map).map(x=>{
+    // Rate ikut unit: RCU = Moved(termasuk Completed) · PCU = Shared(termasuk Completed) = sec+comp ; THU = Overall(sec+comp+canc)
+    const num = x.role.indexOf('THU')>-1 ? (x.sec + x.comp + x.canc) : (x.sec + x.comp);
+    return {...x, rate: x.handled ? Math.min(100, Math.round(num/x.handled*100)) : 0};
+  }).sort((a,b)=>b.handled-a.handled);
 
   // STAFF WORKLOAD OVERVIEW SUMMARY WIDGET
-  const openTickets = VIEW.filter(r => r.stage === 'RCU' || r.stage === 'THU' || r.stage === 'PCU').length;
-  const closedTodayStaff = ALL.filter(r => (r.stage === 'Completed' || r.stage === 'Cancelled') && (isToday(r.tsCompleted) || isToday(r.ts))).length;
-  const pendingTickets = VIEW.filter(r => r.pendingTutor).length;
+  const openTickets = VIEW.filter(r => ticketInGroup(r) && (r.stage === 'RCU' || r.stage === 'THU' || r.stage === 'PCU')).length;
+  const closedTodayStaff = ALL.filter(r => ticketInGroup(r) && (r.stage === 'Completed' || r.stage === 'Cancelled') && (isToday(r.tsCompleted) || isToday(r.ts))).length;
+  const pendingTickets = VIEW.filter(r => ticketInGroup(r) && r.pendingTutor).length;
 
   const elStaffWk = document.getElementById('opStaffWorkload');
   if (elStaffWk) {
@@ -1861,7 +1908,8 @@ function renderStaff(){
     const th=list.reduce((a,s)=>a+s.handled,0), to=list.reduce((a,s)=>a+s.out,0);
     const tpend=list.reduce((a,s)=>a+s.pend,0), tsec=list.reduce((a,s)=>a+s.sec,0);
     const tcomp=list.reduce((a,s)=>a+s.comp,0), tcanc=list.reduce((a,s)=>a+s.canc,0);
-    const tr=th?Math.round(to/th*100):0;
+    const tnum = rl.indexOf('THU')>-1 ? (tsec + tcomp + tcanc) : (tsec + tcomp);
+    const tr=th?Math.round(tnum/th*100):0;
     const trc=tr>=80?'ok':tr>=60?'warn':'danger';
     const col=roleColor(rl);
 
@@ -2219,11 +2267,13 @@ function hbarSm(canvasId,key,entries,color){
 }
 
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>{
+  if(!b.dataset.tab) return; // butang toggle dropdown — bukan tab
   document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('main section').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');
   const target = document.getElementById(b.dataset.tab);
   if(target) target.classList.add('active');
+  if(b.dataset.group){ window.staffGroup = b.dataset.group; renderStaff(); var _dd=document.getElementById('staffDD'); if(_dd)_dd.classList.add('open'); }
   if(b.dataset.tab==='reports' || b.dataset.tab==='report') renderDailyReport();
   if(window.innerWidth<=1024) document.body.classList.remove('nav-open'); }));
 document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.p)));
@@ -2233,6 +2283,9 @@ if (repDateSelEl) {
     renderDailyReport(this.value);
   });
 }
+
+// dropdown "Staff Workload" -> Admin Support / PIC
+function toggleStaffDD(e){ if(e){e.preventDefault();} const dd=document.getElementById('staffDD'); if(dd) dd.classList.toggle('open'); }
 
 // menu toggle: drawer overlay on mobile, icon-rail on desktop
 function toggleNav(){
@@ -2502,8 +2555,93 @@ function getLatestUpdateDateStr(r) {
   return formatTs(Math.max(...dates));
 }
 
+/* ===== AUTO-ASSIGN THU (Manual) — PREVIEW: disimpan dalam browser ini sahaja (localStorage), BELUM sync ke Google Sheet ===== */
+const AUTO_KEY='st_auto_thu_v1';
+function loadAutoAssign(){ try{return JSON.parse(localStorage.getItem(AUTO_KEY))||{};}catch(e){return{};} }
+function saveAutoAssign(m){ try{localStorage.setItem(AUTO_KEY,JSON.stringify(m));}catch(e){} }
+let AUTO_ASSIGN = loadAutoAssign();
+function applyAutoAssign(){
+  ALL.forEach(r=>{
+    if(r.agents) r.agents=r.agents.filter(a=>!a.auto); // buang auto lama
+    r.autoTHU=null;
+    const id=r['Request ID']; if(!id) return;
+    const nm=AUTO_ASSIGN[id]; if(!nm) return;
+    r.autoTHU=nm;
+    r.agents=r.agents||[];
+    if(!r.agents.some(a=>a.role.indexOf('THU')>-1 && a.name===nm)) r.agents.push({name:nm,role:'THU (Manual)',auto:true});
+    if(!r.agent){ r.agent=nm; r.role='THU (Manual)'; }
+    if(r.rawRow) r.rawRow['Assigned Agent THU (Manual)']=nm; // supaya muncul dalam modal staf
+  });
+}
+function thuManualStaff(){
+  const set=new Set();
+  ALL.forEach(r=>(r.agents||[]).forEach(a=>{ if(a.role==='THU (Manual)' && a.name && !a.auto) set.add(a.name); }));
+  Object.values(AUTO_ASSIGN||{}).forEach(n=>{ if(n) set.add(n); });
+  return [...set].sort();
+}
+function syncAssignTHU(reqId, agentName){
+  const url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
+  const t=ALL.find(x=>x['Request ID']===reqId); const sh=t?(t.sheet||''):'';
+  const name='__asg_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
+  const sc=document.createElement('script');
+  window[name]=function(d){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
+    if(d&&d.ok===false) console.warn('Assign sync gagal:', d.error); };
+  sc.onerror=function(){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  sc.src=url+sep+'action=assignTHU&requestId='+encodeURIComponent(reqId)+'&agent='+encodeURIComponent(agentName||'')+'&sheet='+encodeURIComponent(sh)+'&callback='+name+'&_t='+Date.now();
+  document.body.appendChild(sc);
+}
+function autoAssignTHU(reqId, agentName){
+  if(!reqId || reqId==='—') return;
+  if(agentName){ AUTO_ASSIGN[reqId]=agentName; } else { delete AUTO_ASSIGN[reqId]; }
+  saveAutoAssign(AUTO_ASSIGN);
+  syncAssignTHU(reqId, agentName);   // tulis terus ke Google Sheet
+  applyAutoAssign();
+  applyRange();
+  const _m=document.getElementById('pcuModal');
+  if(window._staffModalArgs && _m && !_m.classList.contains('hidden')) openStaffModal(window._staffModalArgs.name, window._staffModalArgs.role);
+}
+
+function renderAssign(){
+  const tb=document.querySelector('#assignTable tbody'); if(!tb) return;
+  const fEl=document.getElementById('assignFilter'); const f=fEl?fEl.value:'unassigned';
+  const qEl=document.getElementById('assignSearch'); const q=qEl?s(qEl.value).toLowerCase():'';
+  const realTHU = r => ((r.agents||[]).find(a=>a.role==='THU (Manual)' && !a.auto)||{}).name || '';
+  let rows = VIEW.filter(r=>r.stage==='THU');
+  if(f==='unassigned') rows=rows.filter(r=>!realTHU(r));
+  else if(f==='auto') rows=rows.filter(r=>r.autoTHU);
+  if(q) rows=rows.filter(r=>(((r['Request ID']||'')+' '+(r['Subject | Level']||'')).toLowerCase().indexOf(q)>-1));
+  rows.sort((a,b)=>(b.age||0)-(a.age||0));
+  const thuList = thuManualStaff();
+  const MAX=3000;
+  const cnt=document.getElementById('assignCount'); if(cnt) cnt.textContent=rows.length+' tiket'+(rows.length>MAX?' (papar '+MAX+' pertama)':'');
+  tb.innerHTML = rows.slice(0,MAX).map(r=>{
+    const reqId=r['Request ID']||'—';
+    const isAuto=!!r.autoTHU;
+    const cur=r.autoTHU||realTHU(r)||'';
+    const opts='<option value="">— pilih staf —</option>'+thuList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
+    const url=getSheetRowUrl(r);
+    const agentCell = isAuto ? '<span style="color:#7cc0ff;font-weight:700">'+r.autoTHU+' 🔵</span>' : (realTHU(r)||'<span class="small">—</span>');
+    const tsDate = r.dayKey ? r.dayKey.split('-').reverse().join('/') : '—';
+    const esc = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    const picVal = esc(s(field(r.rawRow||r, ['PIC','Person In Charge','PIC Name'])));
+    const specialReq = esc(s(field(r.rawRow||r, ['Special Request'])));
+    return `<tr style="background:${isAuto?'rgba(0,117,255,.12)':''}">
+      <td><a href="${url}" target="_blank" rel="noopener" style="color:var(--info);font-weight:700;text-decoration:underline">${reqId}</a></td>
+      <td style="white-space:nowrap;color:#cbd5e1">${tsDate}</td>
+      <td style="white-space:nowrap;font-weight:600">${picVal||'<span class="small">—</span>'}</td>
+      <td>${r['Subject | Level']||''}</td>
+      <td>${r['Mode']||''}</td>
+      <td>${r.age==null?'—':r.age+'d'}</td>
+      <td>${agentCell}</td>
+      <td style="max-width:240px;color:#cbd5e1;font-size:12px;line-height:1.35">${specialReq||'<span class="small">—</span>'}</td>
+      <td><select onchange="autoAssignTHU('${reqId}', this.value)" style="background:${isAuto?'rgba(0,117,255,.28)':'var(--panel2)'};border:1px solid ${isAuto?'#0075FF':'var(--line)'};color:${isAuto?'#7cc0ff':'#fff'};border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700">${opts}</select></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" class="small">Tiada tiket THU untuk penapis ini.</td></tr>';
+}
+
 function openStaffModal(agentName, roleName){
   if (!agentName) return;
+  window._staffModalArgs={name:agentName, role:roleName};
 
   const getAg = (r, colName) => {
     const raw = r.rawRow || r;
@@ -2577,6 +2715,7 @@ function openStaffModal(agentName, roleName){
   const cancelledCount = allAgentTickets.filter(r => r.stage === 'Cancelled').length;
 
   // Render pending tickets list table
+  const thuList = thuManualStaff();
   const ticketRows = pendingTickets.map(r => {
     const reqId = r['Request ID'] || '—';
     const catText = r.cat || r.stage || 'Pending';
@@ -2595,6 +2734,7 @@ function openStaffModal(agentName, roleName){
 
     const STATUS_OPTIONS = [
       'Open TReq',
+      'Channel/Group WA',
       'Waiting Tutor',
       'Broadcast',
       'Manual Individual',
@@ -2607,14 +2747,19 @@ function openStaffModal(agentName, roleName){
       'Completed',
       'Cancelled'
     ];
-    const optionsHtml = STATUS_OPTIONS.map(opt => `<option value="${opt}" ${_norm(opt) === normCat ? 'selected' : ''} style="background:#0F172A; color:#fff; font-weight:600;">${opt}</option>`).join('');
+    // Kalau kategori sebenar dari sheet TIDAK ada dalam senarai, papar ia (terpilih) supaya dashboard betul-betul ikut database
+    const _hasOpt = STATUS_OPTIONS.some(opt => _norm(opt) === normCat);
+    const _extraOpt = (!_hasOpt && catText && catText !== 'Pending') ? `<option value="${catText}" selected style="background:#0F172A; color:#fff; font-weight:600;">${catText}</option>` : '';
+    const optionsHtml = _extraOpt + STATUS_OPTIONS.map(opt => `<option value="${opt}" ${_norm(opt) === normCat ? 'selected' : ''} style="background:#0F172A; color:#fff; font-weight:600;">${opt}</option>`).join('');
 
-    return `<tr style="background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.06);">
+    const isAuto = !!r.autoTHU;
+
+    return `<tr style="background:${isAuto?'rgba(0,117,255,.12)':'rgba(255,255,255,0.02)'}; border-bottom:1px solid rgba(255,255,255,0.06);">
       <td style="font-weight: 800; padding: 10px 11px; white-space: nowrap;">
         <a href="${sheetUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--info); font-weight: 800; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;" title="Klik untuk melompat terus ke Column T, ${rowLabel} (Tab ${r.sheet || ''}) dalam Google Sheets">${reqId} ↗</a>
       </td>
       <td style="padding: 10px 11px; white-space: nowrap;">
-        <select class="status-select-pill ${stageCls}" onchange="updateTicketStatusDirect('${reqId}', '${r.sheet || ''}', '${r.rowNum || ''}', this)" title="Tukar status untuk simpan terus ke Google Sheets">
+        <select class="status-select-pill ${stageCls}" onchange="updateTicketStatusDirect('${reqId}', '${r.sheet || ''}', '${r.rowNum || ''}', this)" title="Tukar status">
           ${optionsHtml}
         </select>
       </td>
