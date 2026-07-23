@@ -636,6 +636,12 @@
         <option value="all">Semua THU</option>
         <option value="auto">Yang di-auto-assign sahaja</option>
       </select>
+      <label class="small" style="font-weight:600">Mode:</label>
+      <select id="assignMode" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
+        <option value="">Semua Mode</option>
+        <option value="Online">🌐 Online</option>
+        <option value="In-Person">🏠 In-Person</option>
+      </select>
       <input type="text" id="assignSearch" placeholder="Cari ID / subjek..." onkeyup="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:220px">
       <span class="small" id="assignCount"></span>
     </div>
@@ -2590,6 +2596,20 @@ function syncAssignTHU(reqId, agentName){
   sc.src=url+sep+'action=assignTHU&requestId='+encodeURIComponent(reqId)+'&agent='+encodeURIComponent(agentName||'')+'&sheet='+encodeURIComponent(sh)+'&callback='+name+'&_t='+Date.now();
   document.body.appendChild(sc);
 }
+function updateNoteSync(reqId, sheetName, rowNum, value, el){
+  if(!reqId || reqId==='—') return;
+  var t=ALL.find(function(x){return x['Request ID']===reqId;});
+  if(t){ t.note=value; if(t.rawRow) t.rawRow['Note']=value; }
+  if(el){ el.style.borderColor='#22c55e'; setTimeout(function(){ if(el) el.style.borderColor='var(--line)'; },900); }
+  var url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
+  var nm='__note_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
+  var sc=document.createElement('script');
+  window[nm]=function(d){ try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
+    if(d&&d.ok===false){ console.warn('Note sync gagal:', d.error); if(el) el.style.borderColor='#ef4444'; } };
+  sc.onerror=function(){ try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  sc.src=url+sep+'action=updateNote&requestId='+encodeURIComponent(reqId)+'&note='+encodeURIComponent(value||'')+'&sheet='+encodeURIComponent(sheetName||'')+'&callback='+nm+'&_t='+Date.now();
+  document.body.appendChild(sc);
+}
 function autoAssignTHU(reqId, agentName){
   if(!reqId || reqId==='—') return;
   if(agentName){ AUTO_ASSIGN[reqId]=agentName; } else { delete AUTO_ASSIGN[reqId]; }
@@ -2605,10 +2625,12 @@ function renderAssign(){
   const tb=document.querySelector('#assignTable tbody'); if(!tb) return;
   const fEl=document.getElementById('assignFilter'); const f=fEl?fEl.value:'unassigned';
   const qEl=document.getElementById('assignSearch'); const q=qEl?s(qEl.value).toLowerCase():'';
+  const mEl=document.getElementById('assignMode'); const fm=mEl?mEl.value:'';
   const realTHU = r => ((r.agents||[]).find(a=>a.role==='THU (Manual)' && !a.auto)||{}).name || '';
   let rows = VIEW.filter(r=>r.stage==='THU');
   if(f==='unassigned') rows=rows.filter(r=>!realTHU(r));
   else if(f==='auto') rows=rows.filter(r=>r.autoTHU);
+  if(fm) rows=rows.filter(r=>modeBucket(r['Mode'])===fm);
   if(q) rows=rows.filter(r=>(((r['Request ID']||'')+' '+(r['Subject | Level']||'')).toLowerCase().indexOf(q)>-1));
   rows.sort((a,b)=>(b.age||0)-(a.age||0));
   const thuList = thuManualStaff();
@@ -2723,6 +2745,8 @@ function openStaffModal(agentName, roleName){
     const subj = r['Subject | Level'] || '—';
     const updateDate = getLatestUpdateDateStr(r);
     const noteAG = r.note || r.remark || s(field(r.rawRow || r, ['Note', 'Notes', 'Base Note', 'Base Notes', 'Special Request', 'Remarks', 'Remark'])) || '—';
+    const noteRaw = String(r.note || s(field(r.rawRow || r, ['Note', 'Notes', 'Base Note', 'Base Notes'])) || '');
+    const noteEsc = noteRaw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     const sheetUrl = getSheetRowUrl(r);
     const rowLabel = r.rowNum ? `Row ${r.rowNum}` : 'Sheet';
 
@@ -2765,7 +2789,7 @@ function openStaffModal(agentName, roleName){
       </td>
       <td style="color: #e2e8f0; font-size: 12.5px; padding: 10px 11px; min-width: 130px;">${subj}</td>
       <td style="color: #21D4FD; font-weight: 600; font-size: 11.5px; padding: 10px 11px; white-space: nowrap; font-variant-numeric: tabular-nums;">${updateDate}</td>
-      <td style="color: #cbd5e1; font-size: 12px; padding: 10px 11px; max-width: 280px; line-height: 1.4; word-break: break-word;">${noteAG}</td>
+      <td style="padding: 7px 11px; min-width: 210px;"><textarea onchange="updateNoteSync('${reqId}', '${r.sheet || ''}', '${r.rowNum || ''}', this.value, this)" placeholder="Tulis note…" title="Edit note — auto simpan ke Google Sheet bila klik luar kotak" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:#e2e8f0;border-radius:8px;padding:6px 8px;font-size:12px;line-height:1.4;resize:vertical;min-height:40px;font-family:inherit">${noteEsc}</textarea></td>
     </tr>`;
   }).join('') || `<tr><td colspan="5" class="small" style="text-align: center; color: var(--muted); padding: 24px;">Tiada tiket pending aktif bagi staf ini.</td></tr>`;
 
