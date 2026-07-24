@@ -224,6 +224,10 @@
   select{color-scheme:dark}
   select option{background:#0F1535;color:#fff}
   select option:checked{background:#0075FF;color:#fff}
+  #assignTable thead th{position:sticky;top:0;background:#0f1535;z-index:3;box-shadow:0 1px 0 var(--line);padding:10px 11px;font-size:10.5px}
+  #assignTable td{vertical-align:top;border-bottom:1px solid rgba(255,255,255,.05)}
+  #assignTable tbody tr:nth-child(even){background:rgba(255,255,255,.018)}
+  #assignTable tbody tr:hover{background:rgba(0,117,255,.06)}
   @media(max-width:1024px){
     :root{--side:0px}
     nav{position:fixed;top:0;left:0;bottom:0;width:250px;flex-direction:column;background:#0a0e26;box-shadow:0 0 50px rgba(0,0,0,.6);transform:translateX(-100%);transition:transform .25s ease;padding:24px 16px 20px;z-index:60}
@@ -428,11 +432,11 @@
     <div class="row c2" style="margin-bottom:18px;">
       <div class="panel">
         <h3>⚡ Today's Action <span class="tag">immediate operational tasks</span></h3>
-        <div class="kpi-grid" id="opTodaysAction" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
+        <div class="kpi-grid" id="opTodaysAction" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;"></div>
       </div>
       <div class="panel">
         <h3>📈 Today's Progress <span class="tag">daily execution balance</span></h3>
-        <div class="kpi-grid" id="opTodaysProgress" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;"></div>
+        <div class="kpi-grid" id="opTodaysProgress" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;"></div>
       </div>
     </div>
 
@@ -499,7 +503,7 @@
 
     <div class="panel" style="margin-bottom:16px; padding:16px;">
       <h3 style="margin-bottom:10px;">📊 Staff Workload Overview <span class="tag">live operational summary</span></h3>
-      <div class="kpi-grid" id="opStaffWorkload" style="grid-template-columns: repeat(3, 1fr); gap: 12px;"></div>
+      <div class="kpi-grid" id="opStaffWorkload" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;"></div>
     </div>
 
     <div class="kpi-grid" id="roleKpis"></div>
@@ -642,11 +646,20 @@
         <option value="Online">🌐 Online</option>
         <option value="In-Person">🏠 In-Person</option>
       </select>
-      <input type="text" id="assignSearch" placeholder="Cari ID / subjek..." onkeyup="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:220px">
+      <label class="small" style="font-weight:600">Bulan:</label>
+      <select id="assignMonth" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
+        <option value="">Semua Bulan</option>
+      </select>
+      <label class="small" style="font-weight:600">PIC:</label>
+      <select id="assignPIC" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
+        <option value="">Semua PIC</option>
+      </select>
+      <input type="text" id="assignSearch" placeholder="Cari ID / subjek..." onkeyup="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:200px">
       <span class="small" id="assignCount"></span>
     </div>
-    <div class="panel"><div class="scroll"><table id="assignTable">
-      <thead><tr><th>Request ID</th><th>Tarikh</th><th>PIC</th><th>Subject | Level</th><th>Mode</th><th>Age</th><th>Agent semasa</th><th>Special Request</th><th style="color:#7cc0ff">🔵 Assign THU (Manual)</th></tr></thead>
+    <div class="panel"><div class="scroll" style="max-height:620px"><table id="assignTable" style="table-layout:fixed;width:100%">
+      <colgroup><col style="width:12%"><col style="width:8%"><col style="width:11%"><col style="width:14%"><col style="width:6%"><col style="width:5%"><col style="width:10%"><col style="width:22%"><col style="width:12%"></colgroup>
+      <thead><tr><th>Request ID</th><th>Tarikh</th><th>PIC</th><th>Subject | Level</th><th style="text-align:center">Mode</th><th style="text-align:center">Age</th><th>Agent semasa</th><th>Special Request</th><th style="color:#7cc0ff">🔵 Assign THU</th></tr></thead>
       <tbody></tbody>
     </table></div></div>
   </section>
@@ -658,11 +671,11 @@
     <div class="row c2" style="margin-bottom:18px;">
       <div class="panel" style="margin-bottom:0;">
         <h3>⏳ Ticket Aging Breakdown <span class="tag">pending tutor duration</span></h3>
-        <div class="kpi-grid" id="opTicketAging" style="grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px;"></div>
+        <div class="kpi-grid" id="opTicketAging" style="grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 10px; margin-top: 10px;"></div>
       </div>
       <div class="panel" style="margin-bottom:0;">
         <h3>❓ Pending Reason Breakdown <span class="tag">bottleneck sub-status</span></h3>
-        <div class="kpi-grid" id="opPendingReason" style="grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px;"></div>
+        <div class="kpi-grid" id="opPendingReason" style="grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: 8px; margin-top: 10px;"></div>
       </div>
     </div>
 
@@ -2579,11 +2592,19 @@ function applyAutoAssign(){
     if(r.rawRow) r.rawRow['Assigned Agent THU (Manual)']=nm; // supaya muncul dalam modal staf
   });
 }
-function thuManualStaff(){
-  const set=new Set();
-  ALL.forEach(r=>(r.agents||[]).forEach(a=>{ if(a.role==='THU (Manual)' && a.name && !a.auto) set.add(a.name); }));
-  Object.values(AUTO_ASSIGN||{}).forEach(n=>{ if(n) set.add(n); });
-  return [...set].sort();
+// Senarai staf THU (Manual) yang standard untuk auto-assign — boleh tambah/buang nama di sini
+const THU_ASSIGN_STAFF = ['Afeefah','Shasha','Fadzli','Siti Sara','Alia'];
+function thuManualStaff(){ return THU_ASSIGN_STAFF.slice(); }
+function copyText(txt, el){
+  try{
+    var ta=document.createElement('textarea'); ta.value=txt;
+    ta.style.position='fixed'; ta.style.top='-1000px'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    if(el){ var o=el.innerHTML, oc=el.style.color; el.innerHTML='<b style="font-size:12px">✓</b>'; el.style.color='#22c55e';
+      setTimeout(function(){ if(el){ el.innerHTML=o; el.style.color=oc; } }, 900); }
+  }catch(e){}
 }
 function syncAssignTHU(reqId, agentName){
   const url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
@@ -2628,9 +2649,29 @@ function renderAssign(){
   const mEl=document.getElementById('assignMode'); const fm=mEl?mEl.value:'';
   const realTHU = r => ((r.agents||[]).find(a=>a.role==='THU (Manual)' && !a.auto)||{}).name || '';
   let rows = VIEW.filter(r=>r.stage==='THU');
+  // dropdown Bulan (dijana dari semua tiket THU)
+  const moEl=document.getElementById('assignMonth');
+  if(moEl){
+    const SM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const curMo=moEl.value;
+    const months=[...new Set(rows.map(r=>(r.dayKey||'').slice(0,7)).filter(Boolean))].sort().reverse();
+    moEl.innerHTML='<option value="">Semua Bulan</option>'+months.map(m=>{const p=m.split('-');return '<option value="'+m+'"'+(m===curMo?' selected':'')+'>'+SM[(+p[1])-1]+' '+p[0]+'</option>';}).join('');
+  }
+  const fmo=moEl?moEl.value:'';
+  // dropdown PIC (dijana dari semua tiket THU)
+  const picOf = r => s(field(r.rawRow||r, ['PIC','Person In Charge','PIC Name']));
+  const pEl=document.getElementById('assignPIC');
+  if(pEl){
+    const curP=pEl.value;
+    const pics=[...new Set(rows.map(picOf).filter(Boolean))].sort();
+    pEl.innerHTML='<option value="">Semua PIC</option>'+pics.map(p=>'<option value="'+p.replace(/"/g,'&quot;')+'"'+(p===curP?' selected':'')+'>'+p+'</option>').join('');
+  }
+  const fpic=pEl?pEl.value:'';
   if(f==='unassigned') rows=rows.filter(r=>!realTHU(r));
   else if(f==='auto') rows=rows.filter(r=>r.autoTHU);
   if(fm) rows=rows.filter(r=>modeBucket(r['Mode'])===fm);
+  if(fmo) rows=rows.filter(r=>(r.dayKey||'').slice(0,7)===fmo);
+  if(fpic) rows=rows.filter(r=>picOf(r)===fpic);
   if(q) rows=rows.filter(r=>(((r['Request ID']||'')+' '+(r['Subject | Level']||'')).toLowerCase().indexOf(q)>-1));
   rows.sort((a,b)=>(b.age||0)-(a.age||0));
   const thuList = thuManualStaff();
@@ -2640,7 +2681,7 @@ function renderAssign(){
     const reqId=r['Request ID']||'—';
     const isAuto=!!r.autoTHU;
     const cur=r.autoTHU||realTHU(r)||'';
-    const opts='<option value="">— pilih staf —</option>'+thuList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
+    const opts='<option value="">— pilih staf —</option>'+((cur&&thuList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (lain)</option>`:'')+thuList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
     const url=getSheetRowUrl(r);
     const agentCell = isAuto ? '<span style="color:#7cc0ff;font-weight:700">'+r.autoTHU+' 🔵</span>' : (realTHU(r)||'<span class="small">—</span>');
     const tsDate = r.dayKey ? r.dayKey.split('-').reverse().join('/') : '—';
@@ -2648,15 +2689,15 @@ function renderAssign(){
     const picVal = esc(s(field(r.rawRow||r, ['PIC','Person In Charge','PIC Name'])));
     const specialReq = esc(s(field(r.rawRow||r, ['Special Request'])));
     return `<tr style="background:${isAuto?'rgba(0,117,255,.12)':''}">
-      <td><a href="${url}" target="_blank" rel="noopener" style="color:var(--info);font-weight:700;text-decoration:underline">${reqId}</a></td>
-      <td style="white-space:nowrap;color:#cbd5e1">${tsDate}</td>
-      <td style="white-space:nowrap;font-weight:600">${picVal||'<span class="small">—</span>'}</td>
-      <td>${r['Subject | Level']||''}</td>
-      <td>${r['Mode']||''}</td>
-      <td>${r.age==null?'—':r.age+'d'}</td>
-      <td>${agentCell}</td>
-      <td style="max-width:240px;color:#cbd5e1;font-size:12px;line-height:1.35">${specialReq||'<span class="small">—</span>'}</td>
-      <td><select onchange="autoAssignTHU('${reqId}', this.value)" style="background:${isAuto?'rgba(0,117,255,.28)':'var(--panel2)'};border:1px solid ${isAuto?'#0075FF':'var(--line)'};color:${isAuto?'#7cc0ff':'#fff'};border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700">${opts}</select></td>
+      <td style="padding:9px 11px;white-space:nowrap"><a href="${url}" target="_blank" rel="noopener" style="color:var(--info);font-weight:700;text-decoration:underline;font-size:12.5px">${reqId}</a>${reqId!=='—'?`<span onclick="copyText('${reqId}', this)" title="Salin Request ID" style="cursor:pointer;margin-left:8px;display:inline-flex;vertical-align:middle;color:#5b6b8c" onmouseover="this.style.color='#21D4FD'" onmouseout="this.style.color='#5b6b8c'"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></span>`:''}</td>
+      <td style="padding:9px 11px;white-space:nowrap;color:#cbd5e1;font-size:11.5px">${tsDate}</td>
+      <td style="padding:9px 11px;font-weight:600;font-size:12px;word-break:break-word">${picVal||'<span class="small">—</span>'}</td>
+      <td style="padding:9px 11px;font-size:12.5px;word-break:break-word">${r['Subject | Level']||''}</td>
+      <td style="padding:9px 11px;text-align:center;font-size:11.5px">${r['Mode']||''}</td>
+      <td style="padding:9px 11px;text-align:center;font-size:11.5px;white-space:nowrap">${r.age==null?'—':r.age+'d'}</td>
+      <td style="padding:9px 11px;font-size:12px;word-break:break-word">${agentCell}</td>
+      <td style="padding:9px 11px"><div style="max-height:72px;overflow-y:auto;color:#cbd5e1;font-size:11px;line-height:1.4;word-break:break-word">${specialReq||'<span class="small">—</span>'}</div></td>
+      <td style="padding:9px 11px"><select onchange="autoAssignTHU('${reqId}', this.value)" style="width:100%;background:${isAuto?'rgba(0,117,255,.28)':'var(--panel2)'};border:1px solid ${isAuto?'#0075FF':'var(--line)'};color:${isAuto?'#7cc0ff':'#fff'};border-radius:8px;padding:6px 8px;font-size:11.5px;font-weight:700">${opts}</select></td>
     </tr>`;
   }).join('') || '<tr><td colspan="9" class="small">Tiada tiket THU untuk penapis ini.</td></tr>';
 }
