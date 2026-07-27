@@ -1864,6 +1864,27 @@ function renderStaff(){
     });
   });
 
+  // PENDING = tiket yang staf PEGANG SEKARANG dalam sheet unit masing-masing (stage semasa) — TAK ikut penapis tarikh
+  const pendNow={};
+  ALL.forEach(r=>{
+    (r.agents||[]).forEach(a=>{
+      if(!inGroup(a.name)) return;
+      const rl = a.role.indexOf('Broadcast')>-1 ? 'THU (Manual)' : a.role;
+      const held = (rl.indexOf('RCU')>-1) ? (r.stage==='RCU')
+                 : (rl.indexOf('THU')>-1) ? (r.stage==='THU')
+                 : (rl.indexOf('PCU')>-1) ? (r.stage==='PCU' && r.tsProfileShared==null)
+                 : false;
+      if(!held) return;
+      const key=a.name+'||'+rl;
+      pendNow[key]=(pendNow[key]||0)+1;
+      if(!map[key]) map[key]={name:a.name,role:rl,handled:0,out:0,pend:0,sec:0,comp:0,canc:0};
+    });
+  });
+  // ganti nilai pending dgn holdings semasa + kira semula jumlah unit
+  Object.values(map).forEach(x=>{ x.pend = pendNow[x.name+'||'+x.role]||0; });
+  Object.keys(roleAgg).forEach(rl=>{ roleAgg[rl].pend=0; });
+  Object.values(map).forEach(x=>{ if(roleAgg[x.role]) roleAgg[x.role].pend += x.pend; });
+
   let arr=Object.values(map).map(x=>{
     // Rate ikut unit: RCU = Moved(termasuk Completed) · PCU = Shared(termasuk Completed) = sec+comp ; THU = Overall(sec+comp+canc)
     const num = x.role.indexOf('THU')>-1 ? (x.sec + x.comp + x.canc) : (x.sec + x.comp);
