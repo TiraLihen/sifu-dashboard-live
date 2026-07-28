@@ -749,7 +749,7 @@
 <script>
 /* ===== CONFIG ===== */
 const CFG_KEY='st_live_cfg_v2';
-const DEFAULT_URL='https://script.google.com/macros/s/AKfycbwuxsm01-O5fDZ_QvY0NLF9AxOafZHZHH7QyS7VDxhxY-ULyKd93iEHlmiUrWSnpKPS/exec';
+const DEFAULT_URL='https://script.google.com/macros/s/AKfycbwV3EyooD33B7YD_rWcs4PfkZxVZhW1oWsaa1FrDk9rlxaQ4kIt-9-egSYM_45JkqaJ/exec';
 let cfg=loadCfg();
 let RAW=null, ALL=[], VIEW=[], DUPLICATES=[], charts={}, sortKey='age', sortDir=-1, autoTimer=null, jsonpId=0;
 let range={from:null,to:null,preset:'all'};
@@ -1029,14 +1029,19 @@ function normalize(r,tab){
   const urgent=/urgent/i.test(s(field(r,['Special Request'])));
   const secured=(stage==='PCU'||stage==='Completed');
   const pendingTutor=(stage!=='PCU'&&stage!=='Completed'&&stage!=='Cancelled');
-  const agentCols=['Assigned Agent THU (Broadcast)','Assigned Agent THU (Manual)','Assigned Agent PCU','Assigned Agent RCU'];
+  // Setiap unit: senarai calon header (padan mana-mana yang wujud dalam sheet)
+  const agentDefs=[
+    {role:'THU (Broadcast)', h:['Assigned Agent THU (Broadcast)','Assigned Agent THU Broadcast']},
+    {role:'THU (Manual)',    h:['Assigned Agent THU (Manual)','Assigned Agent THU']},
+    {role:'PCU',             h:['Assigned Agent PCU']},
+    {role:'RCU',             h:['Assigned Agent RCU']}
+  ];
   let agent='',role='';
   const agents=[];
-  for(const c of agentCols){const v=s(field(r,[c])); const vu=v.toUpperCase();
+  for(const d of agentDefs){const v=s(field(r,d.h)); const vu=v.toUpperCase();
     if(v && vu!=='PIC' && vu!=='ANONYMOUS' && vu.indexOf('ASSIGNED AGENT')<0){
-    const rl=c.replace('Assigned Agent ','');
-    agents.push({name:v,role:rl});
-    if(!agent){agent=v;role=rl;}
+    agents.push({name:v,role:d.role});
+    if(!agent){agent=v;role=d.role;}
   }}
   let ts = parseDateMsia(field(r,['Timestamp'])) || 0;
   const pd = x => parseDateMsia(field(r,x));
@@ -1409,7 +1414,7 @@ function copyReport(){
 }
 function monthKeyOf(ts){const d=getMsiaDate(ts); return d ? (d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')) : '';}
 function monthLabel(key){const p=key.split('-');return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][(+p[1])-1]+" '"+p[0].slice(2);}
-function roleColor(role){if(role.indexOf('RCU')>-1)return C.blue;if(role.indexOf('Broadcast')>-1)return C.pink;if(role.indexOf('Manual')>-1)return C.amber;if(role.indexOf('PCU')>-1)return C.cyan;return C.slate;}
+function roleColor(role){if(role.indexOf('RCU')>-1)return C.blue;if(role.indexOf('Broadcast')>-1)return C.pink;if(role.indexOf('Manual')>-1)return C.amber;if(role.indexOf('PCU')>-1)return C.cyan;if(role.indexOf('THU')>-1)return C.amber;return C.slate;}
 const TREND_PAL=['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
 function renderTrend(){
   const months=[...new Set(VIEW.filter(r=>r.ts).map(r=>monthKeyOf(r.ts)))].sort();
@@ -1812,7 +1817,7 @@ function renderStaff(){
       const origRole = a.role;
       if (!inGroup(a.name)) return; // asingkan ikut kumpulan (PIC / Admin Support)
       // gabungkan THU (Broadcast) ke dalam THU (Manual) untuk Staff Table
-      const role = origRole.indexOf('Broadcast') > -1 ? 'THU (Manual)' : origRole;
+      const role = origRole.indexOf('THU') > -1 ? 'THU' : origRole;
 
       // Check if ticket was assigned/handled in this date range (guna peranan ASAL utk tarikh)
       const tsAssign = origRole.indexOf('RCU') > -1 ? r.tsAssignRCU
@@ -1831,7 +1836,12 @@ function renderStaff(){
         else if (r.stage === 'Completed') { comp = 1; ok = 1; }
         else if (r.stage === 'Cancelled') canc = 1;
       } else if (role.indexOf('THU') > -1) {
-        if (r.stage === 'RCU' || r.stage === 'THU') pend = 1;
+        const hasBC = (r.agents||[]).some(a=>a.role==='THU (Broadcast)');
+        const isBC = origRole.indexOf('Broadcast') > -1;
+        if (r.stage === 'RCU' || r.stage === 'THU') {
+          if (r.stage === 'THU' && hasBC && !isBC) { comp = 1; ok = 1; } // Manual pass ke Broadcast → dikira Completed (handover)
+          else pend = 1;                                                  // pemegang semasa: Broadcast, atau Manual tanpa Broadcast
+        }
         else if (r.stage === 'PCU') { sec = 1; ok = 1; }
         else if (r.stage === 'Completed') { comp = 1; ok = 1; }
         else if (r.stage === 'Cancelled') canc = 1;
@@ -1867,13 +1877,15 @@ function renderStaff(){
   // PENDING = tiket yang staf PEGANG SEKARANG dalam sheet unit masing-masing (stage semasa) — TAK ikut penapis tarikh
   const pendNow={};
   ALL.forEach(r=>{
+    const hasBC = (r.agents||[]).some(a=>a.role==='THU (Broadcast)');
     (r.agents||[]).forEach(a=>{
       if(!inGroup(a.name)) return;
-      const rl = a.role.indexOf('Broadcast')>-1 ? 'THU (Manual)' : a.role;
-      const held = (rl.indexOf('RCU')>-1) ? (r.stage==='RCU')
-                 : (rl.indexOf('THU')>-1) ? (r.stage==='THU')
-                 : (rl.indexOf('PCU')>-1) ? (r.stage==='PCU' && r.tsProfileShared==null)
-                 : false;
+      const rl = a.role.indexOf('THU')>-1 ? 'THU' : a.role;
+      let held;
+      if(rl.indexOf('RCU')>-1) held = (r.stage==='RCU');
+      else if(rl.indexOf('PCU')>-1) held = (r.stage==='PCU' && r.tsProfileShared==null);
+      else if(rl.indexOf('THU')>-1) held = (r.stage==='THU') && (hasBC ? a.role==='THU (Broadcast)' : true); // handover: bila ada Broadcast, hanya Broadcast pending
+      else held=false;
       if(!held) return;
       const key=a.name+'||'+rl;
       pendNow[key]=(pendNow[key]||0)+1;
@@ -1936,7 +1948,7 @@ function renderStaff(){
     options:{indexAxis:'y',plugins:{legend:{position:'top'}},scales:{x:{beginAtZero:true}}}});
 
   // Jadual susun atur header dinamik dan penjanaan jadual berasingan bagi setiap unit
-  const roleOrder=['RCU','THU (Manual)','THU (Broadcast)','PCU'];
+  const roleOrder=['RCU','THU','THU (Manual)','THU (Broadcast)','PCU'];
   const orderedRoles=[...new Set(arr.map(s=>s.role))].sort((a,b)=>{
     const ia=roleOrder.indexOf(a),ib=roleOrder.indexOf(b);
     return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b);
@@ -2562,7 +2574,7 @@ function printDailyReportSheet() {
   if (reportToolbar) reportToolbar.style.removeProperty('display');
 }
 
-if(!cfg.url)cfg.url=DEFAULT_URL;
+if(!cfg.url || cfg.url.indexOf('AKfycbwuxsm01')>-1){ cfg.url=DEFAULT_URL; try{saveCfg();}catch(e){} }
 try{ if(localStorage.getItem('st_navmini')==='1') document.body.classList.add('nav-mini'); }catch(e){}
 try{ document.body.classList.remove('light'); localStorage.removeItem('st_theme'); }catch(e){}
 function formatTs(ts) {
@@ -2758,8 +2770,7 @@ function openStaffModal(agentName, roleName){
     }
     
     if (isRoleMatch(roleName, 'THU (Manual)') || isRoleMatch(roleName, 'THU Manual') || isRoleMatch(roleName, 'THU')) {
-      if (agTHUm !== agentName) return false;
-      if (agTHUb && agTHUb.toUpperCase() !== 'PIC') return false; // Broadcast priority rule
+      if (agTHUm !== agentName && agTHUb !== agentName) return false; // gabungan THU: padan Manual ATAU Broadcast
       return isThuSheet;
     }
 
