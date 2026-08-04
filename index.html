@@ -340,6 +340,15 @@
       break-inside: avoid !important;
     }
   }
+  /* Latest Updates / changelog */
+  .cl-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s,transform .15s}
+  .cl-item:hover{border-color:rgba(0,117,255,.5);transform:translateY(-2px)}
+  .cl-num{flex:none;width:26px;height:26px;border-radius:50%;background:rgba(0,117,255,.18);border:1px solid rgba(0,117,255,.5);color:#7cc0ff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .cl-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px}
+  .cl-title{font-weight:700;font-size:13px;color:var(--txt)}
+  .cl-desc{line-height:1.45}
+  .cl-new{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.4);font-size:9px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:10px}
+  .cl-fix{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.4);font-size:9px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -368,6 +377,8 @@
   <div class="nav-group-title">📊 Analytics &amp; Units</div>
   <button data-tab="units"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v3H4zm3 6h10v3H7zm3 6h4v3h-4z"/></svg></span><span class="lbl">Stages &amp; Units</span></button>
   <button data-tab="hotspots"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg></span><span class="lbl">Hotspots Analytics</span></button>
+  <button data-tab="trend"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8v4h-2V8.83l-6 6-4-4-4.6 4.59L3 17z"/></svg></span><span class="lbl">Trends</span></button>
+  <button data-tab="monthly"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v3H4zm0 6h7v3H4zm0 6h7v3H4zm9-6h7v9h-7z"/></svg></span><span class="lbl">Monthly Report</span></button>
 
   <div class="nav-group-title">👥 Team &amp; Risk</div>
   <div class="nav-dd" id="staffDD">
@@ -377,7 +388,7 @@
       <button data-tab="staff" data-group="pic" class="nav-sub"><span class="dot"></span><span class="lbl">PIC</span></button>
     </div>
   </div>
-  <button data-tab="assign"><span class="ico"><svg viewBox="0 0 24 24"><path d="M10 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-1 2c-2.7 0-8 1.3-8 4v2h10v-2c0-1.1.3-2.1.9-3A13 13 0 0 0 9 14zm11 1h-2v-2h-2v2h-2v2h2v2h2v-2h2z"/></svg></span><span class="lbl">Assign THU</span></button>
+  <button data-tab="assign"><span class="ico"><svg viewBox="0 0 24 24"><path d="M10 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-1 2c-2.7 0-8 1.3-8 4v2h10v-2c0-1.1.3-2.1.9-3A13 13 0 0 0 9 14zm11 1h-2v-2h-2v2h-2v2h2v2h2v-2h2z"/></svg></span><span class="lbl">Assign Agent</span></button>
   <button data-tab="risk"><span class="ico"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg></span><span class="lbl">SLA &amp; Risk Control</span></button>
 
   <div class="nav-group-title">📄 BI &amp; Reports</div>
@@ -404,7 +415,34 @@
   <section id="overview" class="active">
     <h2 class="sec-title">🏠 Home &amp; Executive Operational Pulse</h2>
     <p class="sec-desc">Calculated automatically from Master Tutor Request based on the selected date range (by Timestamp).</p>
-    
+
+    <!-- LATEST UPDATES / CHANGELOG -->
+    <div id="changelogCard" style="position:relative;overflow:hidden;border:1px solid rgba(0,117,255,.35);border-radius:16px;padding:20px 22px;margin-bottom:20px;background:linear-gradient(135deg,#0e1a3a,#101a30 60%,#0b1428);box-shadow:0 0 40px rgba(0,117,255,.12) inset;">
+      <button onclick="document.getElementById('changelogCard').style.display='none';try{localStorage.setItem('st_changelog_hidden_2026_07_31b','1')}catch(e){}" title="Sembunyikan" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:13px;line-height:1;">✕</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+        <span style="background:linear-gradient(135deg,#0075FF,#21D4FD);color:#fff;font-size:10px;font-weight:800;letter-spacing:.1em;padding:4px 10px;border-radius:20px;">NEW</span>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:17px;color:var(--txt);">Latest Updates · 31 Julai 2026</span>
+      </div>
+      <div class="small" style="margin-bottom:14px;">9 penambahbaikan pada Dashboard Admin Support Sifu Tutor. Klik <b>Simpan PDF</b> untuk salinan penuh.</div>
+      <button onclick="window.print()" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;margin-bottom:16px;">🖨️ Simpan sebagai PDF</button>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px;" id="changelogGrid">
+        <div class="cl-item"><div class="cl-num">1</div><div><div class="cl-head"><span class="cl-title">Assign THU — Auto-Note ke Master</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Assign agent dari dashboard kini auto-tulis "Assigned by Manager" + tarikh ke Column AG (Notes).</div></div></div>
+        <div class="cl-item"><div class="cl-num">2</div><div><div class="cl-head"><span class="cl-title">Modal Staf — SLA "Days Open" &amp; Action</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Jadual tiket staf tunjuk umur tiket (hijau/kuning/merah) + cadangan tindakan ikut kategori.</div></div></div>
+        <div class="cl-item"><div class="cl-num">3</div><div><div class="cl-head"><span class="cl-title">Kiraan Pending Modal</span><span class="cl-fix">FIX</span></div><div class="small cl-desc">Kiraan pending dalam modal staf kini selaras dengan Staff Table (logik handover THU Manual↔Broadcast).</div></div></div>
+        <div class="cl-item"><div class="cl-num">4</div><div><div class="cl-head"><span class="cl-title">Request Explorer — Rekaan Baharu</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Kad hero jumlah tiket dalam julat + kad database berjenama Sifu Tutor.</div></div></div>
+        <div class="cl-item"><div class="cl-num">5</div><div><div class="cl-head"><span class="cl-title">Assign THU — Penapis Baharu</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Papar Semua / Belum / Dah ada agent — nama agent semasa kini dipaparkan.</div></div></div>
+        <div class="cl-item"><div class="cl-num">6</div><div><div class="cl-head"><span class="cl-title">Staf THU — Haritharan</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Ditambah ke senarai Assign THU, WhatsApp Report &amp; Daily Report.</div></div></div>
+        <div class="cl-item"><div class="cl-num">7</div><div><div class="cl-head"><span class="cl-title">Favicon Logo Sifu Tutor</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Logo rasmi Sifu Tutor kini muncul di tab browser.</div></div></div>
+        <div class="cl-item"><div class="cl-num">8</div><div><div class="cl-head"><span class="cl-title">Assign Agent — RCU &amp; PCU</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Tab Assign kini boleh pilih Unit (RCU / THU / PCU) &amp; assign agent bagi ketiga-tiga unit terus ke sheet.</div></div></div>
+        <div class="cl-item"><div class="cl-num">9</div><div><div class="cl-head"><span class="cl-title">Banner "Masih Pending"</span><span class="cl-new">NEW</span></div><div class="small cl-desc">Banner atas kini tunjuk jumlah tiket yang masih di sheet RCU + THU (belum secure tutor).</div></div></div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        try{ if(localStorage.getItem('st_changelog_hidden_2026_07_31b')==='1'){ var c=document.getElementById('changelogCard'); if(c) c.style.display='none'; } }catch(e){}
+      })();
+    </script>
+
     <div class="action-banner" id="actionBanner" style="margin-bottom:20px;"></div>
 
     <div class="kpi-grid" id="kpiGrid" style="margin-bottom:20px;"></div>
@@ -632,14 +670,38 @@
   </section>
 
   <section id="assign">
-    <h2 class="sec-title">🔵 Assign THU (Manual) <span class="pill ok" style="font-size:11px">Live · sync ke Sheet</span></h2>
-    <p class="sec-desc">Assign staf THU (Manual) kepada tiket — <b>terus disimpan ke Google Sheet</b> (nama diisi pada kolum "Assigned Agent THU (Manual)", sel bertukar <b style="color:#7cc0ff">biru</b> dalam sheet supaya staf tahu ia auto-assign, dan Date Assigned THU distamp). Perlu deploy versi baharu Apps Script dahulu.</p>
+    <h2 class="sec-title">🔵 Assign Agent — RCU / THU / PCU <span class="pill ok" style="font-size:11px">Live · sync ke Sheet</span></h2>
+    <p class="sec-desc">Pilih <b>Unit</b>, kemudian assign staf kepada tiket — <b>terus disimpan ke Google Sheet</b> (nama diisi pada kolum agent unit, sel bertukar <b style="color:#7cc0ff">biru</b>, tarikh assign distamp, dan note "Assigned by Manager" ditulis di Column AG). Perlu deploy versi baharu Apps Script dahulu.</p>
+
+    <!-- HERO: assignment overview -->
+    <div style="position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:14px;background:linear-gradient(135deg,rgba(0,117,255,.12),rgba(33,212,253,.05));display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div style="min-width:240px;">
+        <div id="asgHeroUnitLbl" style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--info);margin-bottom:6px;">🔵 THU (Manual) Assignment</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--txt);line-height:1.15;"><span id="asgHeroTotal">0</span> Tiket <span id="asgHeroUnit">THU</span> Dalam Julat</div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#22c55e;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">✔ Dah assign: <span id="asgStatDone">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,117,255,.12);border:1px solid rgba(0,117,255,.4);color:#7cc0ff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">🔵 Auto: <span id="asgStatAuto">0</span></span>
+        </div>
+      </div>
+      <div style="text-align:right;line-height:1;">
+        <div id="asgHeroBig" style="font-family:'Outfit',sans-serif;font-weight:900;font-size:52px;background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">0</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:2px;">Belum Assign</div>
+      </div>
+    </div>
+
     <div class="toolbar">
+      <label class="small" style="font-weight:600">Unit:</label>
+      <select id="assignUnit" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--info);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700">
+        <option value="RCU">🟢 RCU</option>
+        <option value="THU" selected>🔵 THU</option>
+        <option value="PCU">🟣 PCU</option>
+      </select>
       <label class="small" style="font-weight:600">Papar:</label>
       <select id="assignFilter" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
-        <option value="unassigned">THU belum ada agent</option>
         <option value="all">Semua THU</option>
-        <option value="auto">Yang di-auto-assign sahaja</option>
+        <option value="unassigned">🔴 Belum ada agent</option>
+        <option value="assigned">🟢 Dah ada agent</option>
+        <option value="auto">🔵 Auto-assign sahaja</option>
       </select>
       <label class="small" style="font-weight:600">Mode:</label>
       <select id="assignMode" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
@@ -695,7 +757,33 @@
   </section>
 
   <section id="data">
-    <h2 class="sec-title">📋 Request Data Search</h2>
+    <h2 class="sec-title">📋 Request Explorer</h2>
+    <p class="sec-desc">All requests within the selected date range (without personal info). Filter &amp; search below.</p>
+
+    <!-- HERO: browse all tickets -->
+    <div style="position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:14px;background:linear-gradient(135deg,rgba(0,117,255,.10),rgba(33,212,253,.05));display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div style="min-width:240px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--info);margin-bottom:6px;">📁 Browse All Tickets</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--txt);line-height:1.15;"><span id="dataHeroNum">0</span> Requests In Current Range</div>
+        <div class="small" style="margin-top:6px;max-width:520px;">Search, filter by stage / type / mode, and export to CSV for further analysis.</div>
+      </div>
+      <div style="text-align:right;line-height:1;">
+        <div id="dataHeroBig" style="font-family:'Outfit',sans-serif;font-weight:900;font-size:52px;background:linear-gradient(135deg,#0075FF,#21D4FD);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">0</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:2px;">Tickets</div>
+      </div>
+    </div>
+
+    <!-- BRAND / DATABASE card -->
+    <div style="position:relative;overflow:hidden;border-radius:16px;padding:22px 24px;margin-bottom:16px;background:linear-gradient(120deg,#1b2a6b,#2331C6 55%,#159FD6);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div style="min-width:240px;color:#fff;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-bottom:6px;">● Sifu Tutor Database</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;line-height:1.15;">Semua Tiket. Satu Tempat. Telus.</div>
+        <div style="font-size:12.5px;opacity:.85;margin-top:6px;max-width:460px;">Setiap permintaan direkodkan dengan lengkap untuk audit, analisis &amp; penambahbaikan berterusan.</div>
+        <a href="https://www.sifututor.my" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:20px;padding:8px 18px;font-size:12.5px;font-weight:700;text-decoration:none;">Visit Website →</a>
+      </div>
+      <img src="sifu-logo.png" alt="Sifu Tutor" style="width:96px;height:96px;object-fit:contain;background:#fff;border-radius:18px;padding:10px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.3));">
+    </div>
+
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
       <input type="text" id="search" placeholder="Search ID, Subject, Agent..." onkeyup="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:260px;">
       <select id="fStage" onchange="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;"><option value="">All Stages</option></select>
@@ -742,7 +830,7 @@
 <div class="overlay hidden" id="loader"><div class="spinner"></div><div id="loaderText">Loading data from Master Tutor Request…</div></div>
 
 <div class="overlay hidden" id="pcuModal" onclick="if(event.target===this) closePcuModal()">
-  <div class="panel" style="max-width:880px;width:95%;box-sizing:border-box;position:relative;background:#0F1535;border:1px solid var(--line);box-shadow:0 24px 50px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;padding:24px;">
+  <div class="panel" style="max-width:1200px;width:96%;box-sizing:border-box;position:relative;background:#0F1535;border:1px solid var(--line);box-shadow:0 24px 50px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;padding:24px;">
     <div id="pcuModalContent"></div>
   </div>
 </div>
@@ -1610,12 +1698,15 @@ function renderOverview(){
   // ACTION BANNER
   const elBanner = document.getElementById('actionBanner');
   if (elBanner) {
+    const rcuAll = ALL.filter(r=>r.stage==='RCU').length;
+    const thuAll = ALL.filter(r=>r.stage==='THU').length;
+    const stillPending = rcuAll + thuAll;
     elBanner.innerHTML=
       '<div class="ab-left"><div class="ab-eye">⚠ Live Action Snapshot</div>'+
-      '<div class="ab-head">'+alerts+' tickets need your attention right now</div>'+
-      '<div class="ab-sub">'+thuUnassigned+' unassigned at THU stage · '+urgent+' past deadline. Reassign or escalate to clear the bottleneck and protect SLA.</div>'+
+      '<div class="ab-head">'+stillPending+' tiket masih pending sekarang</div>'+
+      '<div class="ab-sub">'+rcuAll+' di sheet RCU · '+thuAll+' di sheet THU — masih dalam proses cari / assign tutor (belum secure ke PCU).</div>'+
       '<button class="ab-btn" onclick="document.querySelector(\'#nav button[data-tab=staff]\').click()">View Staff Workload →</button></div>'+
-      '<div class="ab-right"><div class="ab-num">'+alerts+'</div><div class="ab-lbl">Total Alerts</div></div>';
+      '<div class="ab-right"><div class="ab-num">'+stillPending+'</div><div class="ab-lbl">Masih Pending</div></div>';
   }
   const closedToday = ALL.filter(r => (r.stage === 'Completed' || r.stage === 'Cancelled') && (isToday(r.tsCompleted) || isToday(r.ts))).length;
   const newToday = ALL.filter(r => isToday(r.ts)).length;
@@ -2181,6 +2272,9 @@ function renderData(){
   rows.sort((a,b)=>{let x=a[sortKey],y=b[sortKey]; if(sortKey==='age'){x=x==null?-1:x;y=y==null?-1:y;}
     if(typeof x==='string')x=x.toLowerCase(); if(typeof y==='string')y=y.toLowerCase(); return (x>y?1:x<y?-1:0)*sortDir;});
   const elCount=document.getElementById('dataCount'); if(elCount) elCount.textContent=rows.length+' request';
+  const _n=rows.length.toLocaleString('en-US');
+  const elHN=document.getElementById('dataHeroNum'); if(elHN) elHN.textContent=_n;
+  const elHB=document.getElementById('dataHeroBig'); if(elHB) elHB.textContent=_n;
   const tbody=elTable.querySelector('tbody');
   if(tbody){
     tbody.innerHTML=rows.slice(0,500).map(r=>`
@@ -2327,6 +2421,8 @@ document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',(
   if(target) target.classList.add('active');
   if(b.dataset.group){ window.staffGroup = b.dataset.group; renderStaff(); var _dd=document.getElementById('staffDD'); if(_dd)_dd.classList.add('open'); }
   if(b.dataset.tab==='reports' || b.dataset.tab==='report') renderDailyReport();
+  if(b.dataset.tab==='trend') { try{renderTrend();}catch(e){} }
+  if(b.dataset.tab==='monthly') { try{renderMonthly();}catch(e){} }
   if(window.innerWidth<=1024) document.body.classList.remove('nav-open'); }));
 document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.p)));
 const repDateSelEl = document.getElementById('repDateSel');
@@ -2626,8 +2722,13 @@ function applyAutoAssign(){
   });
 }
 // Senarai staf THU (Manual) yang standard untuk auto-assign — boleh tambah/buang nama di sini
-const THU_ASSIGN_STAFF = ['Afeefah','Shasha','Fadzli','Siti Sara','Alia','Hazahirah'];
+const THU_ASSIGN_STAFF = ['Afeefah','Shasha','Fadzli','Siti Sara','Alia','Hazahirah','Haritharan','Athirah'];
 function thuManualStaff(){ return THU_ASSIGN_STAFF.slice(); }
+// Senarai staf assign untuk unit RCU & PCU (boleh tambah/buang nama di sini)
+const RCU_ASSIGN_STAFF = ['Khaira'];
+const PCU_ASSIGN_STAFF = ['Nurul Arysya','Sarah','Arisya Sofea'];
+function unitStaff(unit){ return unit==='RCU'?RCU_ASSIGN_STAFF.slice() : unit==='PCU'?PCU_ASSIGN_STAFF.slice() : THU_ASSIGN_STAFF.slice(); }
+function unitAgentCol(unit){ return unit==='RCU'?'Assigned Agent RCU' : unit==='PCU'?'Assigned Agent PCU' : 'Assigned Agent THU (Manual)'; }
 // Senarai staf untuk WhatsApp Report (ikut unit) — role ditetapkan, bukan auto-detect. Tambah/buang nama di sini.
 const REPORT_STAFF = [
   {unit:'RCU', role:'RCU',            names:['Khaira']},
@@ -2682,13 +2783,50 @@ function autoAssignTHU(reqId, agentName){
   if(window._staffModalArgs && _m && !_m.classList.contains('hidden')) openStaffModal(window._staffModalArgs.name, window._staffModalArgs.role);
 }
 
+// Assign generik ikut unit: THU guna aliran auto sedia ada; RCU/PCU tulis terus ke sheet
+function assignUnitAgent(reqId, agent, unit){
+  if(!reqId || reqId==='—') return;
+  if(unit==='THU'){ autoAssignTHU(reqId, agent); return; }
+  const t=ALL.find(x=>x['Request ID']===reqId);
+  if(t){
+    const col = unitAgentCol(unit);
+    if(t.rawRow) t.rawRow[col]= agent||'';
+    t.agents=(t.agents||[]).filter(a=>a.role!==unit);
+    if(agent) t.agents.push({name:agent, role:unit});
+  }
+  syncAssignUnit(reqId, agent, unit);
+  applyRange();
+  renderAssign();
+}
+function syncAssignUnit(reqId, agentName, unit){
+  const url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
+  const t=ALL.find(x=>x['Request ID']===reqId); const sh=t?(t.sheet||''):'';
+  const name='__asgu_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
+  const sc=document.createElement('script');
+  window[name]=function(d){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
+    if(d&&d.ok===false) console.warn('Assign sync gagal:', d.error); };
+  sc.onerror=function(){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  sc.src=url+sep+'action=assignAgent&unit='+encodeURIComponent(unit)+'&requestId='+encodeURIComponent(reqId)+'&agent='+encodeURIComponent(agentName||'')+'&sheet='+encodeURIComponent(sh)+'&callback='+name+'&_t='+Date.now();
+  document.body.appendChild(sc);
+}
+
 function renderAssign(){
   const tb=document.querySelector('#assignTable tbody'); if(!tb) return;
-  const fEl=document.getElementById('assignFilter'); const f=fEl?fEl.value:'unassigned';
+  const uEl=document.getElementById('assignUnit'); const unit=uEl?uEl.value:'THU';
+  const fEl=document.getElementById('assignFilter'); const f=fEl?fEl.value:'all';
   const qEl=document.getElementById('assignSearch'); const q=qEl?s(qEl.value).toLowerCase():'';
   const mEl=document.getElementById('assignMode'); const fm=mEl?mEl.value:'';
-  const realTHU = r => ((r.agents||[]).find(a=>a.role==='THU (Manual)' && !a.auto)||{}).name || '';
-  let rows = VIEW.filter(r=>r.stage==='THU');
+  const staffList = unitStaff(unit);
+  const agColName = unitAgentCol(unit);
+  const curAgent = r => {
+    if(unit==='THU') return r.autoTHU || (((r.agents||[]).find(a=>a.role==='THU (Manual)' && !a.auto)||{}).name) || '';
+    const a=(r.agents||[]).find(x=>x.role===unit);
+    return (a&&a.name) || s(field(r.rawRow||r,[agColName])) || '';
+  };
+  // kemas kini label hero ikut unit
+  const _u=document.getElementById('asgHeroUnit'); if(_u)_u.textContent=unit;
+  const _ul=document.getElementById('asgHeroUnitLbl'); if(_ul)_ul.textContent=(unit==='THU'?'🔵 THU (Manual)':unit==='RCU'?'🟢 RCU':'🟣 PCU')+' Assignment';
+  let rows = VIEW.filter(r=>r.stage===unit);
   // dropdown Bulan (dijana dari semua tiket THU)
   const moEl=document.getElementById('assignMonth');
   if(moEl){
@@ -2699,7 +2837,7 @@ function renderAssign(){
   }
   const fmo=moEl?moEl.value:'';
   // dropdown PIC (dijana dari semua tiket THU)
-  const picOf = r => s(field(r.rawRow||r, ['PIC','Person In Charge','PIC Name']));
+  const picOf = r => { var v=s(field(r.rawRow||r, ['PIC','Person In Charge','PIC Name'])); if(!v || /^\d{4}-\d{2}-\d{2}T/.test(v) || /\d{1,2}:\d{2}:\d{2}/.test(v) || /GMT|\bZ$/.test(v)) return ''; return v; };
   const pEl=document.getElementById('assignPIC');
   if(pEl){
     const curP=pEl.value;
@@ -2707,23 +2845,29 @@ function renderAssign(){
     pEl.innerHTML='<option value="">Semua PIC</option>'+pics.map(p=>'<option value="'+p.replace(/"/g,'&quot;')+'"'+(p===curP?' selected':'')+'>'+p+'</option>').join('');
   }
   const fpic=pEl?pEl.value:'';
-  if(f==='unassigned') rows=rows.filter(r=>!realTHU(r));
-  else if(f==='auto') rows=rows.filter(r=>r.autoTHU);
+  // skop dulu (mode/bulan/pic/carian) — untuk statistik hero
   if(fm) rows=rows.filter(r=>modeBucket(r['Mode'])===fm);
   if(fmo) rows=rows.filter(r=>(r.dayKey||'').slice(0,7)===fmo);
   if(fpic) rows=rows.filter(r=>picOf(r)===fpic);
   if(q) rows=rows.filter(r=>(((r['Request ID']||'')+' '+(r['Subject | Level']||'')).toLowerCase().indexOf(q)>-1));
+  const isAssigned = r => !!curAgent(r);
+  const _asgTotal=rows.length, _asgDone=rows.filter(isAssigned).length, _asgAuto=(unit==='THU')?rows.filter(r=>r.autoTHU).length:0;
+  const _setAsg=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=(v||0).toLocaleString('en-US');};
+  _setAsg('asgHeroTotal',_asgTotal); _setAsg('asgHeroBig',_asgTotal-_asgDone); _setAsg('asgStatDone',_asgDone); _setAsg('asgStatAuto',_asgAuto);
+  // tapis status assign
+  if(f==='unassigned') rows=rows.filter(r=>!isAssigned(r));
+  else if(f==='assigned') rows=rows.filter(isAssigned);
+  else if(f==='auto') rows=rows.filter(r=>r.autoTHU);
   rows.sort((a,b)=>(b.age||0)-(a.age||0));
-  const thuList = thuManualStaff();
   const MAX=3000;
   const cnt=document.getElementById('assignCount'); if(cnt) cnt.textContent=rows.length+' tiket'+(rows.length>MAX?' (papar '+MAX+' pertama)':'');
   tb.innerHTML = rows.slice(0,MAX).map(r=>{
     const reqId=r['Request ID']||'—';
-    const isAuto=!!r.autoTHU;
-    const cur=r.autoTHU||realTHU(r)||'';
-    const opts='<option value="">— pilih staf —</option>'+((cur&&thuList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (lain)</option>`:'')+thuList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
+    const isAuto=(unit==='THU') && !!r.autoTHU;
+    const cur=curAgent(r);
+    const opts='<option value="">— pilih staf —</option>'+((cur&&staffList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (lain)</option>`:'')+staffList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
     const url=getSheetRowUrl(r);
-    const agentCell = isAuto ? '<span style="color:#7cc0ff;font-weight:700">'+r.autoTHU+' 🔵</span>' : (realTHU(r)||'<span class="small">—</span>');
+    const agentCell = isAuto ? '<span style="color:#7cc0ff;font-weight:700">'+r.autoTHU+' 🔵</span>' : (cur?String(cur).replace(/&/g,'&amp;').replace(/</g,'&lt;'):'<span class="small">—</span>');
     const tsDate = r.dayKey ? r.dayKey.split('-').reverse().join('/') : '—';
     const esc = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
     const picVal = esc(s(field(r.rawRow||r, ['PIC','Person In Charge','PIC Name'])));
@@ -2737,9 +2881,9 @@ function renderAssign(){
       <td style="padding:9px 11px;text-align:center;font-size:11.5px;white-space:nowrap">${r.age==null?'—':r.age+'d'}</td>
       <td style="padding:9px 11px;font-size:12px;word-break:break-word">${agentCell}</td>
       <td style="padding:9px 11px"><div style="max-height:72px;overflow-y:auto;color:#cbd5e1;font-size:11px;line-height:1.4;word-break:break-word">${specialReq||'<span class="small">—</span>'}</div></td>
-      <td style="padding:9px 11px"><select onchange="autoAssignTHU('${reqId}', this.value)" style="width:100%;background:${isAuto?'rgba(0,117,255,.28)':'var(--panel2)'};border:1px solid ${isAuto?'#0075FF':'var(--line)'};color:${isAuto?'#7cc0ff':'#fff'};border-radius:8px;padding:6px 8px;font-size:11.5px;font-weight:700">${opts}</select></td>
+      <td style="padding:9px 11px"><select onchange="assignUnitAgent('${reqId}', this.value, '${unit}')" style="width:100%;background:${isAuto?'rgba(0,117,255,.28)':'var(--panel2)'};border:1px solid ${isAuto?'#0075FF':'var(--line)'};color:${isAuto?'#7cc0ff':'#fff'};border-radius:8px;padding:6px 8px;font-size:11.5px;font-weight:700">${opts}</select></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="9" class="small">Tiada tiket THU untuk penapis ini.</td></tr>';
+  }).join('') || '<tr><td colspan="9" class="small">Tiada tiket '+unit+' untuk penapis ini.</td></tr>';
 }
 
 function openStaffModal(agentName, roleName){
