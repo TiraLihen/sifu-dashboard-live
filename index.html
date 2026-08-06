@@ -721,8 +721,8 @@
       <span class="small" id="assignCount"></span>
     </div>
     <div class="panel"><div class="scroll" style="max-height:620px"><table id="assignTable" style="table-layout:fixed;width:100%">
-      <colgroup><col style="width:12%"><col style="width:8%"><col style="width:11%"><col style="width:14%"><col style="width:6%"><col style="width:5%"><col style="width:10%"><col style="width:22%"><col style="width:12%"></colgroup>
-      <thead><tr><th>Request ID</th><th>Tarikh</th><th>PIC</th><th>Subject | Level</th><th style="text-align:center">Mode</th><th style="text-align:center">Age</th><th>Agent semasa</th><th>Special Request</th><th style="color:#7cc0ff">🔵 Assign THU</th></tr></thead>
+      <colgroup><col style="width:11%"><col style="width:8%"><col style="width:20%"><col style="width:12%"><col style="width:7%"><col style="width:5%"><col style="width:22%"><col style="width:15%"></colgroup>
+      <thead><tr><th>Request ID</th><th>Tarikh</th><th>Subject | Level</th><th>Telefon</th><th style="text-align:center">Mode</th><th style="text-align:center">Age</th><th>Special Request</th><th style="color:#7cc0ff">🔵 Assign</th></tr></thead>
       <tbody></tbody>
     </table></div></div>
   </section>
@@ -1083,6 +1083,14 @@ function field(r, candidates) {
   }
   return '';
 }
+// Cari subjek dengan mantap — header mungkin berbeza antara tab (RCU/THU/PCU): "Subject | Level", "Subject", "Subjek", dll.
+function subjectOf(r){
+  if(!r) return '';
+  var v=field(r,['Subject | Level','Subject Level','Subject/Level','Subject & Level','Subject','Subjek | Level','Subjek | Tahap','Subjek']);
+  if(v!=='' && v!=null) return v;
+  for(var k in r){ if(k && k.charAt(0)!=='_' && /subj/i.test(k)){ var vv=r[k]; if(vv!=='' && vv!=null) return vv; } }
+  return '';
+}
 function deriveType(repRaw){
   const v=s(repRaw).toUpperCase();
   if(v==='R'||v.indexOf('REPLAC')>-1) return 'Replacement';
@@ -1150,7 +1158,7 @@ function normalize(r,tab){
   const note=s(field(r,['Note','Notes','Base Note','Base Notes','Special Request']));
   const remark=s(field(r,['Remarks','Remark','Customer Remark','Description'])) || note;
   return {'Request ID':s(field(r,['Request ID'])),unit,cat,stage,type,urgent,secured,pendingTutor,agent,role,agents,
-    'Subject | Level':s(field(r,['Subject | Level','Subject Level'])),'Mode':s(field(r,['Mode'])),
+    'Subject | Level':s(subjectOf(r)),'Mode':s(field(r,['Mode'])),
     note,remark,rawRow:r,
     age,ts,tsMovedThu,tsSecured,tsProfileShared,tsCompleted,tsAssignRCU,tsAssignTHU,tsAssignTHU_BC,tsAssignPCU,tsReengSecured,month,dayKey};
 }
@@ -2867,23 +2875,23 @@ function renderAssign(){
     const cur=curAgent(r);
     const opts='<option value="">— pilih staf —</option>'+((cur&&staffList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (lain)</option>`:'')+staffList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
     const url=getSheetRowUrl(r);
-    const agentCell = isAuto ? '<span style="color:#7cc0ff;font-weight:700">'+r.autoTHU+' 🔵</span>' : (cur?String(cur).replace(/&/g,'&amp;').replace(/</g,'&lt;'):'<span class="small">—</span>');
     const tsDate = r.dayKey ? r.dayKey.split('-').reverse().join('/') : '—';
     const esc = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
     const picVal = esc(s(field(r.rawRow||r, ['PIC','Person In Charge','PIC Name'])));
     const specialReq = esc(s(field(r.rawRow||r, ['Special Request'])));
-    return `<tr style="background:${isAuto?'rgba(0,117,255,.12)':''}">
+    const phMask = esc(s(field(r.rawRow||r, ['_phoneMask'])));
+    const samePhone = !!(r.rawRow && r.rawRow['_samePhone']);
+    return `<tr style="background:${samePhone?'rgba(245,158,11,.22)':(isAuto?'rgba(0,117,255,.12)':'')};box-shadow:${samePhone?'inset 3px 0 0 #f59e0b':'none'}">
       <td style="padding:9px 11px;white-space:nowrap"><a href="${url}" target="_blank" rel="noopener" style="color:var(--info);font-weight:700;text-decoration:underline;font-size:12.5px">${reqId}</a>${reqId!=='—'?`<span onclick="copyText('${reqId}', this)" title="Salin Request ID" style="cursor:pointer;margin-left:8px;display:inline-flex;vertical-align:middle;color:#5b6b8c" onmouseover="this.style.color='#21D4FD'" onmouseout="this.style.color='#5b6b8c'"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></span>`:''}</td>
       <td style="padding:9px 11px;white-space:nowrap;color:#cbd5e1;font-size:11.5px">${tsDate}</td>
-      <td style="padding:9px 11px;font-weight:600;font-size:12px;word-break:break-word">${picVal||'<span class="small">—</span>'}</td>
-      <td style="padding:9px 11px;font-size:12.5px;word-break:break-word">${r['Subject | Level']||''}</td>
+      <td style="padding:9px 11px;font-size:12.5px;word-break:break-word">${r['Subject | Level']||''}${picVal?`<div style="color:#7c8aa8;font-size:10.5px;margin-top:2px">PIC: ${picVal}</div>`:''}</td>
+      <td style="padding:9px 11px;white-space:nowrap;font-size:12px;font-variant-numeric:tabular-nums">${phMask?`<span style="color:${samePhone?'#f59e0b':'#cbd5e1'};font-weight:${samePhone?'700':'500'}">${phMask}</span>${samePhone?' <span style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.45);border-radius:6px;padding:1px 6px;font-size:9px;font-weight:800;white-space:nowrap">SAME PHONE</span>':''}`:'<span class="small">—</span>'}</td>
       <td style="padding:9px 11px;text-align:center;font-size:11.5px">${r['Mode']||''}</td>
       <td style="padding:9px 11px;text-align:center;font-size:11.5px;white-space:nowrap">${r.age==null?'—':r.age+'d'}</td>
-      <td style="padding:9px 11px;font-size:12px;word-break:break-word">${agentCell}</td>
       <td style="padding:9px 11px"><div style="max-height:72px;overflow-y:auto;color:#cbd5e1;font-size:11px;line-height:1.4;word-break:break-word">${specialReq||'<span class="small">—</span>'}</div></td>
       <td style="padding:9px 11px"><select onchange="assignUnitAgent('${reqId}', this.value, '${unit}')" style="width:100%;background:${isAuto?'rgba(0,117,255,.28)':'var(--panel2)'};border:1px solid ${isAuto?'#0075FF':'var(--line)'};color:${isAuto?'#7cc0ff':'#fff'};border-radius:8px;padding:6px 8px;font-size:11.5px;font-weight:700">${opts}</select></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="9" class="small">Tiada tiket '+unit+' untuk penapis ini.</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="small">Tiada tiket '+unit+' untuk penapis ini.</td></tr>';
 }
 
 function openStaffModal(agentName, roleName){
