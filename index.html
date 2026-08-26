@@ -390,6 +390,7 @@
     </div>
   </div>
   <button data-tab="assign"><span class="ico"><svg viewBox="0 0 24 24"><path d="M10 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-1 2c-2.7 0-8 1.3-8 4v2h10v-2c0-1.1.3-2.1.9-3A13 13 0 0 0 9 14zm11 1h-2v-2h-2v2h-2v2h2v2h2v-2h2z"/></svg></span><span class="lbl">Assign Agent</span></button>
+  <button data-tab="asghist"><span class="ico"><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 1 0 8.9 10.5h-2.06A7 7 0 1 1 13 5v4l5-5-5-5v4zm-1 5v5l4 2 .75-1.23-3.25-1.92V8z"/></svg></span><span class="lbl">Assign History</span></button>
   <button data-tab="risk"><span class="ico"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg></span><span class="lbl">SLA &amp; Risk Control</span></button>
 
   <div class="nav-group-title">📄 BI &amp; Reports</div>
@@ -818,6 +819,28 @@
     </table></div></div>
   </section>
 
+  <section id="asghist">
+    <h2 class="sec-title">🕘 Assign History — Orang Pertama &amp; Perubahan</h2>
+    <p class="sec-desc">Rekod (dalam dashboard) siapa <b>orang pertama</b> assign setiap Request ID bagi RCU / THU / PCU — nama pertama <b>dikunci</b> walau di-reassign. Klik "Sejarah" untuk lihat setiap perubahan. Rekod terkumpul dari feature ini aktif (data tak diubah dalam Google Sheet).</p>
+    <div class="toolbar">
+      <input type="text" id="histSearch" placeholder="Cari Request ID / nama agent..." onkeyup="renderAssignHist()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:260px">
+      <label class="small" style="font-weight:600">Status:</label>
+      <select id="histStatusFilter" onchange="renderAssignHist()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px">
+        <option value="">Semua Status</option>
+        <option value="RCU">🟠 RCU</option>
+        <option value="THU">🔵 THU</option>
+        <option value="PCU">🔵 PCU</option>
+        <option value="Completed">🟢 Completed</option>
+        <option value="Cancelled">🔴 Cancelled</option>
+      </select>
+      <span class="small" id="histCount"></span>
+    </div>
+    <div class="panel"><div class="scroll" style="max-height:640px"><table id="histTable" style="width:100%">
+      <thead><tr><th>Request ID</th><th>Status</th><th style="color:#f59e0b">👑 Pertama RCU</th><th style="color:#7cc0ff">👑 Pertama THU</th><th style="color:#21D4FD">👑 Pertama PCU</th><th>Sejarah Penuh</th></tr></thead>
+      <tbody></tbody>
+    </table></div></div>
+  </section>
+
   <section id="risk">
     <h2 class="sec-title">🚨 SLA &amp; Risk Control Management</h2>
     <p class="sec-desc">Monitoring urgent requests, SLA breach risks, aging tickets, and operational bottleneck sub-statuses.</p>
@@ -1050,6 +1073,7 @@ function ingest(payload){
     }));
     ALL=allRows;
     if(typeof applyAutoAssign==='function') applyAutoAssign();
+    if(typeof trackAssignHistory==='function') trackAssignHistory();
     window._noIdCount=noId;
     DUPLICATES=Object.entries(occ).filter(([id,arr])=>arr.length>1)
       .map(([id,arr])=>{
@@ -1605,7 +1629,13 @@ function monthLabel(key){const p=key.split('-');return ['Jan','Feb','Mar','Apr',
 function roleColor(role){if(role.indexOf('RCU')>-1)return C.blue;if(role.indexOf('Broadcast')>-1)return C.pink;if(role.indexOf('Manual')>-1)return C.amber;if(role.indexOf('PCU')>-1)return C.cyan;if(role.indexOf('THU')>-1)return C.amber;return C.slate;}
 const TREND_PAL=['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
 function renderTrend(){
-  const months=[...new Set(VIEW.filter(r=>r.ts).map(r=>monthKeyOf(r.ts)))].sort();
+  // Dedupe VIEW ikut Request ID — elak duplikat (antara tab/arkib/reopened) membengkak kiraan bulanan
+  const _rk=s=>s==='PCU'?5:s==='THU'?4:s==='RCU'?3:s==='Completed'?2:s==='Cancelled'?1:0;
+  const _seenT={}, DV=[];
+  VIEW.forEach(r=>{ const id=r['Request ID']; if(!id){ return; }   // skip baris tanpa Request ID (sama seperti server)
+    if(_seenT[id]==null){ _seenT[id]=DV.length; DV.push(r); }
+    else if(_rk(r.stage)>_rk(DV[_seenT[id]].stage)){ DV[_seenT[id]]=r; } });
+  const months=[...new Set(DV.filter(r=>r.ts).map(r=>monthKeyOf(r.ts)))].sort();
   const labels=months.map(monthLabel);
   const mi={}; months.forEach((mk,i)=>mi[mk]=i);
 
@@ -1614,7 +1644,7 @@ function renderTrend(){
   const fPend=fz(),fSec=fz(),fComp=fz(),fCanc=fz();
   // ---- Unit & staff per bulan ----
   const roleMonth={}, staffMonth={};
-  VIEW.forEach(r=>{ if(!r.ts)return; const k=mi[monthKeyOf(r.ts)]; if(k==null)return;
+  DV.forEach(r=>{ if(!r.ts)return; const k=mi[monthKeyOf(r.ts)]; if(k==null)return;
     if(r.pendingTutor)fPend[k]++; else if(r.stage==='PCU')fSec[k]++; else if(r.stage==='Completed')fComp[k]++; else if(r.stage==='Cancelled')fCanc[k]++;
     (r.agents||[]).forEach(a=>{
       const ok=isOutcome(a.role,r);
@@ -1625,13 +1655,25 @@ function renderTrend(){
     });
   });
 
+  // Funnel: guna data SERVER (SUMMARY.byMonth) yang deduped & sahih, jika tersedia (selepas redeploy Apps Script)
+  let fLabels=labels, fP=fPend, fS=fSec, fC=fComp, fX=fCanc;
+  if(SUMMARY && SUMMARY.byMonth){
+    const _fk=Object.keys(SUMMARY.byMonth).sort();
+    if(_fk.length && SUMMARY.byMonth[_fk[0]].pending!=null){
+      fLabels=_fk.map(monthLabel);
+      fP=_fk.map(m=>SUMMARY.byMonth[m].pending||0);
+      fS=_fk.map(m=>SUMMARY.byMonth[m].secured||0);
+      fC=_fk.map(m=>SUMMARY.byMonth[m].completed||0);
+      fX=_fk.map(m=>SUMMARY.byMonth[m].cancelled||0);
+    }
+  }
   destroy('chTrendFunnel');
   charts.chTrendFunnel=new Chart(document.getElementById('chTrendFunnel'),{type:'bar',
-    data:{labels,datasets:[
-      {label:'Pending',data:fPend,backgroundColor:C.amber,stack:'s',borderRadius:4},
-      {label:'Secured (PCU)',data:fSec,backgroundColor:C.cyan,stack:'s',borderRadius:4},
-      {label:'Completed',data:fComp,backgroundColor:C.green,stack:'s',borderRadius:4},
-      {label:'Cancelled',data:fCanc,backgroundColor:C.red,stack:'s',borderRadius:4}]},
+    data:{labels:fLabels,datasets:[
+      {label:'Pending',data:fP,backgroundColor:C.amber,stack:'s',borderRadius:4},
+      {label:'Secured (PCU)',data:fS,backgroundColor:C.cyan,stack:'s',borderRadius:4},
+      {label:'Completed',data:fC,backgroundColor:C.green,stack:'s',borderRadius:4},
+      {label:'Cancelled',data:fX,backgroundColor:C.red,stack:'s',borderRadius:4}]},
     options:{plugins:{legend:{position:'top'}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
 
   const roles=Object.keys(roleMonth).sort();
@@ -2534,6 +2576,7 @@ document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',(
   if(b.dataset.tab==='reports' || b.dataset.tab==='report') renderDailyReport();
   if(b.dataset.tab==='trend') { try{renderTrend();}catch(e){} }
   if(b.dataset.tab==='monthly') { try{renderMonthly();}catch(e){} }
+  if(b.dataset.tab==='asghist') { try{renderAssignHist();}catch(e){} try{fetchAssignLog();}catch(e){} }
   if(window.innerWidth<=1024) document.body.classList.remove('nav-open'); }));
 document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.p)));
 const repDateSelEl = document.getElementById('repDateSel');
@@ -2597,8 +2640,14 @@ function renderDailyReport(dateStr) {
   
   let tOn = 0, tPh = 0, cOn = 0, cPh = 0, xOn = 0, xPh = 0, pend = 0, repl = 0, shared = 0;
   const localStaffMap = {};
-  
-  ALL.forEach(r => {
+  // Dedupe ALL ikut Request ID (elak duplikat antara tab/arkib membengkak kiraan) — sama seperti server buildDaily
+  const _rkD=s=>s==='PCU'?5:s==='THU'?4:s==='RCU'?3:s==='Completed'?2:s==='Cancelled'?1:0;
+  const _seenD={}, DA=[];
+  ALL.forEach(r=>{ const id=r['Request ID']; if(!id){ return; }   // skip baris tanpa Request ID (sama seperti server)
+    const ex=_seenD[id];
+    if(ex==null){ _seenD[id]=DA.length; DA.push(r); }
+    else if(_rkD(r.stage)>_rkD(DA[ex].stage)){ DA[ex]=r; } });
+  DA.forEach(r => {
     const rDate = r.ts ? dStr(r.ts) : '';
     const rMKey = rDate.slice(0, 7);
     const isOnline = String(r['Mode'] || '').toLowerCase().indexOf('online') > -1;
@@ -2819,6 +2868,215 @@ const AUTO_KEY='st_auto_thu_v1';
 function loadAutoAssign(){ try{return JSON.parse(localStorage.getItem(AUTO_KEY))||{};}catch(e){return{};} }
 function saveAutoAssign(m){ try{localStorage.setItem(AUTO_KEY,JSON.stringify(m));}catch(e){} }
 let AUTO_ASSIGN = loadAutoAssign();
+/* ===== ASSIGN HISTORY (rekod dalam dashboard sahaja, localStorage) — kunci orang pertama + log setiap perubahan ===== */
+function loadAssignHist(){ try{ return JSON.parse(localStorage.getItem('st_assign_hist_v3')||'{}'); }catch(e){ return {}; } }
+var ASSIGN_HIST = loadAssignHist();
+function saveAssignHist(){ try{ localStorage.setItem('st_assign_hist_v3', JSON.stringify(ASSIGN_HIST)); }catch(e){} }
+// Rekod assign yang DIBENARKAN manager (melalui dashboard) — untuk bezakan reassign sah vs poaching
+function loadAuthAssign(){ try{ return JSON.parse(localStorage.getItem('st_auth_assign_v1')||'{}'); }catch(e){ return {}; } }
+var AUTH_ASSIGN = loadAuthAssign();
+function markAuthAssign(reqId, unit, agent){
+  if(!reqId || !unit) return;
+  if(agent){ AUTH_ASSIGN[reqId+'|'+unit]=agent; } else { delete AUTH_ASSIGN[reqId+'|'+unit]; }
+  try{ localStorage.setItem('st_auth_assign_v1', JSON.stringify(AUTH_ASSIGN)); }catch(e){}
+}
+function _histAgent(r, unit){
+  var raw=r.rawRow||r, v='';
+  if(unit==='RCU') v=s(field(raw,['Assigned Agent RCU']));                       // RCU ikut kolum RCU sahaja
+  else if(unit==='PCU') v=s(field(raw,['Assigned Agent PCU']));                    // PCU ikut kolum PCU sahaja
+  else v=s(field(raw,['Assigned Agent THU (Manual)','Assigned Agent THU']));       // THU ikut kolum THU (Manual) sahaja — bukan Broadcast
+  v=(v||'').trim();
+  return (!v || v.toUpperCase()==='PIC') ? '' : v;
+}
+function _histDate(r, unit){
+  var raw=r.rawRow||r;
+  if(unit==='RCU') return s(field(raw,['Date Assigned RCU']));
+  if(unit==='PCU') return s(field(raw,['Date Assigned PCU']));
+  return s(field(raw,['Date Assigned THU']));
+}
+function trackAssignHistory(){
+  if(!Array.isArray(ALL)) return;
+  // Elak duplikat: pilih SATU baris wakil per Request ID (utamakan tab aktif > completed > cancelled)
+  var pick={}, pickRank={};
+  ALL.forEach(function(r){
+    var id=r['Request ID']; if(!id) return;
+    var st=r.stage||'';
+    var rank=(st==='RCU'||st==='THU'||st==='PCU')?3:(st==='Completed'?2:(st==='Cancelled'?1:0));
+    if(!(id in pick) || rank>pickRank[id]){ pick[id]=r; pickRank[id]=rank; }
+  });
+  var changed=false, nowStr=new Date().toISOString();
+  var same=function(a,b){ return (typeof _norm==='function') ? _norm(a||'')===_norm(b||'') : String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase(); };
+  Object.keys(pick).forEach(function(id){
+    var r=pick[id];
+    ['RCU','THU','PCU'].forEach(function(unit){
+      var cur=_histAgent(r, unit);
+      if(!cur) return;
+      if(!ASSIGN_HIST[id]) ASSIGN_HIST[id]={};
+      if(!ASSIGN_HIST[id][unit]) ASSIGN_HIST[id][unit]={first:null, firstTs:null, last:null, log:[]};
+      var h=ASSIGN_HIST[id][unit];
+      if(!same(h.last, cur)){
+        var isFirst=!h.first;
+        var ts=isFirst?(_histDate(r,unit)||nowStr):nowStr;
+        if(isFirst){ h.first=cur; h.firstTs=ts; }
+        h.log.push({agent:cur, prev:h.last||null, ts:ts});
+        if(h.log.length>50) h.log=h.log.slice(-50);
+        h.last=cur; changed=true;
+      }
+    });
+    // --- jejak STATUS / STAGE (termasuk Completed / Cancelled) ---
+    var stg=(r.stage||'').trim();
+    if(stg){
+      if(!ASSIGN_HIST[id]) ASSIGN_HIST[id]={};
+      if(!ASSIGN_HIST[id].STAGE) ASSIGN_HIST[id].STAGE={last:null, log:[]};
+      var sh=ASSIGN_HIST[id].STAGE;
+      if(sh.last!==stg){
+        var sFirst=sh.log.length===0;
+        var sts = stg==='Completed' ? (s(field(r.rawRow||r,['Date Completed']))||nowStr) : (sFirst ? (s(field(r.rawRow||r,['Timestamp']))||nowStr) : nowStr);
+        sh.log.push({stage:stg, prev:sh.last||null, ts:sts});
+        if(sh.log.length>50) sh.log=sh.log.slice(-50);
+        sh.last=stg; changed=true;
+      }
+    }
+  });
+  if(changed) saveAssignHist();
+}
+function _histEsc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,'&#39;'); }
+function _histFmt(t){ if(!t) return ''; var d=new Date(t); return isNaN(d.getTime())?String(t):d.toLocaleDateString('en-GB'); }
+function renderAssignHist(){
+  var tb=document.querySelector('#histTable tbody'); if(!tb) return;
+  var qEl=document.getElementById('histSearch'); var q=qEl?String(qEl.value||'').toLowerCase().trim():'';
+  var SCST={RCU:'#f59e0b',THU:'#7cc0ff',PCU:'#21D4FD',Completed:'#22c55e',Cancelled:'#ef4444'};
+  var rows=Object.keys(ASSIGN_HIST).map(function(id){
+    var h=ASSIGN_HIST[id]||{};
+    var st=(h.STAGE&&h.STAGE.last)||'';
+    var stT=(h.STAGE&&h.STAGE.log&&h.STAGE.log.length)?h.STAGE.log[h.STAGE.log.length-1].ts:'';
+    return {id:id, status:st, statusT:stT, rcu:(h.RCU&&h.RCU.first)||'', rcuT:(h.RCU&&h.RCU.firstTs)||'', thu:(h.THU&&h.THU.first)||'', thuT:(h.THU&&h.THU.firstTs)||'', pcu:(h.PCU&&h.PCU.first)||'', pcuT:(h.PCU&&h.PCU.firstTs)||''};
+  });
+  if(q) rows=rows.filter(function(x){ return (x.id+' '+x.status+' '+x.rcu+' '+x.thu+' '+x.pcu).toLowerCase().indexOf(q)>-1; });
+  var fEl=document.getElementById('histStatusFilter'); var fs=fEl?fEl.value:'';
+  if(fs) rows=rows.filter(function(x){ return x.status===fs; });
+  rows.sort(function(a,b){ return a.id<b.id?1:(a.id>b.id?-1:0); });
+  var MAX=1500;
+  var cnt=document.getElementById('histCount'); if(cnt) cnt.textContent=rows.length+' tiket direkod';
+  var cell=function(n,t){ return n?('<b>'+_histEsc(n)+'</b>'+(t?'<div style="color:var(--muted);font-size:10px">'+_histEsc(_histFmt(t))+'</div>':'')):'<span class="small">—</span>'; };
+  var stCell=function(st,t){ if(!st) return '<span class="small">—</span>'; var c=SCST[st]||'#94a3b8'; return '<span style="display:inline-block;background:'+c+'22;color:'+c+';border:1px solid '+c+'66;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:700;white-space:nowrap">'+_histEsc(st)+'</span>'+(t?'<div style="color:var(--muted);font-size:10px;margin-top:2px">'+_histEsc(_histFmt(t))+'</div>':''); };
+  tb.innerHTML=rows.slice(0,MAX).map(function(x){
+    return '<tr><td style="font-weight:700;white-space:nowrap"><a href="#" onclick="showAssignHistory(\''+x.id+'\');return false;" style="color:var(--info);text-decoration:underline">'+_histEsc(x.id)+'</a></td>'
+      +'<td>'+stCell(x.status,x.statusT)+'</td>'
+      +'<td>'+cell(x.rcu,x.rcuT)+'</td><td>'+cell(x.thu,x.thuT)+'</td><td>'+cell(x.pcu,x.pcuT)+'</td>'
+      +'<td><button class="btn ghost sm" onclick="showAssignHistory(\''+x.id+'\')">🕘 Sejarah</button></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="small" style="padding:20px">Belum ada rekod. Sejarah terkumpul automatik apabila dashboard memuat data &amp; mengesan perubahan. Biarkan dashboard terbuka / refresh dari semasa ke semasa.</td></tr>';
+  // --- Kesan "ID diambil orang lain" (agent semasa != orang pertama) ---
+  var takeovers=[];
+  Object.keys(ASSIGN_HIST).forEach(function(id){
+    var h=ASSIGN_HIST[id]||{};
+    ['RCU','THU','PCU'].forEach(function(unit){
+      var u=h[unit];
+      if(u && u.first && u.last && u.first!==u.last && AUTH_ASSIGN[id+'|'+unit]!==u.last){
+        takeovers.push({id:id, unit:unit, first:u.first, current:u.last, ts:(u.log&&u.log.length?u.log[u.log.length-1].ts:'')});
+      }
+    });
+  });
+  var tw=document.getElementById('histTakeoverWrap');
+  var tcnt=document.getElementById('histTakeoverCount');
+  var tdv=document.getElementById('histTakeover');
+  if(tcnt) tcnt.textContent=takeovers.length;
+  if(tw) tw.style.display = takeovers.length ? 'block':'none';
+  if(tdv){
+    var uCol={RCU:'#f59e0b',THU:'#7cc0ff',PCU:'#21D4FD'};
+    tdv.innerHTML = takeovers.slice(0,300).map(function(t){
+      var c=uCol[t.unit]||'#94a3b8';
+      return '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px">'
+        +'<a href="#" onclick="showAssignHistory(\''+t.id+'\');return false;" style="color:var(--info);font-weight:700;text-decoration:underline">'+_histEsc(t.id)+'</a>'
+        +'<span style="background:'+c+'22;color:'+c+';border:1px solid '+c+'66;border-radius:8px;padding:1px 7px;font-size:10px;font-weight:700">'+t.unit+'</span>'
+        +'<span>👑 Asal: <b style="color:#22c55e">'+_histEsc(t.first)+'</b></span>'
+        +'<span style="color:#ef4444">→ Diambil: <b>'+_histEsc(t.current)+'</b></span>'
+        +'<span style="color:var(--muted);font-size:11px">'+_histEsc(_histFmt(t.ts))+'</span></div>';
+    }).join('') || '<div class="small">Tiada.</div>';
+  }
+}
+function showAssignHistory(id){
+  var h=ASSIGN_HIST[id]||{};
+  var fmt=function(t){ if(!t) return '—'; var d=new Date(t); return isNaN(d.getTime())?String(t):d.toLocaleString('en-GB'); };
+  var unitHtml=function(unit,color){
+    var u=h[unit];
+    var head='<div style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><div style="font-weight:800;color:'+color+';border-left:3px solid '+color+';padding-left:8px">'+unit+'</div><button onclick="correctFirstUI(\''+id+'\',\''+unit+'\')" title="Betulkan orang pertama (manager, perlu PIN)" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:#cbd5e1;border-radius:6px;padding:2px 8px;font-size:10px;cursor:pointer">✏️ Betulkan</button></div>';
+    if(!u || !u.log || !u.log.length) return head+'<div class="small" style="margin-bottom:6px">Tiada rekod.</div>';
+    var first='<div class="small" style="margin-bottom:6px">👑 Orang pertama: <b style="color:#fff">'+_histEsc(u.first)+'</b> · '+_histEsc(fmt(u.firstTs))+'</div>';
+    var logRows=u.log.map(function(e,i){
+      return '<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--muted);font-size:11px;white-space:nowrap;min-width:120px">'+_histEsc(fmt(e.ts))+'</span><span style="font-size:12px">'+(e.prev?('<span style="color:var(--muted)">'+_histEsc(e.prev)+'</span> → '):'')+'<b>'+_histEsc(e.agent)+'</b>'+(i===0?' <span style="color:#22c55e;font-size:10px">(pertama)</span>':'')+'</span></div>';
+    }).join('');
+    return head+first+logRows;
+  };
+  var stageHtml=function(){
+    var u=h.STAGE;
+    var head='<div style="font-weight:800;color:#a78bfa;margin:16px 0 6px;border-left:3px solid #a78bfa;padding-left:8px">STATUS / STAGE</div>';
+    if(!u || !u.log || !u.log.length) return head+'<div class="small">Tiada rekod.</div>';
+    var SCST={RCU:'#f59e0b',THU:'#7cc0ff',PCU:'#21D4FD',Completed:'#22c55e',Cancelled:'#ef4444'};
+    var cc=SCST[u.last]||'#94a3b8';
+    var curLine='<div class="small" style="margin-bottom:6px">Status semasa: <b style="color:'+cc+'">'+_histEsc(u.last||'—')+'</b></div>';
+    var logRows=u.log.map(function(e){
+      var c=SCST[e.stage]||'#94a3b8';
+      return '<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--muted);font-size:11px;white-space:nowrap;min-width:120px">'+_histEsc(fmt(e.ts))+'</span><span style="font-size:12px">'+(e.prev?('<span style="color:var(--muted)">'+_histEsc(e.prev)+'</span> → '):'')+'<b style="color:'+c+'">'+_histEsc(e.stage)+'</b></span></div>';
+    }).join('');
+    return head+curLine+logRows;
+  };
+  var html='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px"><div><div style="font-family:Outfit,sans-serif;font-weight:800;font-size:20px">'+_histEsc(id)+'</div><div class="small">Sejarah Assign (rekod dashboard)</div></div><button onclick="closePcuModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--line);color:#fff;border-radius:50%;width:32px;height:32px;cursor:pointer;flex:none">✕</button></div>'
+    + stageHtml() + unitHtml('RCU','#f59e0b') + unitHtml('THU','#7cc0ff') + unitHtml('PCU','#21D4FD');
+  var mc=document.getElementById('pcuModalContent'); if(mc) mc.innerHTML=html;
+  var m=document.getElementById('pcuModal'); if(m) m.classList.remove('hidden');
+}
+
+// Ambil audit server (tamper-proof) & gabung ke ASSIGN_HIST — jadi sumber sebenar
+function fetchAssignLog(){
+  var url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
+  var nm='__al_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
+  var sc=document.createElement('script');
+  window[nm]=function(d){
+    try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
+    if(d && d.ok){
+      var logByKey={};
+      (d.log||[]).forEach(function(l){ var k=l.id+'|'+l.unit; if(!logByKey[k])logByKey[k]=[]; logByKey[k].push({agent:l.to, prev:l.from, ts:l.ts, type:l.type}); });
+      (d.state||[]).forEach(function(sx){
+        if(!ASSIGN_HIST[sx.id]) ASSIGN_HIST[sx.id]={};
+        ASSIGN_HIST[sx.id][sx.unit]={ first:sx.first, firstTs:sx.firstTs, last:sx.last, log:(logByKey[sx.id+'|'+sx.unit]||[]), server:true };
+      });
+      try{ saveAssignHist(); }catch(e){}
+      renderAssignHist();
+    }
+  };
+  sc.onerror=function(){ try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  sc.src=url+sep+'action=assignLog&callback='+nm+'&_t='+Date.now();
+  document.body.appendChild(sc);
+}
+
+// Betulkan orang pertama (manager, perlu PIN) — tulis ke fail audit server
+function correctFirstUI(id, unit){
+  var name = prompt('Nama ORANG PERTAMA sebenar untuk '+unit+' ('+id+'):');
+  if(name==null) return; name=String(name).trim(); if(!name) return;
+  var pin=''; try{ pin=sessionStorage.getItem('st_phone_pin')||''; }catch(e){}
+  if(!pin){ pin=prompt('Masukkan PIN manager:'); }
+  if(!pin) return;
+  var url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
+  var cbn='__cf_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
+  var sc=document.createElement('script');
+  window[cbn]=function(d){
+    try{delete window[cbn]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
+    if(d && d.ok){
+      try{ sessionStorage.setItem('st_phone_pin', pin); }catch(e){}
+      alert('✅ Orang pertama '+unit+' dibetulkan kepada: '+name);
+      fetchAssignLog();
+      setTimeout(function(){ showAssignHistory(id); }, 1400);
+    } else {
+      try{ sessionStorage.removeItem('st_phone_pin'); }catch(e){}
+      alert('❌ Gagal: '+((d&&d.error)||'?')+' — semak PIN.');
+    }
+  };
+  sc.onerror=function(){ try{delete window[cbn]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  sc.src=url+sep+'action=correctFirst&token='+encodeURIComponent(pin)+'&requestId='+encodeURIComponent(id)+'&unit='+encodeURIComponent(unit)+'&first='+encodeURIComponent(name)+'&callback='+cbn+'&_t='+Date.now();
+  document.body.appendChild(sc);
+}
+
 function applyAutoAssign(){
   ALL.forEach(r=>{
     if(r.agents) r.agents=r.agents.filter(a=>!a.auto); // buang auto lama
@@ -2885,6 +3143,7 @@ function updateNoteSync(reqId, sheetName, rowNum, value, el){
 }
 function autoAssignTHU(reqId, agentName){
   if(!reqId || reqId==='—') return;
+  markAuthAssign(reqId, 'THU', agentName);
   if(agentName){ AUTO_ASSIGN[reqId]=agentName; } else { delete AUTO_ASSIGN[reqId]; }
   saveAutoAssign(AUTO_ASSIGN);
   syncAssignTHU(reqId, agentName);   // tulis terus ke Google Sheet
@@ -2897,6 +3156,7 @@ function autoAssignTHU(reqId, agentName){
 // Assign generik ikut unit: THU guna aliran auto sedia ada; RCU/PCU tulis terus ke sheet
 function assignUnitAgent(reqId, agent, unit){
   if(!reqId || reqId==='—') return;
+  markAuthAssign(reqId, unit, agent);
   if(unit==='THU'){ autoAssignTHU(reqId, agent); return; }
   const t=ALL.find(x=>x['Request ID']===reqId);
   if(t){
