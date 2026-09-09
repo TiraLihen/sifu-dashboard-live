@@ -14,6 +14,23 @@
   :root{--bg:#080B1F;--bg1:#0E1330;--panel:linear-gradient(135deg,rgba(15,22,55,0.72) 0%,rgba(10,14,38,0.85) 100%);--panel2:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);--txt:#ffffff;--muted:#94A3B8;
     --font-heading:'Outfit','Segoe UI',sans-serif;--font-body:'Inter','Segoe UI',sans-serif;
     --accent:#0075FF;--accent2:#582CFF;--ok:#01B574;--warn:#FFB547;--danger:#EE5D50;--info:#21D4FD;--radius:20px;--side:232px}
+  /* Light theme — toggled via body.light, persisted in localStorage (st_theme) */
+  body.light{--bg:#EEF1F8;--panel:linear-gradient(135deg,rgba(255,255,255,.78) 0%,rgba(248,250,255,.94) 100%);--panel2:rgba(15,23,42,.05);--line:rgba(15,23,42,.10);--txt:#10182B;--muted:#4B5568}
+  body.light{background:#EEF1F8;background-image:radial-gradient(1200px 800px at 85% -10%,rgba(0,117,255,.10),transparent 60%),radial-gradient(1000px 700px at 15% 15%,rgba(88,44,255,.08),transparent 60%),linear-gradient(180deg,#F4F6FC,#E9EDF6)}
+  body.light header,body.light .filterbar{background:rgba(255,255,255,.68)}
+  body.light .status-chip{background:rgba(15,23,42,.05)}
+  body.light .filterbar input[type=date]{color-scheme:light}
+  body.light .fnl-ico,body.light .fnl-bar,body.light .mode-bar{background:rgba(15,23,42,.06)}
+  @media(min-width:1025px){body.light nav::before{color:#10182B}body.light nav button:hover{background:rgba(15,23,42,.05)}body.light nav button .ico{background:rgba(15,23,42,.06)}body.light nav button:hover .ico{background:rgba(0,117,255,.12)}}
+  /* mobile nav drawer keeps a fixed dark background — pin its text colors so light mode stays readable */
+  @media(max-width:1024px){nav{--txt:#ffffff;--muted:#94A3B8;--line:rgba(255,255,255,.08)}}
+  /* these surfaces render on a fixed dark background regardless of theme — pin their text colors */
+  #pcuModal .panel{--txt:#ffffff;--muted:#94A3B8;--line:rgba(255,255,255,.08);--panel2:rgba(255,255,255,.06)}
+  .sheet{--txt:#ffffff;--muted:#94A3B8;--line:rgba(255,255,255,.08);--panel2:rgba(255,255,255,.06)}
+  #changelogCard{--txt:#ffffff;--muted:#94A3B8;--line:rgba(255,255,255,.08);--panel2:rgba(255,255,255,.06)}
+  #loader{color:#fff}
+  #assignTable thead th{color:#94A3B8}
+  body.light .btn.ghost{background:rgba(15,23,42,.08)}
   *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-body)}
   h1,h2,h3,h4,.sec-title,.val,.ab-head,.mc-val,.cm-n{font-family:var(--font-heading)}
   body{background:#080B1F;background-image:radial-gradient(1200px 800px at 85% -10%,rgba(0,117,255,.22),transparent 60%),radial-gradient(1000px 700px at 15% 15%,rgba(88,44,255,.15),transparent 60%),linear-gradient(180deg,#060919,#0A0E2B);background-attachment:fixed;color:var(--txt);font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
@@ -27,13 +44,13 @@
   .live-dot.on{background:#22c55e;animation:pulse 2s infinite}.live-dot.err{background:#ef4444}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
   .btn{background:var(--accent);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
-  .btn:hover{filter:brightness(1.12)}.btn.ghost{background:rgba(255,255,255,.12);color:#fff}.btn.sm{padding:6px 12px;font-size:12px}
+  .btn:hover{filter:brightness(1.12)}.btn.ghost{background:rgba(255,255,255,.12);color:var(--txt)}.btn.sm{padding:6px 12px;font-size:12px}
   nav{position:fixed;top:0;left:0;bottom:0;width:var(--side);display:flex;flex-direction:column;gap:7px;background:transparent;padding:24px 16px 20px;overflow-y:auto;z-index:30}
   nav::before{content:'';display:none}
   .navlogo{padding:2px 8px 18px}
   .navlogo img{width:100%;max-width:152px;height:auto;display:block}
   nav button{display:flex;align-items:center;gap:10px;text-align:left;background:transparent;color:var(--muted);border:1px solid transparent;padding:11px 14px;border-radius:14px;cursor:pointer;font-size:13.5px;font-weight:600;white-space:nowrap;transition:.18s}
-  nav button:hover{background:rgba(255,255,255,.05);color:var(--txt)}nav button.active{background:var(--panel);color:#fff;border-color:var(--line);box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  nav button:hover{background:rgba(255,255,255,.05);color:var(--txt)}nav button.active{background:var(--panel);color:var(--txt);border-color:var(--line);box-shadow:0 12px 30px rgba(0,0,0,.35)}
   nav button .ico{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.18s}
   nav button .ico svg{width:16px;height:16px;fill:var(--info)}
   nav button:hover .ico{background:rgba(0,117,255,.2)}
@@ -350,6 +367,21 @@
   .cl-desc{line-height:1.45}
   .cl-new{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.4);font-size:9px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:10px}
   .cl-fix{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.4);font-size:9px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:10px}
+
+  /* Toast notifications */
+  .toast-container{position:fixed;top:18px;right:18px;z-index:100;display:flex;flex-direction:column;gap:10px;max-width:360px;pointer-events:none}
+  .toast{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;background:var(--panel);backdrop-filter:blur(40px);border:1px solid var(--line);border-left:4px solid var(--info);border-radius:12px;padding:12px 14px;box-shadow:0 20px 40px rgba(0,0,0,.35);font-size:13px;color:var(--txt);animation:toastIn .22s ease}
+  .toast.hide{animation:toastOut .18s ease forwards}
+  .toast.success{border-left-color:var(--ok)}
+  .toast.error{border-left-color:var(--danger)}
+  .toast.warn{border-left-color:var(--warn)}
+  .toast .t-ico{flex:none;font-size:16px;line-height:1.3}
+  .toast .t-msg{flex:1;line-height:1.4;word-break:break-word}
+  .toast .t-close{flex:none;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;padding:2px}
+  .toast .t-close:hover{color:var(--txt)}
+  @keyframes toastIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+  @keyframes toastOut{to{opacity:0;transform:translateX(24px)}}
+  @media(max-width:600px){.toast-container{left:12px;right:12px;top:12px;max-width:none}}
 </style>
 </head>
 <body>
@@ -363,6 +395,7 @@
   </div>
   <div class="hdr-right">
     <div class="status-chip"><span class="live-dot" id="liveDot"></span><span id="liveText">Connecting…</span></div>
+    <button class="btn ghost sm" id="themeToggle" onclick="toggleTheme()" title="Tukar ke tema terang" aria-label="Tukar ke tema terang">🌙</button>
     <button class="btn ghost sm" onclick="openSettings()">⚙️ Settings</button>
     <button class="btn sm" onclick="refresh()">🔄 Refresh</button>
   </div>
@@ -472,7 +505,7 @@
         var cn=document.getElementById('clCount'); if(cn) cn.textContent=CHANGELOG.length;
       }
       function downloadFullPDF(btn){
-        if(!(window.jspdf && window.jspdf.jsPDF)){ alert('Pustaka PDF belum dimuat. Pastikan ada sambungan internet, kemudian cuba lagi.'); return; }
+        if(!(window.jspdf && window.jspdf.jsPDF)){ showToast('Pustaka PDF belum dimuat. Pastikan ada sambungan internet, kemudian cuba lagi.', 'error'); return; }
         var lbl=btn?btn.innerHTML:''; if(btn){ btn.innerHTML='⏳ Menjana PDF...'; btn.disabled=true; }
         try{
           function asc(s){ return String(s==null?'':s).replace(/—/g,'-').replace(/[·•]/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x00-\xFF]/g,'').replace(/\s+/g,' ').trim(); }
@@ -527,7 +560,7 @@
             doc.text('Dashboard Admin Support  |  Sifu Tutor  |  Master Tutor Request', W/2, 292, {align:'center'});
             doc.text(p+' / '+pages, W-M, 292, {align:'right'}); }
           doc.save('Sifu_Tutor_Dashboard_Guide.pdf');
-        }catch(e){ alert('Ralat menjana PDF: '+(e&&e.message||e)); }
+        }catch(e){ showToast('Ralat menjana PDF: '+(e&&e.message||e), 'error'); }
         if(btn){ btn.innerHTML=lbl; btn.disabled=false; }
       }
       renderChangelog();
@@ -955,6 +988,8 @@
   </div>
 </div>
 <div class="overlay hidden" id="loader"><div class="spinner"></div><div id="loaderText">Loading data from Master Tutor Request…</div></div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
 
 <div class="overlay hidden" id="pcuModal" onclick="if(event.target===this) closePcuModal()">
   <div class="panel" style="max-width:1200px;width:96%;box-sizing:border-box;position:relative;background:#0F1535;border:1px solid var(--line);box-shadow:0 24px 50px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;padding:24px;">
@@ -2844,7 +2879,40 @@ function printDailyReportSheet() {
 
 if(!cfg.url || cfg.url.indexOf('AKfycbwuxsm01')>-1 || cfg.url.indexOf('AKfycbwV3')>-1){ cfg.url=DEFAULT_URL; try{saveCfg();}catch(e){} }
 try{ if(localStorage.getItem('st_navmini')==='1') document.body.classList.add('nav-mini'); }catch(e){}
-try{ document.body.classList.remove('light'); localStorage.removeItem('st_theme'); }catch(e){}
+function applyTheme(mode){
+  document.body.classList.toggle('light', mode==='light');
+  var btn=document.getElementById('themeToggle');
+  if(btn){
+    var lbl = mode==='light' ? 'Tukar ke tema gelap' : 'Tukar ke tema terang';
+    btn.textContent = mode==='light' ? '☀️' : '🌙';
+    btn.title = lbl; btn.setAttribute('aria-label', lbl);
+  }
+}
+function toggleTheme(){
+  var mode = document.body.classList.contains('light') ? 'dark' : 'light';
+  applyTheme(mode);
+  try{ localStorage.setItem('st_theme', mode); }catch(e){}
+}
+try{ applyTheme(localStorage.getItem('st_theme')==='light' ? 'light' : 'dark'); }catch(e){ applyTheme('dark'); }
+
+// Toast notifications — replaces alert() for non-blocking success/error/info feedback
+function showToast(message, type, duration){
+  type = type || 'info'; duration = duration || 4000;
+  var box = document.getElementById('toastContainer'); if(!box) return;
+  var icons = {success:'✅', error:'⛔', warn:'⚠️', info:'ℹ️'};
+  var el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = '<span class="t-ico">'+(icons[type]||icons.info)+'</span><span class="t-msg"></span><button class="t-close" aria-label="Tutup notifikasi">✕</button>';
+  el.querySelector('.t-msg').textContent = message;
+  function dismiss(){
+    if(!el.parentNode) return;
+    el.classList.add('hide');
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 200);
+  }
+  el.querySelector('.t-close').onclick = dismiss;
+  box.appendChild(el);
+  setTimeout(dismiss, duration);
+}
 function formatTs(ts) {
   if (!ts || isNaN(ts)) return '—';
   const d = new Date(ts);
@@ -3113,12 +3181,12 @@ function correctFirstUI(id, unit){
     try{delete window[cbn]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
     if(d && d.ok){
       try{ sessionStorage.setItem('st_phone_pin', pin); }catch(e){}
-      alert('✅ Orang pertama '+unit+' dibetulkan kepada: '+name);
+      showToast('Orang pertama '+unit+' dibetulkan kepada: '+name, 'success');
       fetchAssignLog();
       setTimeout(function(){ showAssignHistory(id); }, 1400);
     } else {
       try{ sessionStorage.removeItem('st_phone_pin'); }catch(e){}
-      alert('❌ Gagal: '+((d&&d.error)||'?')+' — semak PIN.');
+      showToast('Gagal: '+((d&&d.error)||'?')+' — semak PIN.', 'error');
     }
   };
   sc.onerror=function(){ try{delete window[cbn]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
@@ -3234,7 +3302,7 @@ function syncAssignUnit(reqId, agentName, unit){
 var PHONE_MAP = null;
 function togglePhones(btn){
   if(PHONE_MAP){ PHONE_MAP=null; try{sessionStorage.removeItem('st_phone_pin');}catch(e){} if(btn){btn.textContent='🔓 Papar No. Telefon';} renderAssign(); return; }
-  var url=(cfg.url||DEFAULT_URL).trim(); if(!url){ alert('Tiada URL connector.'); return; }
+  var url=(cfg.url||DEFAULT_URL).trim(); if(!url){ showToast('Tiada URL connector.', 'error'); return; }
   var pin=''; try{ pin=sessionStorage.getItem('st_phone_pin')||''; }catch(e){}
   if(!pin){ pin=prompt('Masukkan PIN untuk papar nombor telefon penuh:'); }
   if(!pin) return;
@@ -3252,7 +3320,7 @@ function togglePhones(btn){
     } else {
       try{ sessionStorage.removeItem('st_phone_pin'); }catch(e){}
       if(btn){ btn.textContent='🔓 Papar No. Telefon'; }
-      alert('PIN salah atau tiada akses. Cuba lagi.');
+      showToast('PIN salah atau tiada akses. Cuba lagi.', 'error');
     }
   };
   sc.onerror=function(){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); if(btn){ btn.disabled=false; btn.textContent='🔓 Papar No. Telefon'; } };
