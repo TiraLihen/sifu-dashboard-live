@@ -1676,8 +1676,8 @@ function monthLabel(key){const p=key.split('-');return ['Jan','Feb','Mar','Apr',
 function roleColor(role){if(role.indexOf('RCU')>-1)return C.blue;if(role.indexOf('Broadcast')>-1)return C.pink;if(role.indexOf('Manual')>-1)return C.amber;if(role.indexOf('PCU')>-1)return C.cyan;if(role.indexOf('THU')>-1)return C.amber;return C.slate;}
 const TREND_PAL=['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
 function renderTrend(){
-  // Dedupe VIEW ikut Request ID — elak duplikat (antara tab/arkib/reopened) membengkak kiraan bulanan
-  const _rk=s=>s==='PCU'?5:s==='THU'?4:s==='RCU'?3:s==='Completed'?2:s==='Cancelled'?1:0;
+  // Dedupe VIEW ikut Request ID — Archive (Completed/Cancelled) menang atas tab aktif sebab row lama di RCU/THU/PCU kekal sehingga dibuang manual
+  const _rk=s=>s==='Completed'?5:s==='Cancelled'?4:s==='PCU'?3:s==='THU'?2:s==='RCU'?1:0;
   const _seenT={}, DV=[];
   VIEW.forEach(r=>{ const id=r['Request ID']; if(!id){ return; }   // skip baris tanpa Request ID (sama seperti server)
     if(_seenT[id]==null){ _seenT[id]=DV.length; DV.push(r); }
@@ -2687,8 +2687,8 @@ function renderDailyReport(dateStr) {
   
   let tOn = 0, tPh = 0, cOn = 0, cPh = 0, xOn = 0, xPh = 0, pend = 0, repl = 0, shared = 0;
   const localStaffMap = {};
-  // Dedupe ALL ikut Request ID (elak duplikat antara tab/arkib membengkak kiraan) — sama seperti server buildDaily
-  const _rkD=s=>s==='PCU'?5:s==='THU'?4:s==='RCU'?3:s==='Completed'?2:s==='Cancelled'?1:0;
+  // Dedupe ALL ikut Request ID — Archive (Completed/Cancelled) menang atas tab aktif sebab row lama di RCU/THU/PCU kekal sehingga dibuang manual
+  const _rkD=s=>s==='Completed'?5:s==='Cancelled'?4:s==='PCU'?3:s==='THU'?2:s==='RCU'?1:0;
   const _seenD={}, DA=[];
   ALL.forEach(r=>{ const id=r['Request ID']; if(!id){ return; }   // skip baris tanpa Request ID (sama seperti server)
     const ex=_seenD[id];
@@ -2976,12 +2976,12 @@ function _histDate(r, unit){
 }
 function trackAssignHistory(){
   if(!Array.isArray(ALL)) return;
-  // Elak duplikat: pilih SATU baris wakil per Request ID (utamakan tab aktif > completed > cancelled)
+  // Elak duplikat: pilih SATU baris wakil per Request ID (utamakan Completed/Cancelled dari Archive > tab aktif, sebab row lama kekal sehingga dibuang manual)
   var pick={}, pickRank={};
   ALL.forEach(function(r){
     var id=r['Request ID']; if(!id) return;
     var st=r.stage||'';
-    var rank=(st==='RCU'||st==='THU'||st==='PCU')?3:(st==='Completed'?2:(st==='Cancelled'?1:0));
+    var rank=(st==='Completed')?3:(st==='Cancelled'?2:((st==='RCU'||st==='THU'||st==='PCU')?1:0));
     if(!(id in pick) || rank>pickRank[id]){ pick[id]=r; pickRank[id]=rank; }
   });
   var changed=false, nowStr=new Date().toISOString();
