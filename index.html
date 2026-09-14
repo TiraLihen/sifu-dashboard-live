@@ -448,7 +448,7 @@
 
 <main>
   <section id="overview" class="active">
-    <h2 class="sec-title">🏠 Home &amp; Executive Operational Pulse</h2>
+    <h2 class="sec-title">Home &amp; Executive Operational Pulse</h2>
     <p class="sec-desc">Calculated automatically from Master Tutor Request based on the selected date range (by Timestamp).</p>
 
     <!-- LATEST UPDATES / CHANGELOG -->
@@ -590,7 +590,7 @@
   </section>
 
   <section id="hotspots">
-    <h2 class="sec-title">🗺️ Location &amp; Subject Analytics</h2>
+    <h2 class="sec-title">Location &amp; Subject Analytics</h2>
     <p class="sec-desc">Auto-detected from request addresses (server-side · no personal data) · latest month with data.</p>
     <div class="panel hot-banner"><div id="hotInsight">🔥 Loading hotspots…</div></div>
     <div class="row c3">
@@ -601,7 +601,7 @@
   </section>
 
   <section id="daily">
-    <h2 class="sec-title">📅 Daily Operational Summary</h2>
+    <h2 class="sec-title">Daily Operational Summary</h2>
     <p class="sec-desc"><b>Incoming</b> = by Timestamp · <b>Secured</b> = Date Secured · <b>Share Profile</b> = Date Profile Shared · <b>Completed</b> = Date Completed (actual activity that day).</p>
 
     <div class="row c2" style="margin-bottom:18px;">
@@ -637,7 +637,7 @@
   </section>
 
   <section id="units">
-    <h2 class="sec-title">🏢 Workflow Stage &amp; Unit Breakdown</h2>
+    <h2 class="sec-title">Workflow Stage &amp; Unit Breakdown</h2>
     <div class="row c3" id="stageCards" style="margin-top:10px;"></div>
     <div class="panel" style="margin-top:14px;">
       <h3>Status Breakdown by Stage</h3>
@@ -672,7 +672,7 @@
   </section>
 
   <section id="staff">
-    <h2 class="sec-title">👥 Staff Performance <span id="staffGroupTag" class="pill info" style="font-size:12px">Admin Support</span> <span class="tag" style="font-size:12px;color:var(--muted)">· Contribution mode</span></h2>
+    <h2 class="sec-title">Staff Performance <span id="staffGroupTag" class="pill info" style="font-size:12px">Admin Support</span> <span class="tag" style="font-size:12px;color:var(--muted)">· Contribution mode</span></h2>
     <p class="sec-desc">Each staff member gets credit for EVERY request they touch. A single request can be counted across more than one unit.</p>
     <div class="note">ℹ️ <b>Handled</b> = requests touched (workload). <b>Current</b> = ticket from this month (by Timestamp). <b>Outcome</b> by role: <b>RCU</b> = moved to THU · <b>THU</b> = Tutor Secured · <b>PCU</b> = Done Share Profile & above.</div>
 
@@ -695,7 +695,7 @@
   </section>
 
   <section id="trend">
-    <h2 class="sec-title">📈 Trend Comparison</h2>
+    <h2 class="sec-title">Trend Comparison</h2>
     <div class="panel" style="margin-top:10px;">
       <h3>🩺 Operations Funnel Health <span class="tag">requests by month opened, split by current status</span></h3>
       <div class="chart-wrap"><canvas id="chTrendFunnel"></canvas></div>
@@ -713,7 +713,7 @@
   </section>
 
   <section id="monthly">
-    <h2 class="sec-title">🗓️ Monthly Performance</h2>
+    <h2 class="sec-title">Monthly Performance</h2>
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;">
       <select id="monUnit" onchange="renderMonthly()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="PCU">PCU</option><option value="THU">THU</option><option value="RCU">RCU</option></select>
       <select id="monBasis" onchange="renderMonthly()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 10px;font-size:12.5px"><option value="resolved">Resolved Basis</option><option value="assigned">Assigned Basis</option></select>
@@ -728,7 +728,7 @@
   </section>
 
   <section id="report">
-    <h2 class="sec-title">📄 Daily Report</h2>
+    <h2 class="sec-title">Daily Report</h2>
     <!-- Daily report generator -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
       <div>
@@ -806,7 +806,7 @@
   </section>
 
   <section id="assign">
-    <h2 class="sec-title">🔵 Assign Agent — RCU / THU / PCU <span class="pill ok" style="font-size:11px">Live · sync ke Sheet</span></h2>
+    <h2 class="sec-title">Assign Agent — RCU / THU / PCU <span class="pill ok" style="font-size:11px">Live · sync ke Sheet</span></h2>
     <p class="sec-desc">Pilih <b>Unit</b>, kemudian assign staf kepada tiket — <b>terus disimpan ke Google Sheet</b> (nama diisi pada kolum agent unit, sel bertukar <b style="color:#7cc0ff">biru</b>, tarikh assign distamp, dan note "Assigned by Manager" ditulis di Column AG). Perlu deploy versi baharu Apps Script dahulu.</p>
 
     <!-- HERO: assignment overview -->
@@ -865,7 +865,7 @@
   </section>
 
   <section id="asghist">
-    <h2 class="sec-title">🕘 Assign History — Orang Pertama &amp; Perubahan</h2>
+    <h2 class="sec-title">Assign History — Orang Pertama &amp; Perubahan</h2>
     <p class="sec-desc">Rekod (dalam dashboard) siapa <b>orang pertama</b> assign setiap Request ID bagi RCU / THU / PCU — nama pertama <b>dikunci</b> walau di-reassign. Klik "Sejarah" untuk lihat setiap perubahan. Rekod terkumpul dari feature ini aktif (data tak diubah dalam Google Sheet).</p>
     <div class="toolbar">
       <input type="text" id="histSearch" placeholder="Cari Request ID / nama agent..." onkeyup="renderAssignHist()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:260px">
@@ -887,7 +887,7 @@
   </section>
 
   <section id="risk">
-    <h2 class="sec-title">🚨 SLA &amp; Risk Control Management</h2>
+    <h2 class="sec-title">SLA &amp; Risk Control Management</h2>
     <p class="sec-desc">Monitoring urgent requests, SLA breach risks, aging tickets, and operational bottleneck sub-statuses.</p>
 
     <div class="row c2" style="margin-bottom:18px;">
@@ -916,7 +916,7 @@
   </section>
 
   <section id="data">
-    <h2 class="sec-title">📋 Request Explorer</h2>
+    <h2 class="sec-title">Request Explorer</h2>
     <p class="sec-desc">All requests within the selected date range (without personal info). Filter &amp; search below.</p>
 
     <!-- HERO: browse all tickets -->
@@ -966,7 +966,7 @@
 
 
   <section id="links">
-    <h2 class="sec-title">🔗 Quick Links</h2>
+    <h2 class="sec-title">Quick Links</h2>
     <p class="sec-desc">Quick access to all operation systems.</p>
     <div class="links-grid" id="linksGrid"></div>
   </section>
