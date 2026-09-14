@@ -466,32 +466,32 @@
       /* ===== LATEST UPDATES — single source of truth. To add an update: add 1 row to the TOP of the CHANGELOG list + update CHANGELOG_DATE. ===== */
       var CHANGELOG_DATE = '6 August 2026';
       var CHANGELOG = [
-        {t:'Latest Updates + PDF Feature Guide', k:'NEW', d:'Updates now live in one place (easy to keep current) & a Save PDF button generates a full guide to every dashboard feature.'},
-        {t:'Assign Agent — Same Phone Detection', k:'NEW', d:'A SAME PHONE marker (number masked, privacy kept) flags requests sharing a phone number.'},
-        {t:'Trends & Monthly Report Tabs', k:'NEW', d:'Two new tabs — monthly pending/completed/cancel charts & monthly performance per unit.'},
-        {t:'PCU Subject', k:'FIX', d:'Subject now displays correctly for PCU tickets (sturdier header matching).'},
-        {t:'Assign Agent — RCU / THU / PCU', k:'NEW', d:'The Assign tab can pick a Unit and assign an agent for all three units, straight to Google Sheet.'},
-        {t:'Assign — Auto-Note to Master', k:'NEW', d:'Assigning an agent from the dashboard auto-writes "Assigned by Manager" + date to Column AG (Notes).'},
-        {t:'Staff Modal — SLA "Days Open" & Action', k:'NEW', d:'Staff ticket table shows ticket age (green/amber/red) + suggested action by category.'},
-        {t:'Pending Count Fix', k:'FIX', d:'Staff modal pending count now matches the Staff Table (THU handover logic).'},
-        {t:'Request Explorer — New Layout', k:'NEW', d:'Hero card for total tickets in range + a Sifu Tutor-branded database card.'},
-        {t:'THU Staff — Haritharan & Athirah', k:'NEW', d:'Added to the Assign list, WhatsApp Report & Daily Report.'},
-        {t:'"Still Pending" Banner', k:'NEW', d:'Top banner shows how many tickets remain in the RCU + THU sheets (not yet secured a tutor).'},
-        {t:'Sifu Tutor Favicon Logo', k:'NEW', d:'The official Sifu Tutor logo now appears in the browser tab.'}
+        {t:'Latest Updates + PDF Feature Guide', k:'NEW', d:'Updates now live in one place, plus a Save PDF button for the full feature guide.'},
+        {t:'Assign Agent — Same Phone Detection', k:'NEW', d:'A SAME PHONE marker flags requests sharing a phone number (masked for privacy).'},
+        {t:'Trends & Monthly Report Tabs', k:'NEW', d:'Two new tabs for monthly status charts and performance per unit.'},
+        {t:'PCU Subject', k:'FIX', d:'Subject now displays correctly for PCU tickets.'},
+        {t:'Assign Agent — RCU / THU / PCU', k:'NEW', d:'Pick a Unit and assign an agent for all three units, straight to Google Sheet.'},
+        {t:'Assign — Auto-Note to Master', k:'NEW', d:'Assigning from the dashboard auto-writes "Assigned by Manager" + date to Notes.'},
+        {t:'Staff Modal — SLA "Days Open" & Action', k:'NEW', d:'Staff ticket table shows ticket age and a suggested action per category.'},
+        {t:'Pending Count Fix', k:'FIX', d:'Staff modal pending count now matches the Staff Table.'},
+        {t:'Request Explorer — New Layout', k:'NEW', d:'Hero card for total tickets in range, plus a branded database card.'},
+        {t:'THU Staff — Haritharan & Athirah', k:'NEW', d:'Added to Assign, WhatsApp Report & Daily Report.'},
+        {t:'"Still Pending" Banner', k:'NEW', d:'Top banner shows tickets still in RCU + THU, not yet secured.'},
+        {t:'Sifu Tutor Favicon Logo', k:'NEW', d:'The official logo now appears in the browser tab.'}
       ];
       var DASHBOARD_FEATURES = [
-        {i:'🏠', t:'Home & Pulse', d:'Executive operations summary — KPIs, still-pending ticket banner, RCU→THU→PCU funnel, key metrics.'},
-        {i:'📅', t:'Daily Performance', d:'Daily activity: incoming, secured, share profile, completed; activity breakdown per staff.'},
-        {i:'🏢', t:'Stages & Units', d:'Breakdown by actual stage & category; Online vs In-Person mode; monthly mode trend.'},
-        {i:'🗺️', t:'Hotspots Analytics', d:'Location analysis (state/district) & subjects with the highest request volume.'},
-        {i:'📈', t:'Trends', d:'Monthly comparisons — status funnel (pending/completed/cancel), unit & staff performance per month.'},
-        {i:'🗓️', t:'Monthly Report', d:'Monthly performance per unit (RCU/THU/PCU): intake, resolved, net backlog.'},
-        {i:'👥', t:'Staff Workload', d:'Staff performance (Admin Support / PIC): handled, secured, completed, rate per unit; current pending.'},
-        {i:'🔵', t:'Assign Agent', d:'Assign RCU/THU/PCU staff straight to Google Sheet; auto-note; same-phone marker; unit/mode/month/PIC filters.'},
-        {i:'🚨', t:'SLA & Risk Control', d:'Urgent tickets, pending age distribution, SLA breach risk, sub-status bottlenecks.'},
-        {i:'📋', t:'Request Explorer', d:'Search & filter all tickets (stage/type/mode/search); export to CSV; hero card for total tickets.'},
-        {i:'📄', t:'Daily Report', d:'Daily report per unit; WhatsApp report; Cumulative Performance (whole-month snapshot).'},
-        {i:'🔗', t:'Operational Links', d:'Quick links to all operational systems (Google Sheets, SharePoint, tools).'}
+        {i:'🏠', t:'Home & Pulse', d:'Executive summary — KPIs, pending banner, RCU→THU→PCU funnel.'},
+        {i:'📅', t:'Daily Performance', d:'Daily activity and per-staff breakdown.'},
+        {i:'🏢', t:'Stages & Units', d:'Breakdown by stage, category, and mode.'},
+        {i:'🗺️', t:'Hotspots Analytics', d:'Top locations and subjects by request volume.'},
+        {i:'📈', t:'Trends', d:'Monthly status, unit, and staff comparisons.'},
+        {i:'🗓️', t:'Monthly Report', d:'Monthly intake, resolved, and backlog per unit.'},
+        {i:'👥', t:'Staff Workload', d:'Staff performance and current pending load.'},
+        {i:'🔵', t:'Assign Agent', d:'Assign staff to Google Sheet with filters and auto-notes.'},
+        {i:'🚨', t:'SLA & Risk Control', d:'Urgent tickets, aging, and breach risk.'},
+        {i:'📋', t:'Request Explorer', d:'Search, filter, and export all tickets.'},
+        {i:'📄', t:'Daily Report', d:'Daily and cumulative performance per unit.'},
+        {i:'🔗', t:'Operational Links', d:'Quick links to operational systems.'}
       ];
       function renderChangelog(){
         var g=document.getElementById('changelogGrid');
@@ -506,22 +506,22 @@
       }
       function downloadFullPDF(btn){
         if(!(window.jspdf && window.jspdf.jsPDF)){ showToast('PDF library has not loaded. Check your internet connection and try again.', 'error'); return; }
-        var lbl=btn?btn.innerHTML:''; if(btn){ btn.innerHTML='⏳ Menjana PDF...'; btn.disabled=true; }
+        var lbl=btn?btn.innerHTML:''; if(btn){ btn.innerHTML='⏳ Generating PDF...'; btn.disabled=true; }
         try{
           function asc(s){ return String(s==null?'':s).replace(/—/g,'-').replace(/[·•]/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x00-\xFF]/g,'').replace(/\s+/g,' ').trim(); }
           var jsPDF=window.jspdf.jsPDF;
           var doc=new jsPDF({unit:'mm',format:'a4'});
           var W=210, M=14, maxW=W-M*2;
           var now=new Date();
-          var gen=now.toLocaleDateString('ms-MY')+' '+now.toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'});
+          var gen=now.toLocaleDateString('en-GB')+' '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
           // ---- Header band ----
           doc.setFillColor(13,20,45); doc.rect(0,0,W,32,'F');
           doc.setFillColor(239,78,35); doc.rect(0,0,W/3,2.5,'F');
           doc.setFillColor(35,49,198); doc.rect(W/3,0,W/3,2.5,'F');
           doc.setFillColor(21,159,214); doc.rect(2*W/3,0,W/3,2.5,'F');
           doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.text('Sifu Tutor', M, 15);
-          doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.text('Dashboard Admin Support - Panduan Fungsi', M, 22);
-          doc.setFontSize(8); doc.setTextColor(200,210,230); doc.text('Dijana '+asc(gen)+'   |   Master Tutor Request (live)', M, 27.5);
+          doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.text('Admin Support Dashboard - Feature Guide', M, 22);
+          doc.setFontSize(8); doc.setTextColor(200,210,230); doc.text('Generated '+asc(gen)+'   |   Master Tutor Request (live)', M, 27.5);
           var y=42;
           // ---- Latest Updates ----
           doc.setFillColor(0,117,255); doc.rect(M,y-4.5,1.6,6,'F');
@@ -545,7 +545,7 @@
           // ---- Fungsi Dashboard ----
           doc.setFillColor(21,159,214); doc.rect(M,y-4.5,1.6,6,'F');
           doc.setTextColor(13,42,84); doc.setFont('helvetica','bold'); doc.setFontSize(13);
-          doc.text('Fungsi Dashboard ('+DASHBOARD_FEATURES.length+' bahagian)', M+4, y); y+=7;
+          doc.text('Dashboard Features ('+DASHBOARD_FEATURES.length+' sections)', M+4, y); y+=7;
           DASHBOARD_FEATURES.forEach(function(f){
             var d=doc.splitTextToSize(asc(f.d), maxW-5);
             var h=4.5+d.length*3.3;
@@ -807,7 +807,7 @@
 
   <section id="assign">
     <h2 class="sec-title">Assign Agent — RCU / THU / PCU <span class="pill ok" style="font-size:11px">Live · sync ke Sheet</span></h2>
-    <p class="sec-desc">Select a <b>Unit</b>, then assign staff to tickets — <b>saved straight to Google Sheet</b> (the name fills the unit's agent column, the cell turns <b style="color:#7cc0ff">blue</b>, the assign date is stamped, and a note "Assigned by Manager" is written to Column AG). Requires deploying the latest Apps Script version first.</p>
+    <p class="sec-desc">Select a <b>Unit</b>, then assign staff to tickets — <b>saved straight to Google Sheet</b> with an auto-note and date stamp.</p>
 
     <!-- HERO: assignment overview -->
     <div style="position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:14px;background:linear-gradient(135deg,rgba(0,117,255,.12),rgba(33,212,253,.05));display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
@@ -866,7 +866,7 @@
 
   <section id="asghist">
     <h2 class="sec-title">Assign History — Orang Pertama &amp; Perubahan</h2>
-    <p class="sec-desc">Records (within this dashboard) who was the <b>first assignee</b> for each Request ID across RCU / THU / PCU — the first name stays <b>locked</b> even if reassigned. Click "History" to see every change. Records accumulate from when this feature went live (the underlying Google Sheet data is not changed).</p>
+    <p class="sec-desc">Tracks the <b>first assignee</b> for each Request ID across RCU / THU / PCU — the name stays <b>locked</b> even if reassigned. Click "History" to see every change.</p>
     <div class="toolbar">
       <input type="text" id="histSearch" placeholder="Search Request ID / agent name..." onkeyup="renderAssignHist()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:260px">
       <label class="small" style="font-weight:600">Status:</label>
@@ -1893,7 +1893,7 @@ function renderOverview(){
     elBanner.innerHTML=
       '<div class="ab-left"><div class="ab-eye">⚠ Live Action Snapshot</div>'+
       '<div class="ab-head">'+stillPending+' tickets still pending right now</div>'+
-      '<div class="ab-sub">'+rcuAll+' in the RCU sheet · '+thuAll+' in the THU sheet — still in tutor search / assignment (not yet secured to PCU).</div>'+
+      '<div class="ab-sub">'+rcuAll+' in RCU · '+thuAll+' in THU — still searching for / assigning a tutor.</div>'+
       '<button class="ab-btn" onclick="document.querySelector(\'#nav button[data-tab=staff]\').click()">View Staff Workload →</button></div>'+
       '<div class="ab-right"><div class="ab-num">'+stillPending+'</div><div class="ab-lbl">Still Pending</div></div>';
   }
@@ -3378,7 +3378,7 @@ function renderAssign(){
   else if(f==='auto') rows=rows.filter(r=>r.autoTHU);
   rows.sort((a,b)=>(b.age||0)-(a.age||0));
   const MAX=3000;
-  const cnt=document.getElementById('assignCount'); if(cnt) cnt.textContent=rows.length+' tiket'+(rows.length>MAX?' (papar '+MAX+' pertama)':'');
+  const cnt=document.getElementById('assignCount'); if(cnt) cnt.textContent=rows.length+' tickets'+(rows.length>MAX?' (showing first '+MAX+')':'');
   tb.innerHTML = rows.slice(0,MAX).map(r=>{
     const reqId=r['Request ID']||'—';
     const isAuto=(unit==='THU') && !!r.autoTHU;
@@ -3520,7 +3520,7 @@ function openStaffModal(agentName, roleName){
       <td style="color:#e2e8f0;font-size:12.5px;padding:10px 11px;min-width:120px;">${subj}</td>
       <td style="padding:10px 11px;white-space:nowrap;color:${modeCol};font-weight:600;font-size:12px;">${mode}</td>
       <td style="padding:10px 11px;white-space:nowrap;"><span class="pill ${stageCls}">${catText}</span></td>
-      <td style="padding:10px 11px;text-align:center;white-space:nowrap;"><b style="color:${slaCol};font-size:15px;">${days==null?'—':days}</b>${days==null?'':'<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Hari</div>'}</td>
+      <td style="padding:10px 11px;text-align:center;white-space:nowrap;"><b style="color:${slaCol};font-size:15px;">${days==null?'—':days}</b>${days==null?'':'<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Days</div>'}</td>
       <td style="padding:10px 11px;"><span style="display:inline-block;background:${slaCol}1f;color:${slaCol};border:1px solid ${slaCol}66;border-radius:8px;padding:4px 10px;font-size:11.5px;font-weight:700;white-space:nowrap;">⏱ ${days==null?'':days+'d · '}${action}</span></td>
     </tr>`;
   }).join('') || `<tr><td colspan="6" class="small" style="text-align: center; color: var(--muted); padding: 24px;">No active pending tickets for this staff member.</td></tr>`;
@@ -3538,7 +3538,7 @@ function openStaffModal(agentName, roleName){
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 18px;">
       <div>
         <h2 style="color:#fff; font-size: 24px; font-weight: 900; margin-bottom: 4px; font-family: var(--font-heading);">${agentName}<span style="color:var(--info); font-size: 16px; font-weight: 600; margin-left: 8px;">${roleTitle}</span></h2>
-        <div style="font-size:11.5px; color:var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Senarai Tiket Pending &amp; Maklumat Operasi Staf</div>
+        <div style="font-size:11.5px; color:var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Pending Ticket List &amp; Staff Operations Info</div>
       </div>
       <button onclick="closePcuModal()" style="background:rgba(255,255,255,.08); border:none; color:#fff; width: 32px; height: 32px; border-radius: 50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-weight:bold; font-size: 14px; transition: 0.15s;" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">✕</button>
     </div>
@@ -3575,9 +3575,9 @@ function openStaffModal(agentName, roleName){
         <thead style="position: sticky; top: 0; z-index: 10; background: #0F172A;">
           <tr style="background: #0F172A; border-bottom: 2px solid var(--line);">
             <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; position: sticky; top: 0; background: #0F172A; z-index: 10;">Request ID</th>
-            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; background: #0F172A; z-index: 10;">Subjek &amp; Level</th>
+            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; background: #0F172A; z-index: 10;">Subject &amp; Level</th>
             <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; position: sticky; top: 0; background: #0F172A; z-index: 10;">Mode</th>
-            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; position: sticky; top: 0; background: #0F172A; z-index: 10;">Kategori</th>
+            <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; position: sticky; top: 0; background: #0F172A; z-index: 10;">Category</th>
             <th style="padding: 11px 11px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space:nowrap; text-align:center; position: sticky; top: 0; background: #0F172A; z-index: 10;">Days Open</th>
             <th style="padding: 11px 11px; font-size: 10.5px; color: #7cc0ff; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; background: #0F172A; z-index: 10;">Status / Action</th>
           </tr>
