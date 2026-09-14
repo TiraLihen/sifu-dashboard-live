@@ -395,7 +395,7 @@
   </div>
   <div class="hdr-right">
     <div class="status-chip"><span class="live-dot" id="liveDot"></span><span id="liveText">Connecting…</span></div>
-    <button class="btn ghost sm" id="themeToggle" onclick="toggleTheme()" title="Tukar ke tema terang" aria-label="Tukar ke tema terang">🌙</button>
+    <button class="btn ghost sm" id="themeToggle" onclick="toggleTheme()" title="Switch to light theme" aria-label="Switch to light theme">🌙</button>
     <button class="btn ghost sm" onclick="openSettings()">⚙️ Settings</button>
     <button class="btn sm" onclick="refresh()">🔄 Refresh</button>
   </div>
@@ -453,45 +453,45 @@
 
     <!-- LATEST UPDATES / CHANGELOG -->
     <div id="changelogCard" style="position:relative;overflow:hidden;border:1px solid rgba(0,117,255,.35);border-radius:16px;padding:20px 22px;margin-bottom:20px;background:linear-gradient(135deg,#0e1a3a,#101a30 60%,#0b1428);box-shadow:0 0 40px rgba(0,117,255,.12) inset;">
-      <button onclick="document.getElementById('changelogCard').style.display='none';try{localStorage.setItem('st_changelog_hidden_2026_08_06','1')}catch(e){}" title="Sembunyikan" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:13px;line-height:1;">✕</button>
+      <button onclick="document.getElementById('changelogCard').style.display='none';try{localStorage.setItem('st_changelog_hidden_2026_08_06','1')}catch(e){}" title="Hide" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:13px;line-height:1;">✕</button>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
         <span style="background:linear-gradient(135deg,#0075FF,#21D4FD);color:#fff;font-size:10px;font-weight:800;letter-spacing:.1em;padding:4px 10px;border-radius:20px;">NEW</span>
         <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:17px;color:var(--txt);">Latest Updates · <span id="clDate">—</span></span>
       </div>
-      <div class="small" style="margin-bottom:14px;"><span id="clCount">—</span> penambahbaikan pada Dashboard Admin Support Sifu Tutor. Klik <b>Simpan PDF</b> untuk salinan penuh + panduan fungsi.</div>
+      <div class="small" style="margin-bottom:14px;"><span id="clCount">—</span> updates to the Admin Support Sifu Tutor Dashboard. Click <b>Save PDF</b> for the full copy + feature guide.</div>
       <button onclick="downloadFullPDF(this)" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#0075FF,#21D4FD);border:none;color:#fff;border-radius:10px;padding:10px 18px;font-size:12.5px;font-weight:800;cursor:pointer;margin-bottom:16px;box-shadow:0 4px 14px rgba(0,117,255,.35);">⬇️ Download Full PDF</button>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px;" id="changelogGrid"></div>
     </div>
     <script>
-      /* ===== LATEST UPDATES — satu tempat data pusat. Nak tambah update: tambah 1 baris di ATAS senarai CHANGELOG + tukar CHANGELOG_DATE. ===== */
-      var CHANGELOG_DATE = '6 Ogos 2026';
+      /* ===== LATEST UPDATES — single source of truth. To add an update: add 1 row to the TOP of the CHANGELOG list + update CHANGELOG_DATE. ===== */
+      var CHANGELOG_DATE = '6 August 2026';
       var CHANGELOG = [
-        {t:'Latest Updates + PDF Panduan Fungsi', k:'NEW', d:'Senarai update kini satu tempat data (senang kemas kini) & butang Simpan PDF hasilkan panduan penuh semua fungsi dashboard.'},
-        {t:'Assign Agent — Kesan Telefon Sama', k:'NEW', d:'Penanda SAME PHONE (nombor bertopeng, privasi terjaga) kenal pasti permintaan dengan telefon sama.'},
-        {t:'Tab Trends & Monthly Report', k:'NEW', d:'Dua tab baharu — carta pending/completed/cancel bulanan & prestasi bulanan per unit.'},
-        {t:'Subjek PCU', k:'FIX', d:'Subjek kini dipapar betul untuk tiket di unit PCU (padanan header lebih mantap).'},
-        {t:'Assign Agent — RCU / THU / PCU', k:'NEW', d:'Tab Assign boleh pilih Unit dan assign agent bagi ketiga-tiga unit terus ke Google Sheet.'},
-        {t:'Assign — Auto-Note ke Master', k:'NEW', d:'Assign agent dari dashboard auto-tulis "Assigned by Manager" + tarikh ke Column AG (Notes).'},
-        {t:'Modal Staf — SLA "Days Open" & Action', k:'NEW', d:'Jadual tiket staf tunjuk umur tiket (hijau/kuning/merah) + cadangan tindakan ikut kategori.'},
-        {t:'Kiraan Pending Modal', k:'FIX', d:'Kiraan pending modal staf kini selaras dengan Staff Table (logik handover THU).'},
-        {t:'Request Explorer — Rekaan Baharu', k:'NEW', d:'Kad hero jumlah tiket dalam julat + kad database berjenama Sifu Tutor.'},
-        {t:'Staf THU — Haritharan & Athirah', k:'NEW', d:'Ditambah ke senarai Assign, WhatsApp Report & Daily Report.'},
-        {t:'Banner "Masih Pending"', k:'NEW', d:'Banner atas tunjuk jumlah tiket yang masih di sheet RCU + THU (belum secure tutor).'},
-        {t:'Favicon Logo Sifu Tutor', k:'NEW', d:'Logo rasmi Sifu Tutor kini muncul di tab browser.'}
+        {t:'Latest Updates + PDF Feature Guide', k:'NEW', d:'Updates now live in one place (easy to keep current) & a Save PDF button generates a full guide to every dashboard feature.'},
+        {t:'Assign Agent — Same Phone Detection', k:'NEW', d:'A SAME PHONE marker (number masked, privacy kept) flags requests sharing a phone number.'},
+        {t:'Trends & Monthly Report Tabs', k:'NEW', d:'Two new tabs — monthly pending/completed/cancel charts & monthly performance per unit.'},
+        {t:'PCU Subject', k:'FIX', d:'Subject now displays correctly for PCU tickets (sturdier header matching).'},
+        {t:'Assign Agent — RCU / THU / PCU', k:'NEW', d:'The Assign tab can pick a Unit and assign an agent for all three units, straight to Google Sheet.'},
+        {t:'Assign — Auto-Note to Master', k:'NEW', d:'Assigning an agent from the dashboard auto-writes "Assigned by Manager" + date to Column AG (Notes).'},
+        {t:'Staff Modal — SLA "Days Open" & Action', k:'NEW', d:'Staff ticket table shows ticket age (green/amber/red) + suggested action by category.'},
+        {t:'Pending Count Fix', k:'FIX', d:'Staff modal pending count now matches the Staff Table (THU handover logic).'},
+        {t:'Request Explorer — New Layout', k:'NEW', d:'Hero card for total tickets in range + a Sifu Tutor-branded database card.'},
+        {t:'THU Staff — Haritharan & Athirah', k:'NEW', d:'Added to the Assign list, WhatsApp Report & Daily Report.'},
+        {t:'"Still Pending" Banner', k:'NEW', d:'Top banner shows how many tickets remain in the RCU + THU sheets (not yet secured a tutor).'},
+        {t:'Sifu Tutor Favicon Logo', k:'NEW', d:'The official Sifu Tutor logo now appears in the browser tab.'}
       ];
       var DASHBOARD_FEATURES = [
-        {i:'🏠', t:'Home & Pulse', d:'Ringkasan operasi eksekutif — KPI, banner tiket masih pending, funnel RCU→THU→PCU, metrik utama.'},
-        {i:'📅', t:'Daily Performance', d:'Aktiviti harian: incoming, secured, share profile, completed; pecahan aktiviti per staf.'},
-        {i:'🏢', t:'Stages & Units', d:'Pecahan mengikut stage & kategori sebenar; mode Online vs In-Person; trend bulanan mode.'},
-        {i:'🗺️', t:'Hotspots Analytics', d:'Analisis lokasi (negeri/daerah) & subjek paling banyak permintaan.'},
-        {i:'📈', t:'Trends', d:'Perbandingan bulanan — funnel status (pending/completed/cancel), prestasi unit & staf per bulan.'},
-        {i:'🗓️', t:'Monthly Report', d:'Prestasi bulanan per unit (RCU/THU/PCU): intake, resolved, net backlog.'},
-        {i:'👥', t:'Staff Workload', d:'Prestasi staf (Admin Support / PIC): handled, secured, completed, rate per unit; pending semasa.'},
-        {i:'🔵', t:'Assign Agent', d:'Assign staf RCU/THU/PCU terus ke Google Sheet; auto-note; penanda telefon sama; penapis unit/mode/bulan/PIC.'},
-        {i:'🚨', t:'SLA & Risk Control', d:'Tiket urgent, taburan umur pending, risiko SLA breach, bottleneck sub-status.'},
-        {i:'📋', t:'Request Explorer', d:'Cari & tapis semua tiket (stage/type/mode/carian); export CSV; kad hero jumlah tiket.'},
-        {i:'📄', t:'Daily Report', d:'Laporan harian per unit; WhatsApp report; Cumulative Performance (snapshot sepanjang bulan).'},
-        {i:'🔗', t:'Operational Links', d:'Pautan pantas ke semua sistem operasi (Google Sheets, SharePoint, tools).'}
+        {i:'🏠', t:'Home & Pulse', d:'Executive operations summary — KPIs, still-pending ticket banner, RCU→THU→PCU funnel, key metrics.'},
+        {i:'📅', t:'Daily Performance', d:'Daily activity: incoming, secured, share profile, completed; activity breakdown per staff.'},
+        {i:'🏢', t:'Stages & Units', d:'Breakdown by actual stage & category; Online vs In-Person mode; monthly mode trend.'},
+        {i:'🗺️', t:'Hotspots Analytics', d:'Location analysis (state/district) & subjects with the highest request volume.'},
+        {i:'📈', t:'Trends', d:'Monthly comparisons — status funnel (pending/completed/cancel), unit & staff performance per month.'},
+        {i:'🗓️', t:'Monthly Report', d:'Monthly performance per unit (RCU/THU/PCU): intake, resolved, net backlog.'},
+        {i:'👥', t:'Staff Workload', d:'Staff performance (Admin Support / PIC): handled, secured, completed, rate per unit; current pending.'},
+        {i:'🔵', t:'Assign Agent', d:'Assign RCU/THU/PCU staff straight to Google Sheet; auto-note; same-phone marker; unit/mode/month/PIC filters.'},
+        {i:'🚨', t:'SLA & Risk Control', d:'Urgent tickets, pending age distribution, SLA breach risk, sub-status bottlenecks.'},
+        {i:'📋', t:'Request Explorer', d:'Search & filter all tickets (stage/type/mode/search); export to CSV; hero card for total tickets.'},
+        {i:'📄', t:'Daily Report', d:'Daily report per unit; WhatsApp report; Cumulative Performance (whole-month snapshot).'},
+        {i:'🔗', t:'Operational Links', d:'Quick links to all operational systems (Google Sheets, SharePoint, tools).'}
       ];
       function renderChangelog(){
         var g=document.getElementById('changelogGrid');
@@ -505,7 +505,7 @@
         var cn=document.getElementById('clCount'); if(cn) cn.textContent=CHANGELOG.length;
       }
       function downloadFullPDF(btn){
-        if(!(window.jspdf && window.jspdf.jsPDF)){ showToast('Pustaka PDF belum dimuat. Pastikan ada sambungan internet, kemudian cuba lagi.', 'error'); return; }
+        if(!(window.jspdf && window.jspdf.jsPDF)){ showToast('PDF library has not loaded. Check your internet connection and try again.', 'error'); return; }
         var lbl=btn?btn.innerHTML:''; if(btn){ btn.innerHTML='⏳ Menjana PDF...'; btn.disabled=true; }
         try{
           function asc(s){ return String(s==null?'':s).replace(/—/g,'-').replace(/[·•]/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x00-\xFF]/g,'').replace(/\s+/g,' ').trim(); }
@@ -560,7 +560,7 @@
             doc.text('Dashboard Admin Support  |  Sifu Tutor  |  Master Tutor Request', W/2, 292, {align:'center'});
             doc.text(p+' / '+pages, W-M, 292, {align:'right'}); }
           doc.save('Sifu_Tutor_Dashboard_Guide.pdf');
-        }catch(e){ showToast('Ralat menjana PDF: '+(e&&e.message||e), 'error'); }
+        }catch(e){ showToast('Error generating PDF: '+(e&&e.message||e), 'error'); }
         if(btn){ btn.innerHTML=lbl; btn.disabled=false; }
       }
       renderChangelog();
@@ -573,10 +573,10 @@
     <div id="deletedRowsCard" style="display:none;position:relative;border:1px solid rgba(239,68,68,.45);background:linear-gradient(135deg,rgba(239,68,68,.10),rgba(239,68,68,.04));border-radius:16px;padding:18px 20px;margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <span style="font-size:18px;">🗑️</span>
-        <span style="font-weight:800;color:#ef4444;font-size:15px;">Row Dipadam</span>
+        <span style="font-weight:800;color:#ef4444;font-size:15px;">Deleted Rows</span>
         <span id="delRowCount" style="background:#ef4444;color:#fff;font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px;">0</span>
-        <span class="small" style="color:var(--muted);">Rekod row yang dipadam dari sheet (dari fail audit)</span>
-        <button onclick="fetchDeletedLog()" title="Muat semula" style="margin-left:auto;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;">↻ Refresh</button>
+        <span class="small" style="color:var(--muted);">Rows deleted from the sheet (from the audit log)</span>
+        <button onclick="fetchDeletedLog()" title="Reload" style="margin-left:auto;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;">↻ Refresh</button>
       </div>
       <div id="delRowList"></div>
     </div>
@@ -807,21 +807,21 @@
 
   <section id="assign">
     <h2 class="sec-title">Assign Agent — RCU / THU / PCU <span class="pill ok" style="font-size:11px">Live · sync ke Sheet</span></h2>
-    <p class="sec-desc">Pilih <b>Unit</b>, kemudian assign staf kepada tiket — <b>terus disimpan ke Google Sheet</b> (nama diisi pada kolum agent unit, sel bertukar <b style="color:#7cc0ff">biru</b>, tarikh assign distamp, dan note "Assigned by Manager" ditulis di Column AG). Perlu deploy versi baharu Apps Script dahulu.</p>
+    <p class="sec-desc">Select a <b>Unit</b>, then assign staff to tickets — <b>saved straight to Google Sheet</b> (the name fills the unit's agent column, the cell turns <b style="color:#7cc0ff">blue</b>, the assign date is stamped, and a note "Assigned by Manager" is written to Column AG). Requires deploying the latest Apps Script version first.</p>
 
     <!-- HERO: assignment overview -->
     <div style="position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:14px;background:linear-gradient(135deg,rgba(0,117,255,.12),rgba(33,212,253,.05));display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
       <div style="min-width:240px;">
         <div id="asgHeroUnitLbl" style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--info);margin-bottom:6px;">🔵 THU (Manual) Assignment</div>
-        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--txt);line-height:1.15;"><span id="asgHeroTotal">0</span> Tiket <span id="asgHeroUnit">THU</span> Dalam Julat</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--txt);line-height:1.15;"><span id="asgHeroTotal">0</span> <span id="asgHeroUnit">THU</span> Tickets In Range</div>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#22c55e;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">✔ Dah assign: <span id="asgStatDone">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#22c55e;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">✔ Assigned: <span id="asgStatDone">0</span></span>
           <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,117,255,.12);border:1px solid rgba(0,117,255,.4);color:#7cc0ff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">🔵 Auto: <span id="asgStatAuto">0</span></span>
         </div>
       </div>
       <div style="text-align:right;line-height:1;">
         <div id="asgHeroBig" style="font-family:'Outfit',sans-serif;font-weight:900;font-size:52px;background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">0</div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:2px;">Belum Assign</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:2px;">Not Assigned</div>
       </div>
     </div>
 
@@ -832,46 +832,46 @@
         <option value="THU" selected>🔵 THU</option>
         <option value="PCU">🟣 PCU</option>
       </select>
-      <label class="small" style="font-weight:600">Papar:</label>
+      <label class="small" style="font-weight:600">Show:</label>
       <select id="assignFilter" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
-        <option value="all">Semua THU</option>
-        <option value="unassigned">🔴 Belum ada agent</option>
-        <option value="assigned">🟢 Dah ada agent</option>
-        <option value="auto">🔵 Auto-assign sahaja</option>
+        <option value="all">All Tickets</option>
+        <option value="unassigned">🔴 No agent yet</option>
+        <option value="assigned">🟢 Agent assigned</option>
+        <option value="auto">🔵 Auto-assign only</option>
       </select>
       <label class="small" style="font-weight:600">Mode:</label>
       <select id="assignMode" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
-        <option value="">Semua Mode</option>
+        <option value="">All Modes</option>
         <option value="Online">🌐 Online</option>
         <option value="In-Person">🏠 In-Person</option>
       </select>
-      <label class="small" style="font-weight:600">Bulan:</label>
+      <label class="small" style="font-weight:600">Month:</label>
       <select id="assignMonth" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
-        <option value="">Semua Bulan</option>
+        <option value="">All Months</option>
       </select>
       <label class="small" style="font-weight:600">PIC:</label>
       <select id="assignPIC" onchange="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px">
-        <option value="">Semua PIC</option>
+        <option value="">All PIC</option>
       </select>
-      <input type="text" id="assignSearch" placeholder="Cari ID / subjek..." onkeyup="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:200px">
-      <button onclick="togglePhones(this)" title="Papar/sorok nombor telefon penuh — perlu PIN" style="background:var(--panel2);border:1px solid var(--info);color:#7cc0ff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer">🔓 Papar No. Telefon</button>
+      <input type="text" id="assignSearch" placeholder="Search ID / subject..." onkeyup="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:200px">
+      <button onclick="togglePhones(this)" title="Show/hide full phone number — PIN required" style="background:var(--panel2);border:1px solid var(--info);color:#7cc0ff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer">🔓 Show Phone Number</button>
       <span class="small" id="assignCount"></span>
     </div>
     <div class="panel"><div class="scroll" style="max-height:620px"><table id="assignTable" style="table-layout:fixed;width:100%">
       <colgroup><col style="width:11%"><col style="width:8%"><col style="width:20%"><col style="width:12%"><col style="width:7%"><col style="width:5%"><col style="width:22%"><col style="width:15%"></colgroup>
-      <thead><tr><th>Request ID</th><th>Tarikh</th><th>Subject | Level</th><th>Telefon</th><th style="text-align:center">Mode</th><th style="text-align:center">Age</th><th>Special Request</th><th style="color:#7cc0ff">🔵 Assign</th></tr></thead>
+      <thead><tr><th>Request ID</th><th>Date</th><th>Subject | Level</th><th>Phone</th><th style="text-align:center">Mode</th><th style="text-align:center">Age</th><th>Special Request</th><th style="color:#7cc0ff">🔵 Assign</th></tr></thead>
       <tbody></tbody>
     </table></div></div>
   </section>
 
   <section id="asghist">
     <h2 class="sec-title">Assign History — Orang Pertama &amp; Perubahan</h2>
-    <p class="sec-desc">Rekod (dalam dashboard) siapa <b>orang pertama</b> assign setiap Request ID bagi RCU / THU / PCU — nama pertama <b>dikunci</b> walau di-reassign. Klik "Sejarah" untuk lihat setiap perubahan. Rekod terkumpul dari feature ini aktif (data tak diubah dalam Google Sheet).</p>
+    <p class="sec-desc">Records (within this dashboard) who was the <b>first assignee</b> for each Request ID across RCU / THU / PCU — the first name stays <b>locked</b> even if reassigned. Click "History" to see every change. Records accumulate from when this feature went live (the underlying Google Sheet data is not changed).</p>
     <div class="toolbar">
-      <input type="text" id="histSearch" placeholder="Cari Request ID / nama agent..." onkeyup="renderAssignHist()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:260px">
+      <input type="text" id="histSearch" placeholder="Search Request ID / agent name..." onkeyup="renderAssignHist()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:260px">
       <label class="small" style="font-weight:600">Status:</label>
       <select id="histStatusFilter" onchange="renderAssignHist()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px">
-        <option value="">Semua Status</option>
+        <option value="">All Statuses</option>
         <option value="RCU">🟠 RCU</option>
         <option value="THU">🔵 THU</option>
         <option value="PCU">🔵 PCU</option>
@@ -881,7 +881,7 @@
       <span class="small" id="histCount"></span>
     </div>
     <div class="panel"><div class="scroll" style="max-height:640px"><table id="histTable" style="width:100%">
-      <thead><tr><th>Request ID</th><th>Status</th><th style="color:#f59e0b">👑 Pertama RCU</th><th style="color:#7cc0ff">👑 Pertama THU</th><th style="color:#21D4FD">👑 Pertama PCU</th><th>Sejarah Penuh</th></tr></thead>
+      <thead><tr><th>Request ID</th><th>Status</th><th style="color:#f59e0b">👑 First RCU</th><th style="color:#7cc0ff">👑 First THU</th><th style="color:#21D4FD">👑 First PCU</th><th>Full History</th></tr></thead>
       <tbody></tbody>
     </table></div></div>
   </section>
@@ -936,8 +936,8 @@
     <div style="position:relative;overflow:hidden;border-radius:16px;padding:22px 24px;margin-bottom:16px;background:linear-gradient(120deg,#1b2a6b,#2331C6 55%,#159FD6);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
       <div style="min-width:240px;color:#fff;">
         <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-bottom:6px;">● Sifu Tutor Database</div>
-        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;line-height:1.15;">Semua Tiket. Satu Tempat. Telus.</div>
-        <div style="font-size:12.5px;opacity:.85;margin-top:6px;max-width:460px;">Setiap permintaan direkodkan dengan lengkap untuk audit, analisis &amp; penambahbaikan berterusan.</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;line-height:1.15;">All Tickets. One Place. Transparent.</div>
+        <div style="font-size:12.5px;opacity:.85;margin-top:6px;max-width:460px;">Every request is fully logged for audit, analysis &amp; continuous improvement.</div>
         <a href="https://www.sifututor.my" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:20px;padding:8px 18px;font-size:12.5px;font-weight:700;text-decoration:none;">Visit Website →</a>
       </div>
       <img src="sifu-logo.png" alt="Sifu Tutor" style="width:96px;height:96px;object-fit:contain;background:#fff;border-radius:18px;padding:10px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.3));">
@@ -1892,10 +1892,10 @@ function renderOverview(){
     const stillPending = rcuAll + thuAll;
     elBanner.innerHTML=
       '<div class="ab-left"><div class="ab-eye">⚠ Live Action Snapshot</div>'+
-      '<div class="ab-head">'+stillPending+' tiket masih pending sekarang</div>'+
-      '<div class="ab-sub">'+rcuAll+' di sheet RCU · '+thuAll+' di sheet THU — masih dalam proses cari / assign tutor (belum secure ke PCU).</div>'+
+      '<div class="ab-head">'+stillPending+' tickets still pending right now</div>'+
+      '<div class="ab-sub">'+rcuAll+' in the RCU sheet · '+thuAll+' in the THU sheet — still in tutor search / assignment (not yet secured to PCU).</div>'+
       '<button class="ab-btn" onclick="document.querySelector(\'#nav button[data-tab=staff]\').click()">View Staff Workload →</button></div>'+
-      '<div class="ab-right"><div class="ab-num">'+stillPending+'</div><div class="ab-lbl">Masih Pending</div></div>';
+      '<div class="ab-right"><div class="ab-num">'+stillPending+'</div><div class="ab-lbl">Still Pending</div></div>';
   }
   const closedToday = ALL.filter(r => (r.stage === 'Completed' || r.stage === 'Cancelled') && (isToday(r.tsCompleted) || isToday(r.ts))).length;
   const newToday = ALL.filter(r => isToday(r.ts)).length;
@@ -2293,7 +2293,7 @@ function renderStaff(){
 
     let tbodyRows = list.map(s=>{const cls=s.rate>=80?'ok':s.rate>=60?'warn':'danger';
       const pctUnit = th ? Math.round(s.handled / th * 100) : 0;
-      const displayName = `<span style="cursor:pointer; color:var(--info); font-weight:600; text-decoration:underline;" onclick="openStaffModal('${s.name}', '${rl}')" title="Klik untuk lihat tiket pending &amp; butiran">${s.name}</span>`;
+      const displayName = `<span style="cursor:pointer; color:var(--info); font-weight:600; text-decoration:underline;" onclick="openStaffModal('${s.name}', '${rl}')" title="Click to view pending tickets &amp; details">${s.name}</span>`;
       if (rl === 'RCU') {
         return `<tr style="background:rgba(255,255,255,0.015);"><td style="border-left:6px solid ${col}44; padding:10px 12px 10px 26px; font-size:12.5px; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; color:#fff;">${displayName}</td>
           <td style="color:#A0AEC0; font-size:12.5px; text-align:center; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-variant-numeric:tabular-nums;">${pctUnit}% Unit</td>
@@ -2883,7 +2883,7 @@ function applyTheme(mode){
   document.body.classList.toggle('light', mode==='light');
   var btn=document.getElementById('themeToggle');
   if(btn){
-    var lbl = mode==='light' ? 'Tukar ke tema gelap' : 'Tukar ke tema terang';
+    var lbl = mode==='light' ? 'Switch to dark theme' : 'Switch to light theme';
     btn.textContent = mode==='light' ? '☀️' : '🌙';
     btn.title = lbl; btn.setAttribute('aria-label', lbl);
   }
@@ -2902,7 +2902,7 @@ function showToast(message, type, duration){
   var icons = {success:'✅', error:'⛔', warn:'⚠️', info:'ℹ️'};
   var el = document.createElement('div');
   el.className = 'toast ' + type;
-  el.innerHTML = '<span class="t-ico">'+(icons[type]||icons.info)+'</span><span class="t-msg"></span><button class="t-close" aria-label="Tutup notifikasi">✕</button>';
+  el.innerHTML = '<span class="t-ico">'+(icons[type]||icons.info)+'</span><span class="t-msg"></span><button class="t-close" aria-label="Close notification">✕</button>';
   el.querySelector('.t-msg').textContent = message;
   function dismiss(){
     if(!el.parentNode) return;
@@ -3037,16 +3037,16 @@ function renderAssignHist(){
   if(fs) rows=rows.filter(function(x){ return x.status===fs; });
   rows.sort(function(a,b){ return a.id<b.id?1:(a.id>b.id?-1:0); });
   var MAX=1500;
-  var cnt=document.getElementById('histCount'); if(cnt) cnt.textContent=rows.length+' tiket direkod';
+  var cnt=document.getElementById('histCount'); if(cnt) cnt.textContent=rows.length+' records logged';
   var cell=function(n,t){ return n?('<b>'+_histEsc(n)+'</b>'+(t?'<div style="color:var(--muted);font-size:10px">'+_histEsc(_histFmt(t))+'</div>':'')):'<span class="small">—</span>'; };
   var stCell=function(st,t){ if(!st) return '<span class="small">—</span>'; var c=SCST[st]||'#94a3b8'; return '<span style="display:inline-block;background:'+c+'22;color:'+c+';border:1px solid '+c+'66;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:700;white-space:nowrap">'+_histEsc(st)+'</span>'+(t?'<div style="color:var(--muted);font-size:10px;margin-top:2px">'+_histEsc(_histFmt(t))+'</div>':''); };
   tb.innerHTML=rows.slice(0,MAX).map(function(x){
     return '<tr><td style="font-weight:700;white-space:nowrap"><a href="#" onclick="showAssignHistory(\''+x.id+'\');return false;" style="color:var(--info);text-decoration:underline">'+_histEsc(x.id)+'</a></td>'
       +'<td>'+stCell(x.status,x.statusT)+'</td>'
       +'<td>'+cell(x.rcu,x.rcuT)+'</td><td>'+cell(x.thu,x.thuT)+'</td><td>'+cell(x.pcu,x.pcuT)+'</td>'
-      +'<td><button class="btn ghost sm" onclick="showAssignHistory(\''+x.id+'\')">🕘 Sejarah</button></td></tr>';
-  }).join('') || '<tr><td colspan="6" class="small" style="padding:20px">Belum ada rekod. Sejarah terkumpul automatik apabila dashboard memuat data &amp; mengesan perubahan. Biarkan dashboard terbuka / refresh dari semasa ke semasa.</td></tr>';
-  // --- Kesan "ID diambil orang lain" (agent semasa != orang pertama) ---
+      +'<td><button class="btn ghost sm" onclick="showAssignHistory(\''+x.id+'\')">🕘 History</button></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="small" style="padding:20px">No records yet. History is logged automatically when the dashboard loads data &amp; detects a change. Keep the dashboard open / refresh it from time to time.</td></tr>';
+  // --- Detect "ID taken over by someone else" (current agent != first assignee) ---
   var takeovers=[];
   Object.keys(ASSIGN_HIST).forEach(function(id){
     var h=ASSIGN_HIST[id]||{};
@@ -3069,10 +3069,10 @@ function renderAssignHist(){
       return '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px">'
         +'<a href="#" onclick="showAssignHistory(\''+t.id+'\');return false;" style="color:var(--info);font-weight:700;text-decoration:underline">'+_histEsc(t.id)+'</a>'
         +'<span style="background:'+c+'22;color:'+c+';border:1px solid '+c+'66;border-radius:8px;padding:1px 7px;font-size:10px;font-weight:700">'+t.unit+'</span>'
-        +'<span>👑 Asal: <b style="color:#22c55e">'+_histEsc(t.first)+'</b></span>'
-        +'<span style="color:#ef4444">→ Diambil: <b>'+_histEsc(t.current)+'</b></span>'
+        +'<span>👑 Original: <b style="color:#22c55e">'+_histEsc(t.first)+'</b></span>'
+        +'<span style="color:#ef4444">→ Taken over: <b>'+_histEsc(t.current)+'</b></span>'
         +'<span style="color:var(--muted);font-size:11px">'+_histEsc(_histFmt(t.ts))+'</span></div>';
-    }).join('') || '<div class="small">Tiada.</div>';
+    }).join('') || '<div class="small">None.</div>';
   }
 }
 function showAssignHistory(id){
@@ -3080,28 +3080,28 @@ function showAssignHistory(id){
   var fmt=function(t){ if(!t) return '—'; var d=new Date(t); return isNaN(d.getTime())?String(t):d.toLocaleString('en-GB'); };
   var unitHtml=function(unit,color){
     var u=h[unit];
-    var head='<div style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><div style="font-weight:800;color:'+color+';border-left:3px solid '+color+';padding-left:8px">'+unit+'</div><button onclick="correctFirstUI(\''+id+'\',\''+unit+'\')" title="Betulkan orang pertama (manager, perlu PIN)" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:#cbd5e1;border-radius:6px;padding:2px 8px;font-size:10px;cursor:pointer">✏️ Betulkan</button></div>';
-    if(!u || !u.log || !u.log.length) return head+'<div class="small" style="margin-bottom:6px">Tiada rekod.</div>';
-    var first='<div class="small" style="margin-bottom:6px">👑 Orang pertama: <b style="color:#fff">'+_histEsc(u.first)+'</b> · '+_histEsc(fmt(u.firstTs))+'</div>';
+    var head='<div style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><div style="font-weight:800;color:'+color+';border-left:3px solid '+color+';padding-left:8px">'+unit+'</div><button onclick="correctFirstUI(\''+id+'\',\''+unit+'\')" title="Correct first assignee (manager, PIN required)" style="background:rgba(255,255,255,.06);border:1px solid var(--line);color:#cbd5e1;border-radius:6px;padding:2px 8px;font-size:10px;cursor:pointer">✏️ Correct</button></div>';
+    if(!u || !u.log || !u.log.length) return head+'<div class="small" style="margin-bottom:6px">No records.</div>';
+    var first='<div class="small" style="margin-bottom:6px">👑 First assignee: <b style="color:#fff">'+_histEsc(u.first)+'</b> · '+_histEsc(fmt(u.firstTs))+'</div>';
     var logRows=u.log.map(function(e,i){
-      return '<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--muted);font-size:11px;white-space:nowrap;min-width:120px">'+_histEsc(fmt(e.ts))+'</span><span style="font-size:12px">'+(e.prev?('<span style="color:var(--muted)">'+_histEsc(e.prev)+'</span> → '):'')+'<b>'+_histEsc(e.agent)+'</b>'+(i===0?' <span style="color:#22c55e;font-size:10px">(pertama)</span>':'')+'</span></div>';
+      return '<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--muted);font-size:11px;white-space:nowrap;min-width:120px">'+_histEsc(fmt(e.ts))+'</span><span style="font-size:12px">'+(e.prev?('<span style="color:var(--muted)">'+_histEsc(e.prev)+'</span> → '):'')+'<b>'+_histEsc(e.agent)+'</b>'+(i===0?' <span style="color:#22c55e;font-size:10px">(first)</span>':'')+'</span></div>';
     }).join('');
     return head+first+logRows;
   };
   var stageHtml=function(){
     var u=h.STAGE;
     var head='<div style="font-weight:800;color:#a78bfa;margin:16px 0 6px;border-left:3px solid #a78bfa;padding-left:8px">STATUS / STAGE</div>';
-    if(!u || !u.log || !u.log.length) return head+'<div class="small">Tiada rekod.</div>';
+    if(!u || !u.log || !u.log.length) return head+'<div class="small">No records.</div>';
     var SCST={RCU:'#f59e0b',THU:'#7cc0ff',PCU:'#21D4FD',Completed:'#22c55e',Cancelled:'#ef4444'};
     var cc=SCST[u.last]||'#94a3b8';
-    var curLine='<div class="small" style="margin-bottom:6px">Status semasa: <b style="color:'+cc+'">'+_histEsc(u.last||'—')+'</b></div>';
+    var curLine='<div class="small" style="margin-bottom:6px">Current status: <b style="color:'+cc+'">'+_histEsc(u.last||'—')+'</b></div>';
     var logRows=u.log.map(function(e){
       var c=SCST[e.stage]||'#94a3b8';
       return '<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--muted);font-size:11px;white-space:nowrap;min-width:120px">'+_histEsc(fmt(e.ts))+'</span><span style="font-size:12px">'+(e.prev?('<span style="color:var(--muted)">'+_histEsc(e.prev)+'</span> → '):'')+'<b style="color:'+c+'">'+_histEsc(e.stage)+'</b></span></div>';
     }).join('');
     return head+curLine+logRows;
   };
-  var html='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px"><div><div style="font-family:Outfit,sans-serif;font-weight:800;font-size:20px">'+_histEsc(id)+'</div><div class="small">Sejarah Assign (rekod dashboard)</div></div><button onclick="closePcuModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--line);color:#fff;border-radius:50%;width:32px;height:32px;cursor:pointer;flex:none">✕</button></div>'
+  var html='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px"><div><div style="font-family:Outfit,sans-serif;font-weight:800;font-size:20px">'+_histEsc(id)+'</div><div class="small">Assign History (dashboard record)</div></div><button onclick="closePcuModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--line);color:#fff;border-radius:50%;width:32px;height:32px;cursor:pointer;flex:none">✕</button></div>'
     + stageHtml() + unitHtml('RCU','#f59e0b') + unitHtml('THU','#7cc0ff') + unitHtml('PCU','#21D4FD');
   var mc=document.getElementById('pcuModalContent'); if(mc) mc.innerHTML=html;
   var m=document.getElementById('pcuModal'); if(m) m.classList.remove('hidden');
@@ -3167,12 +3167,12 @@ function renderDeletedRows(rows){
   }).join('');
 }
 
-// Betulkan orang pertama (manager, perlu PIN) — tulis ke fail audit server
+// Correct first assignee (manager, PIN required) — writes to the server audit log
 function correctFirstUI(id, unit){
-  var name = prompt('Nama ORANG PERTAMA sebenar untuk '+unit+' ('+id+'):');
+  var name = prompt('Actual FIRST ASSIGNEE name for '+unit+' ('+id+'):');
   if(name==null) return; name=String(name).trim(); if(!name) return;
   var pin=''; try{ pin=sessionStorage.getItem('st_phone_pin')||''; }catch(e){}
-  if(!pin){ pin=prompt('Masukkan PIN manager:'); }
+  if(!pin){ pin=prompt('Enter manager PIN:'); }
   if(!pin) return;
   var url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
   var cbn='__cf_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
@@ -3181,12 +3181,12 @@ function correctFirstUI(id, unit){
     try{delete window[cbn]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
     if(d && d.ok){
       try{ sessionStorage.setItem('st_phone_pin', pin); }catch(e){}
-      showToast('Orang pertama '+unit+' dibetulkan kepada: '+name, 'success');
+      showToast('First assignee for '+unit+' corrected to: '+name, 'success');
       fetchAssignLog();
       setTimeout(function(){ showAssignHistory(id); }, 1400);
     } else {
       try{ sessionStorage.removeItem('st_phone_pin'); }catch(e){}
-      showToast('Gagal: '+((d&&d.error)||'?')+' — semak PIN.', 'error');
+      showToast('Failed: '+((d&&d.error)||'?')+' — check PIN.', 'error');
     }
   };
   sc.onerror=function(){ try{delete window[cbn]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
@@ -3298,15 +3298,15 @@ function syncAssignUnit(reqId, agentName, unit){
   document.body.appendChild(sc);
 }
 
-// Papar/sorok nombor telefon PENUH — perlu PIN (dijaga di server). Nombor tak wujud dalam feed pukal.
+// Show/hide FULL phone number — requires PIN (checked server-side). The number isn't present in the bulk feed.
 var PHONE_MAP = null;
 function togglePhones(btn){
-  if(PHONE_MAP){ PHONE_MAP=null; try{sessionStorage.removeItem('st_phone_pin');}catch(e){} if(btn){btn.textContent='🔓 Papar No. Telefon';} renderAssign(); return; }
-  var url=(cfg.url||DEFAULT_URL).trim(); if(!url){ showToast('Tiada URL connector.', 'error'); return; }
+  if(PHONE_MAP){ PHONE_MAP=null; try{sessionStorage.removeItem('st_phone_pin');}catch(e){} if(btn){btn.textContent='🔓 Show Phone Number';} renderAssign(); return; }
+  var url=(cfg.url||DEFAULT_URL).trim(); if(!url){ showToast('No connector URL.', 'error'); return; }
   var pin=''; try{ pin=sessionStorage.getItem('st_phone_pin')||''; }catch(e){}
-  if(!pin){ pin=prompt('Masukkan PIN untuk papar nombor telefon penuh:'); }
+  if(!pin){ pin=prompt('Enter PIN to show the full phone number:'); }
   if(!pin) return;
-  if(btn){ btn.disabled=true; btn.textContent='⏳ Memuat...'; }
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Loading...'; }
   var name='__ph_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
   var sc=document.createElement('script');
   window[name]=function(d){
@@ -3315,15 +3315,15 @@ function togglePhones(btn){
     if(d && d.ok && d.phones){
       PHONE_MAP=d.phones;
       try{ sessionStorage.setItem('st_phone_pin', pin); }catch(e){}
-      if(btn){ btn.textContent='🔒 Sorok No. Telefon'; }
+      if(btn){ btn.textContent='🔒 Hide Phone Number'; }
       renderAssign();
     } else {
       try{ sessionStorage.removeItem('st_phone_pin'); }catch(e){}
-      if(btn){ btn.textContent='🔓 Papar No. Telefon'; }
-      showToast('PIN salah atau tiada akses. Cuba lagi.', 'error');
+      if(btn){ btn.textContent='🔓 Show Phone Number'; }
+      showToast('Incorrect PIN or no access. Try again.', 'error');
     }
   };
-  sc.onerror=function(){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); if(btn){ btn.disabled=false; btn.textContent='🔓 Papar No. Telefon'; } };
+  sc.onerror=function(){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); if(btn){ btn.disabled=false; btn.textContent='🔓 Show Phone Number'; } };
   sc.src=url+sep+'action=revealPhones&token='+encodeURIComponent(pin)+'&callback='+name+'&_t='+Date.now();
   document.body.appendChild(sc);
 }
@@ -3351,7 +3351,7 @@ function renderAssign(){
     const SM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const curMo=moEl.value;
     const months=[...new Set(rows.map(r=>(r.dayKey||'').slice(0,7)).filter(Boolean))].sort().reverse();
-    moEl.innerHTML='<option value="">Semua Bulan</option>'+months.map(m=>{const p=m.split('-');return '<option value="'+m+'"'+(m===curMo?' selected':'')+'>'+SM[(+p[1])-1]+' '+p[0]+'</option>';}).join('');
+    moEl.innerHTML='<option value="">All Months</option>'+months.map(m=>{const p=m.split('-');return '<option value="'+m+'"'+(m===curMo?' selected':'')+'>'+SM[(+p[1])-1]+' '+p[0]+'</option>';}).join('');
   }
   const fmo=moEl?moEl.value:'';
   // dropdown PIC (dijana dari semua tiket THU)
@@ -3360,7 +3360,7 @@ function renderAssign(){
   if(pEl){
     const curP=pEl.value;
     const pics=[...new Set(rows.map(picOf).filter(Boolean))].sort();
-    pEl.innerHTML='<option value="">Semua PIC</option>'+pics.map(p=>'<option value="'+p.replace(/"/g,'&quot;')+'"'+(p===curP?' selected':'')+'>'+p+'</option>').join('');
+    pEl.innerHTML='<option value="">All PIC</option>'+pics.map(p=>'<option value="'+p.replace(/"/g,'&quot;')+'"'+(p===curP?' selected':'')+'>'+p+'</option>').join('');
   }
   const fpic=pEl?pEl.value:'';
   // skop dulu (mode/bulan/pic/carian) — untuk statistik hero
@@ -3383,7 +3383,7 @@ function renderAssign(){
     const reqId=r['Request ID']||'—';
     const isAuto=(unit==='THU') && !!r.autoTHU;
     const cur=curAgent(r);
-    const opts='<option value="">— pilih staf —</option>'+((cur&&staffList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (lain)</option>`:'')+staffList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
+    const opts='<option value="">— select staff —</option>'+((cur&&staffList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (other)</option>`:'')+staffList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
     const url=getSheetRowUrl(r);
     const tsDate = r.dayKey ? r.dayKey.split('-').reverse().join('/') : '—';
     const esc = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -3393,16 +3393,16 @@ function renderAssign(){
     const samePhone = !!(r.rawRow && r.rawRow['_samePhone']);
     const fullPh = (PHONE_MAP && reqId!=='—' && PHONE_MAP[reqId]) ? String(PHONE_MAP[reqId]) : '';
     return `<tr style="background:${samePhone?'rgba(245,158,11,.22)':(isAuto?'rgba(0,117,255,.12)':'')};box-shadow:${samePhone?'inset 3px 0 0 #f59e0b':'none'}">
-      <td style="padding:9px 11px;white-space:nowrap"><a href="${url}" target="_blank" rel="noopener" style="color:var(--info);font-weight:700;text-decoration:underline;font-size:12.5px">${reqId}</a>${reqId!=='—'?`<span onclick="copyText('${reqId}', this)" title="Salin Request ID" style="cursor:pointer;margin-left:8px;display:inline-flex;vertical-align:middle;color:#5b6b8c" onmouseover="this.style.color='#21D4FD'" onmouseout="this.style.color='#5b6b8c'"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></span>`:''}</td>
+      <td style="padding:9px 11px;white-space:nowrap"><a href="${url}" target="_blank" rel="noopener" style="color:var(--info);font-weight:700;text-decoration:underline;font-size:12.5px">${reqId}</a>${reqId!=='—'?`<span onclick="copyText('${reqId}', this)" title="Copy Request ID" style="cursor:pointer;margin-left:8px;display:inline-flex;vertical-align:middle;color:#5b6b8c" onmouseover="this.style.color='#21D4FD'" onmouseout="this.style.color='#5b6b8c'"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></span>`:''}</td>
       <td style="padding:9px 11px;white-space:nowrap;color:#cbd5e1;font-size:11.5px">${tsDate}</td>
       <td style="padding:9px 11px;font-size:12.5px;word-break:break-word">${r['Subject | Level']||''}${picVal?`<div style="color:#7c8aa8;font-size:10.5px;margin-top:2px">PIC: ${picVal}</div>`:''}</td>
-      <td style="padding:9px 11px;white-space:nowrap;font-size:12px;font-variant-numeric:tabular-nums">${fullPh?`<span style="color:${samePhone?'#f59e0b':'#e2e8f0'};font-weight:${samePhone?'700':'600'}">${esc(fullPh)}</span> <span onclick="copyText('${fullPh.replace(/[^0-9+]/g,'')}', this)" title="Salin nombor" style="cursor:pointer;margin-left:5px;color:#5b6b8c;display:inline-flex;vertical-align:middle" onmouseover="this.style.color='#21D4FD'" onmouseout="this.style.color='#5b6b8c'"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></span>${samePhone?' <span style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.45);border-radius:6px;padding:1px 5px;font-size:9px;font-weight:800;white-space:nowrap">SAME</span>':''}`:(phMask?`<span style="color:${samePhone?'#f59e0b':'#cbd5e1'};font-weight:${samePhone?'700':'500'}">${phMask}</span>${samePhone?' <span style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.45);border-radius:6px;padding:1px 6px;font-size:9px;font-weight:800;white-space:nowrap">SAME PHONE</span>':''}`:'<span class="small">—</span>')}</td>
+      <td style="padding:9px 11px;white-space:nowrap;font-size:12px;font-variant-numeric:tabular-nums">${fullPh?`<span style="color:${samePhone?'#f59e0b':'#e2e8f0'};font-weight:${samePhone?'700':'600'}">${esc(fullPh)}</span> <span onclick="copyText('${fullPh.replace(/[^0-9+]/g,'')}', this)" title="Copy number" style="cursor:pointer;margin-left:5px;color:#5b6b8c;display:inline-flex;vertical-align:middle" onmouseover="this.style.color='#21D4FD'" onmouseout="this.style.color='#5b6b8c'"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg></span>${samePhone?' <span style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.45);border-radius:6px;padding:1px 5px;font-size:9px;font-weight:800;white-space:nowrap">SAME</span>':''}`:(phMask?`<span style="color:${samePhone?'#f59e0b':'#cbd5e1'};font-weight:${samePhone?'700':'500'}">${phMask}</span>${samePhone?' <span style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.45);border-radius:6px;padding:1px 6px;font-size:9px;font-weight:800;white-space:nowrap">SAME PHONE</span>':''}`:'<span class="small">—</span>')}</td>
       <td style="padding:9px 11px;text-align:center;font-size:11.5px">${r['Mode']||''}</td>
       <td style="padding:9px 11px;text-align:center;font-size:11.5px;white-space:nowrap">${r.age==null?'—':r.age+'d'}</td>
       <td style="padding:9px 11px"><div style="max-height:72px;overflow-y:auto;color:#cbd5e1;font-size:11px;line-height:1.4;word-break:break-word">${specialReq||'<span class="small">—</span>'}</div></td>
       <td style="padding:9px 11px"><select onchange="assignUnitAgent('${reqId}', this.value, '${unit}')" style="width:100%;background:${isAuto?'rgba(0,117,255,.28)':'var(--panel2)'};border:1px solid ${isAuto?'#0075FF':'var(--line)'};color:${isAuto?'#7cc0ff':'#fff'};border-radius:8px;padding:6px 8px;font-size:11.5px;font-weight:700">${opts}</select></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="8" class="small">Tiada tiket '+unit+' untuk penapis ini.</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="small">No '+unit+' tickets match this filter.</td></tr>';
 }
 
 function openStaffModal(agentName, roleName){
@@ -3523,14 +3523,14 @@ function openStaffModal(agentName, roleName){
       <td style="padding:10px 11px;text-align:center;white-space:nowrap;"><b style="color:${slaCol};font-size:15px;">${days==null?'—':days}</b>${days==null?'':'<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Hari</div>'}</td>
       <td style="padding:10px 11px;"><span style="display:inline-block;background:${slaCol}1f;color:${slaCol};border:1px solid ${slaCol}66;border-radius:8px;padding:4px 10px;font-size:11.5px;font-weight:700;white-space:nowrap;">⏱ ${days==null?'':days+'d · '}${action}</span></td>
     </tr>`;
-  }).join('') || `<tr><td colspan="6" class="small" style="text-align: center; color: var(--muted); padding: 24px;">Tiada tiket pending aktif bagi staf ini.</td></tr>`;
+  }).join('') || `<tr><td colspan="6" class="small" style="text-align: center; color: var(--muted); padding: 24px;">No active pending tickets for this staff member.</td></tr>`;
 
   // Category breakdown pills
   const catPills = sortedCats.map(([cat, count]) => {
     return `<span class="pill muted" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; margin-right: 6px; margin-bottom: 6px; font-size: 11.5px; padding: 4px 10px; display: inline-block;">
       ${cat}: <b style="color: #21D4FD; font-size: 13px;">${count}</b>
     </span>`;
-  }).join('') || '<span class="small" style="color: var(--muted);">Tiada kategori pending</span>';
+  }).join('') || '<span class="small" style="color: var(--muted);">No pending category</span>';
 
   const roleTitle = roleName ? ` — ${roleName}` : '';
 
@@ -3546,30 +3546,30 @@ function openStaffModal(agentName, roleName){
     <!-- Summary Metrics -->
     <div class="row c3" style="gap:12px; margin-bottom: 20px;">
       <div class="mcard" style="padding: 12px 14px; border-color: rgba(255, 181, 71, 0.3); background: linear-gradient(135deg, rgba(255, 181, 71, 0.12), rgba(255, 181, 71, 0.02));">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Jumlah Tiket Pending</div>
+        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Total Pending Tickets</div>
         <div style="font-size: 26px; font-weight: 900; margin: 2px 0; color: var(--warn);">${totalPending}</div>
-        <div style="font-size: 11px; color: var(--muted);">Masih belum selesai / dalam tindakan</div>
+        <div style="font-size: 11px; color: var(--muted);">Still unresolved / in progress</div>
       </div>
       <div class="mcard" style="padding: 12px 14px; border-color: rgba(0, 117, 255, 0.3); background: linear-gradient(135deg, rgba(0, 117, 255, 0.12), rgba(0, 117, 255, 0.02));">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Handled Dalam Julat Tarikh</div>
+        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Handled In Date Range</div>
         <div style="font-size: 26px; font-weight: 900; margin: 2px 0; color: var(--accent);">${handledCount}</div>
-        <div style="font-size: 11px; color: var(--muted);">Jumlah tiket dikendalikan</div>
+        <div style="font-size: 11px; color: var(--muted);">Total tickets handled</div>
       </div>
       <div class="mcard" style="padding: 12px 14px; border-color: rgba(1, 181, 116, 0.3); background: linear-gradient(135deg, rgba(1, 181, 116, 0.12), rgba(1, 181, 116, 0.02));">
-        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Completed / Selesai</div>
+        <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Completed</div>
         <div style="font-size: 26px; font-weight: 900; margin: 2px 0; color: var(--ok);">${completedCount}</div>
-        <div style="font-size: 11px; color: var(--muted);">${cancelledCount} dibatalkan</div>
+        <div style="font-size: 11px; color: var(--muted);">${cancelledCount} cancelled</div>
       </div>
     </div>
 
     <!-- Category Breakdown Pills -->
-    <div style="font-size:11.5px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 8px; text-transform:uppercase; letter-spacing:0.05em;">Ringkasan Kategori Status Pending</div>
+    <div style="font-size:11.5px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 8px; text-transform:uppercase; letter-spacing:0.05em;">Pending Status Category Summary</div>
     <div style="margin-bottom: 18px; display:flex; flex-wrap:wrap; gap:4px;">
       ${catPills}
     </div>
 
     <!-- Detailed Tickets Table -->
-    <div style="font-size:11.5px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 10px; text-transform:uppercase; letter-spacing:0.05em;">📌 Senarai Tiket Belum Selesai / Pending (${totalPending})</div>
+    <div style="font-size:11.5px; font-weight:700; color:var(--info); border-left: 3px solid var(--info); padding-left: 8px; margin-bottom: 10px; text-transform:uppercase; letter-spacing:0.05em;">📌 Unresolved / Pending Ticket List (${totalPending})</div>
     <div class="scroll" style="max-height: 340px; overflow-y: auto; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(11, 17, 32, 0.7); position: relative;">
       <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
         <thead style="position: sticky; top: 0; z-index: 10; background: #0F172A;">
