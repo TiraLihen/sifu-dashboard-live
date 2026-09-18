@@ -572,18 +572,6 @@
 
     <div class="action-banner" id="actionBanner" style="margin-bottom:20px;"></div>
 
-    <!-- ROW DIPADAM (dari audit server) -->
-    <div id="deletedRowsCard" style="display:none;position:relative;border:1px solid rgba(239,68,68,.45);background:linear-gradient(135deg,rgba(239,68,68,.10),rgba(239,68,68,.04));border-radius:16px;padding:18px 20px;margin-bottom:20px;">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-        <span style="font-size:18px;">🗑️</span>
-        <span style="font-weight:800;color:#ef4444;font-size:15px;">Deleted Rows</span>
-        <span id="delRowCount" style="background:#ef4444;color:#fff;font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px;">0</span>
-        <span class="small" style="color:var(--muted);">Rows deleted from the sheet (from the audit log)</span>
-        <button onclick="fetchDeletedLog()" title="Reload" style="margin-left:auto;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;">↻ Refresh</button>
-      </div>
-      <div id="delRowList"></div>
-    </div>
-
     <div class="kpi-grid" id="kpiGrid" style="margin-bottom:20px;"></div>
 
     <div class="row main-grid" style="margin-bottom:20px;">
@@ -3133,43 +3121,6 @@ function fetchAssignLog(){
   document.body.appendChild(sc);
 }
 
-// Ambil senarai row dipadam dari audit server & papar kad di Overview
-function fetchDeletedLog(){
-  var url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
-  var nm='__dl_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
-  var sc=document.createElement('script');
-  window[nm]=function(d){
-    try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
-    if(d && d.ok) renderDeletedRows(d.rows||[]);
-  };
-  sc.onerror=function(){ try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
-  sc.src=url+sep+'action=deletedLog&callback='+nm+'&_t='+Date.now();
-  document.body.appendChild(sc);
-}
-function renderDeletedRows(rows){
-  var card=document.getElementById('deletedRowsCard'); if(!card) return;
-  var list=document.getElementById('delRowList'), cnt=document.getElementById('delRowCount');
-  if(!rows || !rows.length){ card.style.display='none'; return; }
-  card.style.display='block';
-  if(cnt) cnt.textContent=rows.length;
-  var uCol={RCU:'#f59e0b',THU:'#7cc0ff','THU-BC':'#38bdf8',PCU:'#21D4FD','Master Requests':'#a78bfa'};
-  list.innerHTML=rows.slice(0,50).map(function(r){
-    var c=uCol[r.tab]||'#94a3b8';
-    var agents=[];
-    if(r.rcu) agents.push('RCU: '+r.rcu);
-    if(r.thu) agents.push('THU: '+r.thu);
-    if(r.thubc) agents.push('THU-BC: '+r.thubc);
-    if(r.pcu) agents.push('PCU: '+r.pcu);
-    var ag=agents.length?agents.join(' · '):'—';
-    return '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px;">'
-      +'<span style="font-weight:700;color:var(--info);">'+_histEsc(r.id)+'</span>'
-      +'<span style="background:'+c+'22;color:'+c+';border:1px solid '+c+'66;border-radius:8px;padding:1px 8px;font-size:10px;font-weight:700;">'+_histEsc(r.tab)+'</span>'
-      +'<span style="color:var(--muted);">'+_histEsc(ag)+'</span>'
-      +'<span style="margin-left:auto;color:var(--muted);font-size:11px;">'+_histEsc(r.masa)+'</span>'
-      +'<span style="color:#ef4444;font-size:11px;">'+_histEsc(r.by||'—')+'</span></div>';
-  }).join('');
-}
-
 // Correct first assignee (manager, PIN required) — writes to the server audit log
 function correctFirstUI(id, unit){
   var name = prompt('Actual FIRST ASSIGNEE name for '+unit+' ('+id+'):');
@@ -3649,7 +3600,7 @@ function updateTicketStatusDirect(reqId, sheetName, rowNum, selectEl) {
   }, 500);
 }
 
-renderLinks(); setupAuto(); refresh(); loadSummary(); try{ fetchDeletedLog(); }catch(e){}
+renderLinks(); setupAuto(); refresh(); loadSummary();
 </script>
 </body>
 </html>
