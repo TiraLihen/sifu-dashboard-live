@@ -3205,6 +3205,10 @@ function autoAssignTHU(reqId, agentName){
 // Assign generik ikut unit: THU guna aliran auto sedia ada; RCU/PCU tulis terus ke sheet
 function assignUnitAgent(reqId, agent, unit){
   if(!reqId || reqId==='—') return;
+  if(agent==='__UNASSIGN__'){
+    if(!confirm('Buang agent dari tiket '+reqId+' ('+unit+')?\nTiket akan jadi TIADA agent.')){ renderAssign(); return; }
+    agent='';
+  }
   markAuthAssign(reqId, unit, agent);
   if(unit==='THU'){ autoAssignTHU(reqId, agent); return; }
   const t=ALL.find(x=>x['Request ID']===reqId);
@@ -3315,7 +3319,7 @@ function renderAssign(){
     const reqId=r['Request ID']||'—';
     const isAuto=(unit==='THU') && !!r.autoTHU;
     const cur=curAgent(r);
-    const opts='<option value="">— pilih staf —</option>'+((cur&&staffList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (lain)</option>`:'')+staffList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
+    const opts='<option value="">— pilih staf —</option>'+(cur?`<option value="__UNASSIGN__" style="background:#3a1414;color:#ff8a8a;">🚫 Unassign (buang agent)</option>`:'')+((cur&&staffList.indexOf(cur)<0)?`<option value="${cur}" selected style="background:#0F172A;color:#fff;">${cur} (lain)</option>`:'')+staffList.map(n=>`<option value="${n}" ${n===cur?'selected':''} style="background:#0F172A;color:#fff;">${n}</option>`).join('');
     const url=getSheetRowUrl(r);
     const tsDate = r.dayKey ? r.dayKey.split('-').reverse().join('/') : '—';
     const esc = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
