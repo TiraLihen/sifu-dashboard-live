@@ -3140,18 +3140,18 @@ function applyAutoAssign(){
   });
 }
 // Senarai staf THU (Manual) yang standard untuk auto-assign — boleh tambah/buang nama di sini
-const THU_ASSIGN_STAFF = ['Afeefah','Shasha','Fadzli','Siti Sara','Alia','Hazahirah','Haritharan','Athirah','Husna','Syaza'];
+const THU_ASSIGN_STAFF = ['Afeefah Binti Amir Hamzah','Nur Syafika binti Ahmad Ibrahim','Fadzli Suhaimi Bin Mohd Hisam','Siti Sara Umairah Binti Mohamad Aziman','Alia Edwiena binti Rosman','Nurul Hazahirah Binti Yusni','Haritharan Loganathan','Husna Balqis Binti Mohd Fuad','Nur Syaza Afrina Binti Samsurizal'];
 function thuManualStaff(){ return THU_ASSIGN_STAFF.slice(); }
 // Senarai staf assign untuk unit RCU & PCU (boleh tambah/buang nama di sini)
 const RCU_ASSIGN_STAFF = ['Khaira'];
-const PCU_ASSIGN_STAFF = ['Nurul Arysya','Sarah','Arisya Sofea'];
+const PCU_ASSIGN_STAFF = ['Nurul Arysya binti Aziz','Nur Arissa Auni Binti Jahari','Sarah Sophia Binti Mohammad Saufi','Arisya Sofea Binti Safawi'];
 function unitStaff(unit){ return unit==='RCU'?RCU_ASSIGN_STAFF.slice() : unit==='PCU'?PCU_ASSIGN_STAFF.slice() : THU_ASSIGN_STAFF.slice(); }
 function unitAgentCol(unit){ return unit==='RCU'?'Assigned Agent RCU' : unit==='PCU'?'Assigned Agent PCU' : 'Assigned Agent THU (Manual)'; }
 // Senarai staf untuk WhatsApp Report (ikut unit) — role ditetapkan, bukan auto-detect. Tambah/buang nama di sini.
 const REPORT_STAFF = [
   {unit:'RCU', role:'RCU',            names:['Khaira']},
   {unit:'THU', role:'THU (Manual)',   names:THU_ASSIGN_STAFF},
-  {unit:'PCU', role:'PCU',            names:['Nurul Arysya','Sarah','Arisya Sofea']}
+  {unit:'PCU', role:'PCU',            names:PCU_ASSIGN_STAFF}
 ];
 function reportRoleOf(nm){ for(var i=0;i<REPORT_STAFF.length;i++){ if(REPORT_STAFF[i].names.indexOf(nm)>-1) return REPORT_STAFF[i].role; } return null; }
 function copyText(txt, el){
