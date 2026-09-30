@@ -821,7 +821,7 @@
         <option value="">Semua PIC</option>
       </select>
       <input type="text" id="assignSearch" placeholder="Cari ID / subjek..." onkeyup="renderAssign()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;font-size:13px;width:200px">
-      <button onclick="togglePhones(this)" title="Papar/sorok nombor telefon penuh — perlu PIN" style="background:var(--panel2);border:1px solid var(--info);color:#7cc0ff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer">🔓 Papar No. Telefon</button>
+      <button id="btnRevealPhoneAssign" onclick="togglePhones(this)" title="Papar/sorok nombor telefon penuh — perlu PIN" style="background:var(--panel2);border:1px solid var(--info);color:#7cc0ff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer">🔓 Papar No. Telefon</button>
       <span class="small" id="assignCount"></span>
     </div>
     <div class="panel"><div class="scroll" style="max-height:620px"><table id="assignTable" style="table-layout:fixed;width:100%">
@@ -915,6 +915,7 @@
       <select id="fStage" onchange="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;"><option value="">All Stages</option></select>
       <select id="fType" onchange="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;"><option value="">All Types</option><option>New</option><option>Replacement</option><option>Add Subject</option></select>
       <select id="fMode" onchange="renderData()" style="background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;"><option value="">All Modes</option><option>Online</option><option>In-Person</option></select>
+      <button id="btnRevealPhoneData" onclick="togglePhones(this)" title="Papar/sorok nombor telefon tutor penuh — perlu PIN" style="background:var(--panel2);border:1px solid var(--info);color:#7cc0ff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer">🔓 Papar No. Tutor</button>
       <button class="btn sm" onclick="exportCSV()" style="margin-left:auto;">📥 Export CSV</button>
       <span class="small" id="dataCount"></span>
     </div>
@@ -925,6 +926,8 @@
         <th onclick="sortData('Mode')">Mode</th>
         <th style="color:#f59e0b">Agent RCU</th><th style="color:#7cc0ff">Agent THU</th><th style="color:#21D4FD">Agent PCU</th>
         <th onclick="sortData('age')">Age</th><th onclick="sortData('month')">Month</th>
+        <th title="Klik nilai untuk edit">Tutor Name</th><th title="Klik nilai untuk edit">Tutor Phone</th>
+        <th title="Klik nilai untuk edit">Cadangan</th><th title="Klik nilai untuk edit">Remark</th>
       </tr></thead>
       <tbody></tbody>
     </table></div></div>
@@ -2434,17 +2437,32 @@ function renderData(){
     const SC={RCU:'#f59e0b',THU:'#7cc0ff',PCU:'#21D4FD',Completed:'#22c55e',Cancelled:'#ef4444'};
     const escX=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
     const agN=v=>{ v=s(v); return (!v||v.toUpperCase()==='PIC')?'<span class="small">—</span>':escX(v); };
+    const editTd=(reqId,sheetName,fld,val)=>{
+      const id=String(reqId||''), v=s(val);
+      return `<td style="font-size:12px;cursor:pointer;min-width:110px" title="Klik untuk edit" onclick="editCell('${id.replace(/'/g,"\\'")}','${escX(sheetName).replace(/'/g,"\\'")}','${fld}',this)">${v?escX(v):'<span class="small">— klik untuk isi —</span>'}</td>`;
+    };
     tbody.innerHTML=rows.slice(0,500).map(r=>{
       const raw=r.rawRow||r;
+      const reqId=r['Request ID']||'';
+      const sheetName=r.sheet||r.stage||'';
       const agRCU=agN(field(raw,['Assigned Agent RCU']));
       const agTHU=agN(field(raw,['Assigned Agent THU (Manual)','Assigned Agent THU','Assigned Agent THU (Broadcast)']));
       const agPCU=agN(field(raw,['Assigned Agent PCU']));
       const sc=SC[r.stage]||'#94a3b8';
       const stg=`<span style="display:inline-block;background:${sc}22;color:${sc};border:1px solid ${sc}66;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;white-space:nowrap">${r.stage}</span>`;
+      const tutorName=field(raw,['Tutor Name','Nama Tutor']);
+      const cadangan=field(raw,['Cadangan']);
+      const remark=field(raw,['Base Note','Base Notes','Note','Notes','Catatan','Nota']);
+      const tutorPhoneFull=(TUTOR_PHONE_MAP && reqId && TUTOR_PHONE_MAP[reqId])?String(TUTOR_PHONE_MAP[reqId]):'';
+      const tutorPhoneMask=field(raw,['_tutorPhoneMask'])||'';
+      const tutorPhoneCell = tutorPhoneFull
+        ? `<td style="font-size:12px;cursor:pointer" title="Klik untuk edit" onclick="editCell('${String(reqId).replace(/'/g,"\\'")}','${escX(sheetName).replace(/'/g,"\\'")}','tutorPhone',this)">${escX(tutorPhoneFull)} <span onclick="event.stopPropagation();copyText('${escX(tutorPhoneFull)}',this)" style="cursor:pointer;color:#7cc0ff" title="Salin">⧉</span></td>`
+        : `<td style="font-size:12px;cursor:pointer" title="Klik untuk edit" onclick="editCell('${String(reqId).replace(/'/g,"\\'")}','${escX(sheetName).replace(/'/g,"\\'")}','tutorPhone',this)">${tutorPhoneMask?escX(tutorPhoneMask):'<span class="small">— klik untuk isi —</span>'}</td>`;
       return `<tr><td>${r['Request ID']||'—'}</td><td>${stg}</td>
       <td>${r['Subject | Level']||''}</td><td>${r.type}</td><td>${r['Mode']||''}</td>
       <td style="font-size:12px">${agRCU}</td><td style="font-size:12px">${agTHU}</td><td style="font-size:12px">${agPCU}</td>
-      <td>${r.age==null?'—':r.age+'h'}</td><td>${r.month||'—'}</td></tr>`;
+      <td>${r.age==null?'—':r.age+'h'}</td><td>${r.month||'—'}</td>
+      ${editTd(reqId,sheetName,'tutorName',tutorName)}${tutorPhoneCell}${editTd(reqId,sheetName,'cadangan',cadangan)}${editTd(reqId,sheetName,'remark',remark)}</tr>`;
     }).join('');
   }
 }
@@ -3234,10 +3252,21 @@ function syncAssignUnit(reqId, agentName, unit){
   document.body.appendChild(sc);
 }
 
-// Papar/sorok nombor telefon PENUH — perlu PIN (dijaga di server). Nombor tak wujud dalam feed pukal.
+// Papar/sorok nombor telefon PENUH (parent + tutor) — perlu PIN (dijaga di server). Nombor tak wujud dalam feed pukal.
 var PHONE_MAP = null;
+var TUTOR_PHONE_MAP = null;
+function _setPhoneBtnLabels(revealed){
+  var bA=document.getElementById('btnRevealPhoneAssign'); if(bA){ bA.textContent = revealed?'🔒 Sorok No. Telefon':'🔓 Papar No. Telefon'; }
+  var bD=document.getElementById('btnRevealPhoneData'); if(bD){ bD.textContent = revealed?'🔒 Sorok No. Tutor':'🔓 Papar No. Tutor'; }
+}
 function togglePhones(btn){
-  if(PHONE_MAP){ PHONE_MAP=null; try{sessionStorage.removeItem('st_phone_pin');}catch(e){} if(btn){btn.textContent='🔓 Papar No. Telefon';} renderAssign(); return; }
+  if(PHONE_MAP || TUTOR_PHONE_MAP){
+    PHONE_MAP=null; TUTOR_PHONE_MAP=null;
+    try{sessionStorage.removeItem('st_phone_pin');}catch(e){}
+    _setPhoneBtnLabels(false);
+    renderAssign(); try{ renderData(); }catch(e){}
+    return;
+  }
   var url=(cfg.url||DEFAULT_URL).trim(); if(!url){ alert('Tiada URL connector.'); return; }
   var pin=''; try{ pin=sessionStorage.getItem('st_phone_pin')||''; }catch(e){}
   if(!pin){ pin=prompt('Masukkan PIN untuk papar nombor telefon penuh:'); }
@@ -3250,17 +3279,50 @@ function togglePhones(btn){
     if(btn){ btn.disabled=false; }
     if(d && d.ok && d.phones){
       PHONE_MAP=d.phones;
+      TUTOR_PHONE_MAP=d.tutorPhones||{};
       try{ sessionStorage.setItem('st_phone_pin', pin); }catch(e){}
-      if(btn){ btn.textContent='🔒 Sorok No. Telefon'; }
-      renderAssign();
+      _setPhoneBtnLabels(true);
+      renderAssign(); try{ renderData(); }catch(e){}
     } else {
       try{ sessionStorage.removeItem('st_phone_pin'); }catch(e){}
-      if(btn){ btn.textContent='🔓 Papar No. Telefon'; }
+      _setPhoneBtnLabels(false);
       alert('PIN salah atau tiada akses. Cuba lagi.');
     }
   };
-  sc.onerror=function(){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); if(btn){ btn.disabled=false; btn.textContent='🔓 Papar No. Telefon'; } };
+  sc.onerror=function(){ try{delete window[name]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); if(btn){ btn.disabled=false; } _setPhoneBtnLabels(false); };
   sc.src=url+sep+'action=revealPhones&token='+encodeURIComponent(pin)+'&callback='+name+'&_t='+Date.now();
+  document.body.appendChild(sc);
+}
+
+// Edit terus di Request Explorer: Tutor Name / Tutor Phone / Cadangan / Remark
+var FIELD_LABELS={tutorName:'Tutor Name',tutorPhone:'Tutor Phone',cadangan:'Cadangan',remark:'Remark'};
+function editCell(reqId, sheetName, fld, el){
+  if(!reqId){ return; }
+  var cur='';
+  if(el) cur = el.textContent.trim(); if(cur.indexOf('klik untuk isi')>-1) cur='';
+  var v=prompt('Edit '+(FIELD_LABELS[fld]||fld)+' untuk '+reqId+':', cur);
+  if(v===null) return;
+  var t=ALL.find(function(x){return x['Request ID']===reqId;});
+  if(t && t.rawRow){
+    if(fld==='tutorName') t.rawRow['Tutor Name']=v;
+    else if(fld==='cadangan') t.rawRow['Cadangan']=v;
+    else if(fld==='remark') t.rawRow['Base Note']=v;
+    else if(fld==='tutorPhone'){ if(!TUTOR_PHONE_MAP) TUTOR_PHONE_MAP={}; TUTOR_PHONE_MAP[reqId]=v; }
+  }
+  if(el){ el.style.color='#22c55e'; setTimeout(function(){ if(el) el.style.color=''; },900); }
+  if(fld==='remark'){ updateNoteSync(reqId, sheetName, null, v, el); }
+  else { updateFieldSync(reqId, sheetName, fld, v, el); }
+  renderData();
+}
+function updateFieldSync(reqId, sheetName, fld, value, el){
+  if(!reqId) return;
+  var url=(cfg.url||DEFAULT_URL).trim(); if(!url) return;
+  var nm='__uf_'+(++jsonpId), sep=url.indexOf('?')>-1?'&':'?';
+  var sc=document.createElement('script');
+  window[nm]=function(d){ try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc);
+    if(d&&d.ok===false){ console.warn('Update field gagal:', d.error); if(el) el.style.color='#ef4444'; } };
+  sc.onerror=function(){ try{delete window[nm]}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); };
+  sc.src=url+sep+'action=updateField&requestId='+encodeURIComponent(reqId)+'&field='+encodeURIComponent(fld)+'&value='+encodeURIComponent(value||'')+'&sheet='+encodeURIComponent(sheetName||'')+'&callback='+nm+'&_t='+Date.now();
   document.body.appendChild(sc);
 }
 
