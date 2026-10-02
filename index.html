@@ -2451,25 +2451,15 @@ function renderData(){
       const sc=SC[r.stage]||'#94a3b8';
       const stg=`<span style="display:inline-block;background:${sc}22;color:${sc};border:1px solid ${sc}66;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;white-space:nowrap">${r.stage}</span>`;
       const remark=field(raw,['Base Note','Base Notes','Note','Notes','Catatan','Nota']);
-      const isPCU = sheetName==='PCU';
-      let tutorNameTd, tutorPhoneTd, cadanganTd;
-      if(isPCU){
-        // PCU: AD:AF ialah satu merged cell (Tutor+Phone+Cadangan tergabung) — satu field 'tutorInfo'
-        const tutorInfo=field(raw,['_tutorInfo']);
-        tutorNameTd = editTd(reqId,sheetName,'tutorInfo',tutorInfo);
-        const merged='<td style="font-size:11px;color:var(--muted)" title="Digabung dalam Tutor Name (cell bergabung di sheet)">↑ digabung</td>';
-        tutorPhoneTd = merged; cadanganTd = merged;
-      } else {
-        const tutorName=field(raw,['_tutorName','Tutor Name','Nama Tutor']);
-        const cadangan=field(raw,['_cadangan','Cadangan Hari & Masa','Cadangan']);
-        tutorNameTd = editTd(reqId,sheetName,'tutorName',tutorName);
-        cadanganTd = editTd(reqId,sheetName,'cadangan',cadangan);
-        const tutorPhoneFull=(TUTOR_PHONE_MAP && reqId && TUTOR_PHONE_MAP[reqId])?String(TUTOR_PHONE_MAP[reqId]):'';
-        const tutorPhoneMask=field(raw,['_tutorPhoneMask'])||'';
-        tutorPhoneTd = tutorPhoneFull
-          ? `<td style="font-size:12px;cursor:pointer" title="Klik untuk edit" onclick="editCell('${String(reqId).replace(/'/g,"\\'")}','${escX(sheetName).replace(/'/g,"\\'")}','tutorPhone',this)">${escX(tutorPhoneFull)} <span onclick="event.stopPropagation();copyText('${escX(tutorPhoneFull)}',this)" style="cursor:pointer;color:#7cc0ff" title="Salin">⧉</span></td>`
-          : `<td style="font-size:12px;cursor:pointer" title="Klik untuk edit" onclick="editCell('${String(reqId).replace(/'/g,"\\'")}','${escX(sheetName).replace(/'/g,"\\'")}','tutorPhone',this)">${tutorPhoneMask?escX(tutorPhoneMask):'<span class="small">— klik untuk isi —</span>'}</td>`;
-      }
+      const tutorName=field(raw,['_tutorName','Tutor Name','Nama Tutor']);
+      const cadangan=field(raw,['_cadangan','Cadangan Hari & Masa','Cadangan']);
+      const tutorNameTd = editTd(reqId,sheetName,'tutorName',tutorName);
+      const cadanganTd = editTd(reqId,sheetName,'cadangan',cadangan);
+      const tutorPhoneFull=(TUTOR_PHONE_MAP && reqId && TUTOR_PHONE_MAP[reqId])?String(TUTOR_PHONE_MAP[reqId]):'';
+      const tutorPhoneMask=field(raw,['_tutorPhoneMask'])||'';
+      const tutorPhoneTd = tutorPhoneFull
+        ? `<td style="font-size:12px;cursor:pointer" title="Klik untuk edit" onclick="editCell('${String(reqId).replace(/'/g,"\\'")}','${escX(sheetName).replace(/'/g,"\\'")}','tutorPhone',this)">${escX(tutorPhoneFull)} <span onclick="event.stopPropagation();copyText('${escX(tutorPhoneFull)}',this)" style="cursor:pointer;color:#7cc0ff" title="Salin">⧉</span></td>`
+        : `<td style="font-size:12px;cursor:pointer" title="Klik untuk edit" onclick="editCell('${String(reqId).replace(/'/g,"\\'")}','${escX(sheetName).replace(/'/g,"\\'")}','tutorPhone',this)">${tutorPhoneMask?escX(tutorPhoneMask):'<span class="small">— klik untuk isi —</span>'}</td>`;
       return `<tr><td>${r['Request ID']||'—'}</td><td>${stg}</td>
       <td>${r['Subject | Level']||''}</td><td>${r.type}</td><td>${r['Mode']||''}</td>
       <td style="font-size:12px">${agRCU}</td><td style="font-size:12px">${agTHU}</td><td style="font-size:12px">${agPCU}</td>
@@ -3307,7 +3297,7 @@ function togglePhones(btn){
 }
 
 // Edit terus di Request Explorer: Tutor Name / Tutor Phone / Cadangan / Remark
-var FIELD_LABELS={tutorName:'Tutor Name',tutorPhone:'Tutor Phone',cadangan:'Cadangan',remark:'Remark',tutorInfo:'Tutor Info (Nama+Phone+Cadangan)'};
+var FIELD_LABELS={tutorName:'Tutor Name',tutorPhone:'Tutor Phone',cadangan:'Cadangan',remark:'Remark'};
 function editCell(reqId, sheetName, fld, el){
   if(!reqId){ return; }
   var cur='';
@@ -3319,7 +3309,6 @@ function editCell(reqId, sheetName, fld, el){
     if(fld==='tutorName') t.rawRow['_tutorName']=v;
     else if(fld==='cadangan') t.rawRow['_cadangan']=v;
     else if(fld==='remark') t.rawRow['Base Note']=v;
-    else if(fld==='tutorInfo') t.rawRow['_tutorInfo']=v;
     else if(fld==='tutorPhone'){ if(!TUTOR_PHONE_MAP) TUTOR_PHONE_MAP={}; TUTOR_PHONE_MAP[reqId]=v; }
   }
   if(el){ el.style.color='#22c55e'; setTimeout(function(){ if(el) el.style.color=''; },900); }
